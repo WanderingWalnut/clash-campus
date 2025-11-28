@@ -1,0 +1,245 @@
+# ClashCampus Development Rules
+
+## Project Context
+
+ClashCampus is a platform that transforms Clash Royale into a social identity system within universities. Players link and verify their Clash Royale accounts and appear on public leaderboards called "Royale Rankings" that represent their social status on campus based on in-game performance.
+
+**Current Scope**: Leaderboard functionality and inter-university competition only.
+
+**Brand Identity**: 
+- Tone: Competitive, prestigious, socially driven (esports culture meets university rivalry)
+- Core slogan: "Where Clash Becomes Culture"
+- Launch slogan: "The Arena Just Moved to Campus"
+- Design: Minimal, elite, centered on social identity rather than just gameplay
+
+## Architecture & Organization
+
+### Next.js 16 Best Practices
+
+- Use the App Router exclusively (`app/` directory)
+- Follow Next.js 16 file conventions:
+  - `page.tsx` for routes
+  - `layout.tsx` for shared UI
+  - `loading.tsx` for loading states
+  - `error.tsx` for error boundaries
+  - `route.ts` for API endpoints
+- Use Server Components by default; only use Client Components (`'use client'`) when necessary (interactivity, hooks, browser APIs)
+- Leverage React Server Actions for mutations
+- Use Route Handlers (`route.ts`) for API endpoints when needed
+- Implement proper metadata exports for SEO
+
+### Project Structure
+
+Follow Next.js project organization best practices:
+- Keep `app/` directory focused on routing
+- Store shared components in `components/` at root or within feature directories
+- Store utilities in `lib/` directory
+- Store types/interfaces in `types/` directory
+- Store Supabase-related code in `lib/supabase/`
+- Use route groups `(groupName)` to organize without affecting URLs
+- Use private folders `_folderName` for non-routable code
+
+Example structure:
+```
+app/
+  (leaderboard)/
+    page.tsx
+    layout.tsx
+  (universities)/
+    page.tsx
+components/
+  leaderboard/
+  university/
+lib/
+  supabase/
+  utils/
+types/
+```
+
+### Modularity
+
+- Keep files focused and single-purpose
+- Extract reusable logic into custom hooks (`hooks/` directory)
+- Create composable components that can be reused
+- Separate business logic from UI components
+- Use barrel exports (`index.ts`) for clean imports when appropriate
+- Avoid deep nesting; prefer flat structures when possible
+
+## TypeScript Standards
+
+- Use TypeScript for all new files (`.ts` for utilities, `.tsx` for components)
+- Enable strict mode (already configured)
+- Define explicit types for all function parameters and return values
+- Use interfaces for object shapes, types for unions/intersections
+- Avoid `any`; use `unknown` when type is truly unknown
+- Create shared types in `types/` directory
+- Use type inference only when types are obvious from context
+- Export types/interfaces that are used across modules
+
+Example:
+```typescript
+// types/leaderboard.ts
+export interface LeaderboardEntry {
+  id: string;
+  playerTag: string;
+  universityId: string;
+  rank: number;
+  trophies: number;
+  // ... other fields
+}
+
+// components/LeaderboardCard.tsx
+interface LeaderboardCardProps {
+  entry: LeaderboardEntry;
+  rank: number;
+  isCurrentUser?: boolean;
+}
+```
+
+## Code Documentation & Comments
+
+### Function Documentation
+
+- Function names must be descriptive and self-explanatory
+- Add JSDoc-style comments for all exported functions, including:
+  - Brief description of what the function does
+  - `@param` tags describing each parameter with its type and purpose
+  - `@returns` tag describing the return value and type
+  - `@throws` if the function can throw errors
+
+Example:
+```typescript
+/**
+ * Fetches the top N players from the leaderboard for a specific university.
+ * 
+ * @param universityId - The unique identifier of the university (string)
+ * @param limit - Maximum number of entries to return (number, default: 100)
+ * @returns Promise resolving to an array of LeaderboardEntry objects
+ * @throws {Error} If universityId is invalid or database query fails
+ */
+export async function fetchUniversityLeaderboard(
+  universityId: string,
+  limit: number = 100
+): Promise<LeaderboardEntry[]> {
+  // Implementation
+}
+```
+
+### Component Documentation
+
+- Document component props with clear descriptions
+- Explain complex component logic in comments
+- Use TypeScript interfaces for props (not inline types)
+
+Example:
+```typescript
+/**
+ * Displays a single leaderboard entry card with player information and rank.
+ * 
+ * @param entry - The leaderboard entry data (LeaderboardEntry)
+ * @param rank - The current rank position (number)
+ * @param isCurrentUser - Whether this entry represents the current user (boolean, optional)
+ */
+export function LeaderboardCard({ 
+  entry, 
+  rank, 
+  isCurrentUser = false 
+}: LeaderboardCardProps) {
+  // Implementation
+}
+```
+
+### Inline Comments
+
+- Use comments to explain "why" not "what" (code should be self-documenting)
+- Comment complex business logic or non-obvious decisions
+- Avoid redundant comments that just repeat the code
+
+## Supabase Integration
+
+- Use Supabase as the primary backend service
+- Store all Supabase client configuration in `lib/supabase/`
+- Create separate files for:
+  - Client initialization: `lib/supabase/client.ts`
+  - Server client: `lib/supabase/server.ts`
+  - Database types: `lib/supabase/types.ts` (generate from Supabase CLI)
+  - Database queries: `lib/supabase/queries/` (organized by feature)
+- Use Row Level Security (RLS) policies for data access control
+- Always handle Supabase errors gracefully with proper error types
+- Use TypeScript types generated from Supabase schema
+
+Example structure:
+```typescript
+// lib/supabase/client.ts
+import { createClient } from '@supabase/supabase-js'
+
+// lib/supabase/server.ts
+import { createServerClient } from '@supabase/ssr'
+
+// lib/supabase/queries/leaderboard.ts
+export async function getUniversityLeaderboard(universityId: string) {
+  // Query implementation
+}
+```
+
+## Styling & UI
+
+- Use Tailwind CSS for all styling (already configured)
+- Follow a minimal, elite design aesthetic
+- Use dark mode support where appropriate
+- Ensure responsive design for mobile and desktop
+- Maintain consistent spacing and typography scales
+- Use semantic HTML elements
+
+## Error Handling
+
+- Always handle errors gracefully
+- Use error boundaries for React component errors
+- Provide meaningful error messages to users
+- Log errors appropriately (consider using a logging service)
+- Use TypeScript's error types where applicable
+
+## Performance
+
+- Optimize images using Next.js `Image` component
+- Use dynamic imports for code splitting when appropriate
+- Implement proper loading states
+- Use React Suspense boundaries for async data
+- Minimize client-side JavaScript when possible (prefer Server Components)
+
+## Testing Considerations
+
+- Write testable, pure functions when possible
+- Keep business logic separate from UI for easier testing
+- Use descriptive test names that explain what is being tested
+
+## Naming Conventions
+
+- Components: PascalCase (e.g., `LeaderboardCard.tsx`)
+- Functions/utilities: camelCase (e.g., `fetchLeaderboardData`)
+- Types/Interfaces: PascalCase (e.g., `LeaderboardEntry`)
+- Constants: UPPER_SNAKE_CASE (e.g., `MAX_LEADERBOARD_ENTRIES`)
+- Files: match the primary export (component files match component name)
+- Directories: kebab-case for feature directories (e.g., `leaderboard/`, `university-ranking/`)
+
+## Environment Variables
+
+- Store all environment variables in `.env.local` for development
+- Use `.env.production` for production-specific values
+- Never commit sensitive values; use `.env.example` as a template
+- Access via `process.env` with proper TypeScript typing
+
+## Git & Version Control
+
+- Write clear, descriptive commit messages
+- Keep commits focused and atomic
+- Use conventional commit format when possible (feat:, fix:, refactor:, etc.)
+
+## Code Quality
+
+- Run ESLint before committing (already configured)
+- Fix all TypeScript errors before considering code complete
+- Remove unused imports and variables
+- Keep functions under 50 lines when possible (extract logic if needed)
+- Avoid deeply nested conditionals (use early returns, guard clauses)
+
