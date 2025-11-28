@@ -1,0 +1,181 @@
+'use client';
+
+import { Crown, ArrowRight } from 'lucide-react';
+import { Reveal } from '@/components/ui/Reveal';
+import type { LeaderboardPlayer } from '@/types/landing';
+
+/** Sample leaderboard data for the landing page preview */
+const SAMPLE_PLAYERS: LeaderboardPlayer[] = [
+  {
+    rank: 1,
+    name: 'NovaBreaker',
+    university: 'Massachusetts Inst. Tech',
+    universityShort: 'MIT',
+    favoriteCard: 'P.E.K.K.A',
+    trophies: '9,000',
+    avatarSeed: 'Felix',
+    isHighlighted: true,
+  },
+  {
+    rank: 2,
+    name: 'LogBaitGod',
+    university: 'UCLA',
+    universityShort: 'UCLA',
+    favoriteCard: 'Princess',
+    trophies: '8,840',
+    avatarSeed: 'Annie',
+    isHighlighted: false,
+  },
+  {
+    rank: 3,
+    name: 'HogRider22',
+    university: 'UT Austin',
+    universityShort: 'UT Austin',
+    favoriteCard: 'Hog Rider',
+    trophies: '8,520',
+    avatarSeed: 'Jack',
+    isHighlighted: false,
+  },
+];
+
+/**
+ * Royale Rankings section displaying a preview of the leaderboard.
+ * Shows top 3 players with their stats, universities, and favorite cards.
+ */
+export function RoyaleRankings() {
+  return (
+    <section id="rankings" className="py-24 bg-[#141414] relative">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+        <Reveal>
+          <div className="text-center mb-16">
+            <h2 className="text-3xl md:text-5xl font-bold mb-4">
+              Royale <span className="text-[#FFD700]">Rankings</span>
+            </h2>
+            <p className="text-gray-400 max-w-2xl mx-auto">
+              Your leaderboard. Your reputation. See who actually runs the arena
+              at your university.
+            </p>
+          </div>
+        </Reveal>
+
+        <Reveal>
+          <div className="glass rounded-2xl border border-gray-800 overflow-hidden">
+            {/* Table Header */}
+            <LeaderboardHeader />
+
+            {/* Table Rows */}
+            {SAMPLE_PLAYERS.map((player) => (
+              <LeaderboardRow key={player.rank} player={player} />
+            ))}
+          </div>
+        </Reveal>
+
+        <div className="mt-8 text-center">
+          <a
+            href="#"
+            className="inline-flex items-center gap-2 text-[#4717F6] hover:text-white transition-colors text-sm font-bold uppercase tracking-widest"
+          >
+            View Full Leaderboard <ArrowRight size={16} />
+          </a>
+        </div>
+      </div>
+    </section>
+  );
+}
+
+/**
+ * Header row for the leaderboard table.
+ */
+function LeaderboardHeader() {
+  return (
+    <div className="grid grid-cols-12 gap-4 p-5 border-b border-gray-800 text-xs font-bold text-gray-500 uppercase tracking-wider">
+      <div className="col-span-2 md:col-span-1 text-center">Rank</div>
+      <div className="col-span-6 md:col-span-4">Player</div>
+      <div className="col-span-4 md:col-span-3 hidden md:block">University</div>
+      <div className="col-span-3 md:col-span-2 hidden md:block">
+        Favorite Card
+      </div>
+      <div className="col-span-4 md:col-span-2 text-right">Trophies</div>
+    </div>
+  );
+}
+
+interface LeaderboardRowProps {
+  player: LeaderboardPlayer;
+}
+
+/**
+ * Individual row in the leaderboard table.
+ *
+ * @param player - The player data to display (LeaderboardPlayer)
+ */
+function LeaderboardRow({ player }: LeaderboardRowProps) {
+  return (
+    <div className="grid grid-cols-12 gap-4 p-5 border-b border-gray-800 items-center hover:bg-white/5 transition-colors cursor-pointer group">
+      {/* Rank */}
+      <div className="col-span-2 md:col-span-1 flex justify-center">
+        {player.isHighlighted ? (
+          <Crown
+            size={24}
+            className="text-[#FFD700] drop-shadow-[0_0_8px_rgba(255,215,0,0.5)]"
+          />
+        ) : (
+          <span
+            className={`font-bold text-xl ${
+              player.rank === 2 ? 'text-gray-300' : 'text-gray-500'
+            }`}
+          >
+            {player.rank}
+          </span>
+        )}
+      </div>
+
+      {/* Player Info */}
+      <div className="col-span-6 md:col-span-4 flex items-center gap-3">
+        <img
+          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${player.avatarSeed}`}
+          alt={`${player.name}'s avatar`}
+          className={`w-10 h-10 rounded-full border bg-gray-800 ${
+            player.isHighlighted ? 'border-[#FFD700]' : 'border-gray-600'
+          }`}
+        />
+        <div>
+          <div
+            className={`font-bold ${
+              player.isHighlighted
+                ? 'group-hover:text-[#FFD700]'
+                : 'text-white group-hover:text-gray-300'
+            } transition-colors`}
+          >
+            {player.name}
+          </div>
+          <div className="text-xs text-gray-500 md:hidden">
+            {player.universityShort}
+          </div>
+        </div>
+      </div>
+
+      {/* University */}
+      <div className="col-span-4 md:col-span-3 hidden md:block text-sm text-gray-300">
+        {player.university}
+      </div>
+
+      {/* Favorite Card */}
+      <div className="col-span-3 md:col-span-2 hidden md:block">
+        <span className="bg-gray-800 text-xs px-2 py-1 rounded border border-gray-700">
+          {player.favoriteCard}
+        </span>
+      </div>
+
+      {/* Trophies */}
+      <div
+        className={`col-span-4 md:col-span-2 text-right font-mono font-bold text-lg ${
+          player.isHighlighted ? 'text-[#FFD700]' : 'text-white'
+        }`}
+      >
+        {player.trophies}
+      </div>
+    </div>
+  );
+}
+

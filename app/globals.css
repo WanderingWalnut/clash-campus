@@ -1,26 +1,114 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/**
+ * ClashCampus Global Styles
+ * 
+ * Custom CSS utilities and animations for the landing page.
+ * Uses Plus Jakarta Sans as the primary font family.
+ */
+
+/* ============================================
+   Typography
+   ============================================ */
+
+/**
+ * Gold gradient text effect for headlines
+ * Used primarily on the "Culture" word in the hero section
+ */
+.text-gradient-gold {
+  background: linear-gradient(to right, #ffd700, #fdb931);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* ============================================
+   Background Effects
+   ============================================ */
+
+/**
+ * Radial glow effect for the hero section background
+ * Creates a subtle purple ambiance centered on the page
+ */
+.bg-hero-glow {
+  background: radial-gradient(
+    circle at center,
+    rgba(71, 23, 246, 0.15) 0%,
+    rgba(13, 13, 13, 0) 70%
+  );
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/**
+ * Dark gradient background for feature cards
+ * Provides subtle depth and dimension
+ */
+.bg-card-gradient {
+  background: linear-gradient(145deg, #1a1a1a 0%, #0d0d0d 100%);
+}
+
+/* ============================================
+   Glass Morphism
+   ============================================ */
+
+/**
+ * Glass morphism effect for navigation and cards
+ * Creates a frosted glass appearance with blur
+ */
+.glass {
+  background: rgba(20, 20, 20, 0.7);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+/* ============================================
+   Animations
+   ============================================ */
+
+/**
+ * Floating animation for the hero player card
+ * Creates a gentle up-and-down motion with perspective
+ */
+@keyframes float {
+  0%,
+  100% {
+    transform: translateY(0) rotateX(12deg);
+  }
+  50% {
+    transform: translateY(-10px) rotateX(12deg);
   }
 }
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+.animate-float {
+  animation: float 6s ease-in-out infinite;
+}
+
+/* ============================================
+   3D Effects
+   ============================================ */
+
+/**
+ * Perspective container for 3D transforms
+ * Used to create depth effect on the floating card
+ */
+.perspective-1000 {
+  perspective: 1000px;
+}
+
+/* ============================================
+   Selection Styling
+   ============================================ */
+
+/**
+ * Custom text selection colors
+ * Matches the brand purple for consistency
+ */
+::selection {
+  background-color: #4717f6;
+  color: white;
+}
+
+::-moz-selection {
+  background-color: #4717f6;
+  color: white;
 }
