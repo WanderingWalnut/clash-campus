@@ -1,15 +1,17 @@
 'use client';
 
 import { useState } from 'react';
+import Link from 'next/link';
+import { usePathname } from 'next/navigation';
 import { Crown, Menu, X } from 'lucide-react';
 import { useScrolled } from '@/hooks/useScrolled';
 import type { NavItem } from '@/types/landing';
 
 /** Navigation menu items */
 const NAV_ITEMS: NavItem[] = [
-  { label: 'Royale Rankings', href: '#rankings' },
-  { label: 'Features', href: '#features' },
-  { label: 'Roadmap', href: '#roadmap' },
+  { label: 'Royale Rankings', href: '/rankings' },
+  { label: 'Features', href: '/#features' },
+  { label: 'Roadmap', href: '/#roadmap' },
 ];
 
 /**
@@ -20,12 +22,26 @@ const NAV_ITEMS: NavItem[] = [
 export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const scrolled = useScrolled(50);
+  const pathname = usePathname();
 
   /**
    * Closes the mobile menu when a navigation link is clicked.
    */
   const handleNavClick = () => {
     setIsMobileMenuOpen(false);
+  };
+
+  /**
+   * Checks if a nav item is currently active based on the pathname.
+   *
+   * @param href - The href to check against the current pathname
+   * @returns Boolean indicating if the nav item is active
+   */
+  const isActive = (href: string): boolean => {
+    if (href === '/rankings') {
+      return pathname === '/rankings';
+    }
+    return false;
   };
 
   return (
@@ -38,24 +54,30 @@ export function Navigation() {
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <div className="flex-shrink-0 flex items-center gap-2 cursor-pointer">
+          <Link
+            href="/"
+            className="flex-shrink-0 flex items-center gap-2 cursor-pointer"
+          >
             <Crown className="text-[#FFD700]" size={28} />
             <span className="font-bold text-xl tracking-tight">
               CLASH<span className="text-[#4717F6]">CAMPUS</span>
             </span>
-          </div>
+          </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:block">
             <div className="ml-10 flex items-baseline space-x-8">
               {NAV_ITEMS.map((item) => (
-                <a
+                <Link
                   key={item.label}
                   href={item.href}
-                  className="hover:text-[#FFD700] transition-colors text-sm font-medium tracking-wide"
+                  className={`
+                    hover:text-[#FFD700] transition-colors text-sm font-medium tracking-wide
+                    ${isActive(item.href) ? 'text-[#FFD700]' : 'text-white'}
+                  `}
                 >
                   {item.label}
-                </a>
+                </Link>
               ))}
             </div>
           </div>
@@ -85,14 +107,20 @@ export function Navigation() {
         <div className="md:hidden bg-[#0D0D0D] border-b border-gray-800 absolute w-full">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {NAV_ITEMS.map((item) => (
-              <a
+              <Link
                 key={item.label}
                 href={item.href}
-                className="block px-3 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 rounded-md"
+                className={`
+                  block px-3 py-2 text-base font-medium rounded-md
+                  ${isActive(item.href)
+                    ? 'text-[#FFD700] bg-gray-800'
+                    : 'text-gray-300 hover:text-white hover:bg-gray-800'
+                  }
+                `}
                 onClick={handleNavClick}
               >
                 {item.label}
-              </a>
+              </Link>
             ))}
             <a
               href="#"
@@ -106,4 +134,3 @@ export function Navigation() {
     </nav>
   );
 }
-

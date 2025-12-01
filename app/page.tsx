@@ -1,6 +1,4 @@
 import {
-  TopBanner,
-  Navigation,
   Hero,
   RoyaleRankings,
   Features,
@@ -20,8 +18,6 @@ import {
 export default function LandingPage() {
   return (
     <div className="min-h-screen overflow-x-hidden">
-      <TopBanner />
-      <Navigation />
       <Hero />
       <RoyaleRankings />
       <Features />

@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Crown, Trophy, Zap, Search, Medal } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 
@@ -53,9 +54,12 @@ export function Hero() {
         {/* CTA Buttons */}
         <Reveal delay="delay-300">
           <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
-            <button className="bg-[#4717F6] hover:bg-[#350ec9] text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-[0_0_20px_rgba(71,23,246,0.5)] hover:shadow-[0_0_30px_rgba(71,23,246,0.7)] flex items-center justify-center gap-2">
+            <Link
+              href="/rankings"
+              className="bg-[#4717F6] hover:bg-[#350ec9] text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-[0_0_20px_rgba(71,23,246,0.5)] hover:shadow-[0_0_30px_rgba(71,23,246,0.7)] flex items-center justify-center gap-2"
+            >
               <Zap size={20} /> Claim Your Rank
-            </button>
+            </Link>
             <button className="glass hover:bg-white/10 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2">
               <Search size={20} /> Find My Campus
             </button>
@@ -141,4 +145,3 @@ function HeroPlayerCard() {
     </div>
   );
 }
-

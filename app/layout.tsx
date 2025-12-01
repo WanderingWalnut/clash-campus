@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
+import { TopBanner, Navigation } from '@/components/landing';
 import './globals.css';
 
 /**
@@ -48,7 +49,7 @@ export const metadata: Metadata = {
 
 /**
  * Root layout component that wraps all pages.
- * Provides the base HTML structure, fonts, and global styles.
+ * Provides the base HTML structure, fonts, global navigation, and styles.
  *
  * @param children - The page content to render (React.ReactNode)
  */
@@ -62,6 +63,8 @@ export default function RootLayout({
       <body
         className={`${plusJakartaSans.variable} font-sans antialiased bg-[#0D0D0D] text-white`}
       >
+        <TopBanner />
+        <Navigation />
         {children}
       </body>
     </html>

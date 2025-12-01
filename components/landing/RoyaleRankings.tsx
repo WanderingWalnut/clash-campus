@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Crown, ArrowRight } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 import type { LeaderboardPlayer } from '@/types/landing';
@@ -41,6 +42,7 @@ const SAMPLE_PLAYERS: LeaderboardPlayer[] = [
 /**
  * Royale Rankings section displaying a preview of the leaderboard.
  * Shows top 3 players with their stats, universities, and favorite cards.
+ * Links to the full rankings page.
  */
 export function RoyaleRankings() {
   return (
@@ -71,12 +73,12 @@ export function RoyaleRankings() {
         </Reveal>
 
         <div className="mt-8 text-center">
-          <a
-            href="#"
+          <Link
+            href="/rankings"
             className="inline-flex items-center gap-2 text-[#4717F6] hover:text-white transition-colors text-sm font-bold uppercase tracking-widest"
           >
             View Full Leaderboard <ArrowRight size={16} />
-          </a>
+          </Link>
         </div>
       </div>
     </section>
@@ -106,12 +108,16 @@ interface LeaderboardRowProps {
 
 /**
  * Individual row in the leaderboard table.
+ * Clicking a row navigates to the full rankings page.
  *
  * @param player - The player data to display (LeaderboardPlayer)
  */
 function LeaderboardRow({ player }: LeaderboardRowProps) {
   return (
-    <div className="grid grid-cols-12 gap-4 p-5 border-b border-gray-800 items-center hover:bg-white/5 transition-colors cursor-pointer group">
+    <Link
+      href="/rankings"
+      className="grid grid-cols-12 gap-4 p-5 border-b border-gray-800 items-center hover:bg-white/5 transition-colors cursor-pointer group"
+    >
       {/* Rank */}
       <div className="col-span-2 md:col-span-1 flex justify-center">
         {player.isHighlighted ? (
@@ -175,7 +181,6 @@ function LeaderboardRow({ player }: LeaderboardRowProps) {
       >
         {player.trophies}
       </div>
-    </div>
+    </Link>
   );
 }
-
