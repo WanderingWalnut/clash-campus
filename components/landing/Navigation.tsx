@@ -47,8 +47,8 @@ export function Navigation() {
   return (
     <nav
       className={`
-        fixed w-full transition-all duration-300
-        ${scrolled ? 'top-0 z-50 glass bg-[#0D0D0D]/90' : 'top-[36px] z-40 bg-transparent'}
+        fixed w-full transition-all duration-300 border-0
+        ${scrolled ? 'top-0 z-50 glass' : 'top-[36px] z-40 bg-transparent'}
       `}
     >
       <div className="max-w-7xl mx-auto px-6 lg:px-8">
