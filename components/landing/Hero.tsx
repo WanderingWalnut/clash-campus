@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { Crown, Trophy, Zap, Search, Medal } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
+import { useScrolled } from '@/hooks/useScrolled';
 
 /**
  * Hero section of the landing page.
@@ -10,8 +11,14 @@ import { Reveal } from '@/components/ui/Reveal';
  * This is the first impression users see when visiting ClashCampus.
  */
 export function Hero() {
+  const scrolled = useScrolled(50);
+
   return (
-    <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden">
+    <section
+      className={`relative min-h-screen flex items-center justify-center overflow-hidden transition-all duration-300 ${
+        scrolled ? 'pt-20' : 'pt-[116px]'
+      }`}
+    >
       {/* Background Effects */}
       <div className="absolute inset-0 bg-hero-glow z-0" />
       <div
