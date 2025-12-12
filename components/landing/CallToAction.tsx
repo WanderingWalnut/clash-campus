@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Reveal } from '@/components/ui/Reveal';
 
 /**
@@ -22,9 +23,12 @@ export function CallToAction() {
             university Clash players.
           </p>
           <div className="flex flex-col items-center">
-            <button className="bg-white text-black hover:bg-[#FFD700] px-10 py-5 rounded-full font-bold text-xl transition-all duration-300 transform hover:scale-105 shadow-2xl">
+            <Link
+              href="/signup"
+              className="bg-white text-black hover:bg-[#FFD700] px-10 py-5 rounded-full font-bold text-xl transition-all duration-300 transform hover:scale-105 shadow-2xl inline-block"
+            >
               Connect Account
-            </button>
+            </Link>
             <p className="mt-4 text-xs text-gray-500 uppercase tracking-wide">
               Secure Supercell ID Verification
             </p>

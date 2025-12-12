@@ -62,7 +62,7 @@ export function Hero() {
         <Reveal delay="delay-300">
           <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
             <Link
-              href="/rankings"
+              href="/signup"
               className="bg-[#4717F6] hover:bg-[#350ec9] text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-[0_0_20px_rgba(71,23,246,0.5)] hover:shadow-[0_0_30px_rgba(71,23,246,0.7)] flex items-center justify-center gap-2"
             >
               <Zap size={20} /> Claim Your Rank

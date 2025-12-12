@@ -184,12 +184,108 @@ export async function getUniversityLeaderboard(universityId: string) {
 
 ## Styling & UI
 
-- Use Tailwind CSS for all styling (already configured)
-- Follow a minimal, elite design aesthetic
-- Use dark mode support where appropriate
-- Ensure responsive design for mobile and desktop
-- Maintain consistent spacing and typography scales
-- Use semantic HTML elements
+### Design System & Theme
+
+**Color Palette:**
+- **Primary Purple (Brand)**: `#4717F6` - Main brand color for CTAs, accents, and highlights
+  - Hover state: `#350ec9` (darker purple)
+  - Opacity variants: `#4717F6/10`, `#4717F6/20`, `#4717F6/30`, `#4717F6/50` for backgrounds and borders
+- **Gold/Accent (Prestige)**: `#FFD700` - Prestige color for highlights, active states, and premium elements
+  - Used for: Active nav links, trophy displays, rank highlights, hover states
+  - Gradient: `from-[#FFD700] to-orange-500` for avatars/badges
+- **Background Colors:**
+  - Main background: `#0D0D0D` (primary dark)
+  - Alternate sections: `#0A0A0A` (slightly darker)
+  - Card backgrounds: `#121212` (elevated surfaces)
+  - Card gradient: Use `.bg-card-gradient` utility class
+- **Text Colors:**
+  - Primary text: `text-white`
+  - Secondary text: `text-gray-300`, `text-gray-400`
+  - Muted text: `text-gray-500`
+  - Accent text: `text-[#FFD700]` or `text-[#4717F6]`
+- **Border Colors:**
+  - Default: `border-gray-800`, `border-gray-900`
+  - Accent borders: `border-[#4717F6]/30`, `border-[#FFD700]/30`
+
+**Typography:**
+- **Font Family**: Plus Jakarta Sans (configured in `layout.tsx`)
+- **Font Weights**: 300 (light), 400 (regular), 500 (medium), 600 (semibold), 700 (bold), 800 (extrabold)
+- **Headlines**: 
+  - Hero: `text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight`
+  - Section titles: `text-4xl md:text-5xl font-bold` or `text-3xl md:text-4xl font-bold`
+  - Subheadings: `text-xl md:text-2xl font-medium`
+- **Body Text**: `text-lg md:text-xl` for large body, `text-base` for standard, `text-sm` for small
+- **Labels/Badges**: `text-xs font-bold tracking-widest uppercase` for small labels
+- **Letter Spacing**: 
+  - `tracking-tight` for headlines
+  - `tracking-wide` or `tracking-widest` for labels/uppercase text
+
+**Custom CSS Utilities** (defined in `globals.css`):
+- `.text-gradient-gold` - Gold gradient text effect (`#ffd700` to `#fdb931`)
+- `.bg-hero-glow` - Radial purple glow for hero sections
+- `.bg-card-gradient` - Dark gradient for cards (`#1a1a1a` to `#0d0d0d`)
+- `.glass` - Glass morphism effect with backdrop blur (`rgba(13, 13, 13, 0.95)`)
+- `.animate-float` - Floating animation for cards (6s ease-in-out infinite)
+- `.perspective-1000` - 3D perspective container
+
+**Spacing & Layout:**
+- **Section Padding**: `py-24` for major sections
+- **Container Max Width**: `max-w-7xl mx-auto` for main content containers
+- **Container Padding**: `px-4 sm:px-6 lg:px-8` for responsive horizontal padding
+- **Gap Spacing**: `gap-4` for buttons, `gap-8` for grid items
+- **Border Radius**: 
+  - Buttons: `rounded-full` for pill buttons, `rounded-lg` for standard buttons
+  - Cards: `rounded-xl` or `rounded-2xl` for elevated surfaces
+
+**Button Styles:**
+- **Primary CTA**: 
+  ```tsx
+  className="bg-[#4717F6] hover:bg-[#350ec9] text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-[0_0_20px_rgba(71,23,246,0.5)] hover:shadow-[0_0_30px_rgba(71,23,246,0.7)]"
+  ```
+- **Secondary CTA**:
+  ```tsx
+  className="bg-white text-[#0D0D0D] hover:bg-[#FFD700] hover:text-black px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 transform hover:scale-105"
+  ```
+- **Glass Button**:
+  ```tsx
+  className="glass hover:bg-white/10 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300"
+  ```
+- **Large CTA**:
+  ```tsx
+  className="bg-white text-black hover:bg-[#FFD700] px-10 py-5 rounded-full font-bold text-xl transition-all duration-300 transform hover:scale-105 shadow-2xl"
+  ```
+
+**Card Styles:**
+- **Standard Card**: `bg-[#121212] border border-gray-800 rounded-2xl p-6`
+- **Feature Card**: `bg-card-gradient border border-gray-800 rounded-xl p-6`
+- **Glass Card**: `glass border border-gray-800 rounded-xl p-6`
+
+**Effects & Animations:**
+- **Transitions**: Always use `transition-all duration-300` for smooth interactions
+- **Hover Effects**: 
+  - Scale: `transform hover:scale-105` for buttons
+  - Color transitions: `hover:text-[#FFD700]` or `hover:bg-[#FFD700]`
+  - Shadow glow: `shadow-[0_0_20px_rgba(71,23,246,0.5)]` for purple elements
+- **Background Glows**: Use `bg-[#4717F6] opacity-10` for section backgrounds
+- **Pulse Animation**: `animate-pulse` for status indicators
+
+**Responsive Design:**
+- Mobile-first approach: Base styles for mobile, then `md:` and `lg:` breakpoints
+- Common patterns:
+  - Text: `text-4xl md:text-6xl` (responsive sizing)
+  - Padding: `px-4 sm:px-6 lg:px-8` (responsive horizontal padding)
+  - Grid: `grid-cols-1 md:grid-cols-3` (responsive columns)
+  - Display: `hidden md:block` (hide on mobile, show on desktop)
+
+**Design Principles:**
+- Minimal, elite aesthetic - avoid clutter
+- Dark mode by default (no light mode needed)
+- Glass morphism for navigation and elevated surfaces
+- Subtle gradients and glows for depth
+- Gold accents for prestige/premium elements
+- Purple for primary actions and brand identity
+- Consistent use of rounded corners (avoid sharp edges)
+- Smooth transitions on all interactive elements
 
 ## Error Handling
 
