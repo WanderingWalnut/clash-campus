@@ -3,6 +3,8 @@ description: "ClashCampus product definition, invariants, and non-goals"
 alwaysApply: true
 ---
 
+Always start every message with "Hey Naveed" so I know you are reading the cursor rules file.
+
 ## Product definition (Royale Rankings)
 ClashCampus turns Clash Royale performance into **social identity on campus**. Players **link and verify** their Clash Royale account, get matched to a **verified university identity**, and appear on public leaderboards called **Royale Rankings**. These rankings are the product: a campus-native status system that makes university rivalry measurable and visible.
 
