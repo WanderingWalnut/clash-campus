@@ -22,8 +22,20 @@
 import { createBrowserClient } from '@supabase/ssr'
 
 export function createClient() {
-    return createBrowserClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!
-    )
+    // Validate environment variables (client-side)
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+
+    if (!supabaseUrl || !supabaseKey) {
+        // Client-side error - log to console since logger is server-only
+        console.error('Missing Supabase environment variables', {
+            url: supabaseUrl ? 'SET' : 'MISSING',
+            key: supabaseKey ? 'SET' : 'MISSING',
+        })
+        throw new Error(
+            'Missing Supabase environment variables. Please check your .env.local file.'
+        )
+    }
+
+    return createBrowserClient(supabaseUrl, supabaseKey)
 }

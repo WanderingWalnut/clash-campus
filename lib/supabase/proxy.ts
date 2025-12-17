@@ -1,16 +1,35 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
+import { logger } from '@/lib/logger'
 
 export async function updateSession(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
         request,
     })
 
+    // Validate environment variables before creating client
+    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
+    const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+
+    if (!supabaseUrl || !supabaseKey) {
+        logger.error('Missing Supabase environment variables', {
+            url: supabaseUrl ? 'SET' : 'MISSING',
+            key: supabaseKey ? 'SET' : 'MISSING',
+            path: request.nextUrl.pathname,
+        })
+
+        // Return error response instead of crashing
+        return NextResponse.json(
+            { error: 'Server configuration error: Missing Supabase credentials' },
+            { status: 500 }
+        )
+    }
+
     // With Fluid compute, don't put this client in a global environment
     // variable. Always create a new one on each request.
     const supabase = createServerClient(
-        process.env.NEXT_PUBLIC_SUPABASE_URL!,
-        process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
+        supabaseUrl,
+        supabaseKey,
         {
             cookies: {
                 getAll() {
