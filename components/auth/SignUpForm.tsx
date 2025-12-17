@@ -3,19 +3,70 @@
 import Link from 'next/link';
 import { UserPlus } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
+import { signUpNewUser } from '@/app/(auth)/signup/action';
+import { SignUpSuccessScreen } from './SignUpSuccessScreen';
+import { validateSignupForm } from '@/lib/auth/validation';
+import { useState } from 'react';
 
 /**
  * Sign up form component.
- * Displays form fields for university email, password, and confirm password.
- * No backend logic implemented yet.
+ * Handles user registration with email and password validation.
  */
 export function SignUpForm() {
+  const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<string | null>(null);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+    const password = formData.get('password') as string;
+    const confirmPassword = formData.get('confirmPassword') as string;
+
+    // Client-side validation
+    const validation = validateSignupForm(password, confirmPassword);
+    if (!validation.isValid) {
+      setError(validation.error || 'Validation failed');
+      setLoading(false);
+      return;
+    }
+
+    // Call server action
+    const result = await signUpNewUser(formData);
+
+    if ('error' in result) {
+      setError(result.error);
+      setSuccess(false);
+    } else if (result.success) {
+      setSuccess(true);
+      setMessage(result.message || 'Account created successfully!');
+    }
+
+    setLoading(false);
+  }
+
+  // Show success screen if signup was successful
+  if (success) {
+    return <SignUpSuccessScreen message={message} />;
+  }
+
   return (
     <>
       <Reveal delay="delay-100">
         {/* Sign Up Card */}
         <div className="bg-[#121212] border border-gray-800 rounded-2xl p-8 shadow-2xl">
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-900/20 border border-red-700 rounded-lg p-3 text-red-300 text-sm">
+                {error}
+              </div>
+            )}
+
             {/* University Email Field */}
             <div>
               <label
@@ -28,6 +79,7 @@ export function SignUpForm() {
                 type="email"
                 id="email"
                 name="email"
+                required
                 placeholder="you@stanford.edu"
                 className="w-full px-4 py-3 bg-[#0D0D0D] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#4717F6] focus:ring-1 focus:ring-[#4717F6] transition-colors"
               />
@@ -48,6 +100,8 @@ export function SignUpForm() {
                 type="password"
                 id="password"
                 name="password"
+                required
+                minLength={8}
                 placeholder="Create a strong password"
                 className="w-full px-4 py-3 bg-[#0D0D0D] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#4717F6] focus:ring-1 focus:ring-[#4717F6] transition-colors"
               />
@@ -65,6 +119,8 @@ export function SignUpForm() {
                 type="password"
                 id="confirmPassword"
                 name="confirmPassword"
+                required
+                minLength={8}
                 placeholder="Confirm your password"
                 className="w-full px-4 py-3 bg-[#0D0D0D] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#4717F6] focus:ring-1 focus:ring-[#4717F6] transition-colors"
               />
@@ -73,10 +129,11 @@ export function SignUpForm() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-[#4717F6] hover:bg-[#350ec9] text-white px-6 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-[0_0_20px_rgba(71,23,246,0.5)] hover:shadow-[0_0_30px_rgba(71,23,246,0.7)] flex items-center justify-center gap-2 mt-6"
+              disabled={loading}
+              className="w-full bg-[#4717F6] hover:bg-[#350ec9] disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-[0_0_20px_rgba(71,23,246,0.5)] hover:shadow-[0_0_30px_rgba(71,23,246,0.7)] flex items-center justify-center gap-2 mt-6"
             >
               <UserPlus size={20} />
-              Create Account
+              {loading ? 'Creating Account...' : 'Create Account'}
             </button>
           </form>
 
