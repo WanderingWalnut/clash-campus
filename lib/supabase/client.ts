@@ -16,10 +16,14 @@
  * import { createClient } from '@/lib/supabase/client'
  * 
  * const supabase = createClient()
- * const { data } = await supabase.from('table').select()
+ * 
+ * // Type-safe database queries with autocomplete:
+ * const { data } = await supabase.from('universities').select('name, short_code')
+ * // TypeScript knows the exact shape of 'data' based on your schema
  * ```
  */
 import { createBrowserClient } from '@supabase/ssr'
+import type { Database } from '@/lib/supabase/types'
 
 export function createClient() {
     // Validate environment variables (client-side)
@@ -37,5 +41,5 @@ export function createClient() {
         )
     }
 
-    return createBrowserClient(supabaseUrl, supabaseKey)
+    return createBrowserClient<Database>(supabaseUrl, supabaseKey)
 }

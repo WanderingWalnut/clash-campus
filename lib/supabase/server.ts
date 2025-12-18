@@ -14,13 +14,20 @@
  * 
  * @example
  * ```ts
+ * import { createClient } from '@/lib/supabase/server'
+ * 
  * const supabase = await createClient()
  * const { data: { user } } = await supabase.auth.getUser()
+ * 
+ * // Type-safe database queries with autocomplete:
+ * const { data } = await supabase.from('universities').select('name, short_code')
+ * // data type is automatically inferred from Database types
  * ```
  */
 import { createServerClient } from '@supabase/ssr'
 import { cookies } from 'next/headers'
 import { logger } from '@/lib/logger'
+import type { Database } from '@/lib/supabase/types'
 
 export async function createClient() {
     const cookieStore = await cookies()
@@ -39,7 +46,7 @@ export async function createClient() {
         )
     }
 
-    return createServerClient(
+    return createServerClient<Database>(
         supabaseUrl,
         supabaseKey,
         {
