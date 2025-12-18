@@ -31,6 +31,11 @@ export const metadata: Metadata = {
     'competitive gaming',
   ],
   authors: [{ name: 'ClashCampus' }],
+  icons: {
+    icon: '/icon.svg',
+    shortcut: '/icon.svg',
+    apple: '/icon.svg',
+  },
   openGraph: {
     title: 'ClashCampus | Where Clash Becomes Culture',
     description:
