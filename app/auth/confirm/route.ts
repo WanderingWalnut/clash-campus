@@ -17,6 +17,7 @@
 import { type EmailOtpType } from '@supabase/supabase-js'
 import { type NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
@@ -40,8 +41,20 @@ export async function GET(request: NextRequest) {
         })
 
         if (!error) {
+            logger.info('Email confirmation success', { type, next })
             return NextResponse.redirect(redirectTo)
+        } else {
+            logger.error('Email confirmation error', {
+                error: error.message,
+                code: error.status,
+                type,
+            })
         }
+    } else {
+        logger.warn('Email confirmation missing parameters', {
+            hasToken: !!token_hash,
+            hasType: !!type,
+        })
     }
 
     // Return the user to an error page with instructions

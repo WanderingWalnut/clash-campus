@@ -8,6 +8,7 @@
  */
 import { NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { logger } from '@/lib/logger'
 
 export async function GET(request: Request) {
     const { searchParams, origin } = new URL(request.url)
@@ -25,6 +26,7 @@ export async function GET(request: Request) {
         const { error } = await supabase.auth.exchangeCodeForSession(code)
 
         if (!error) {
+            logger.info('OAuth callback success', { next })
             const forwardedHost = request.headers.get('x-forwarded-host')
             const isLocalEnv = process.env.NODE_ENV === 'development'
 
@@ -37,7 +39,14 @@ export async function GET(request: Request) {
             } else {
                 return NextResponse.redirect(`${origin}${next}`)
             }
+        } else {
+            logger.error('OAuth callback error', {
+                error: error.message,
+                code: error.status,
+            })
         }
+    } else {
+        logger.warn('OAuth callback missing code parameter')
     }
 
     // Return the user to an error page with instructions

@@ -1,13 +1,12 @@
 /**
- * Logger utility using Pino - industry-standard structured logging
+ * Simple logger that uses console methods - automatically captured by Vercel
  * 
  * Features:
- * - Fast async logging (Pino is one of the fastest Node.js loggers)
- * - Structured JSON output in production (easy to parse/aggregate)
- * - Pretty-printed output in development (human-readable)
- * - Automatic sensitive data masking
+ * - Zero dependencies - uses native console methods
+ * - Automatically captured by Vercel's built-in observability
+ * - Sensitive data masking (passwords, tokens, emails)
+ * - Structured JSON output for easy parsing
  * - Log levels: debug, info, warn, error
- * - Next.js optimized configuration
  * 
  * @example
  * ```ts
@@ -18,8 +17,6 @@
  * logger.errorWithStack('Unexpected error', err, { userId: '123' })
  * ```
  */
-
-import pino from 'pino'
 
 /**
  * Sensitive keys that should be masked in logs
@@ -63,38 +60,29 @@ function maskSensitiveData(obj: Record<string, unknown>): Record<string, unknown
 }
 
 /**
- * Create Pino logger instance
- * - Development: Pretty-printed, human-readable output
- * - Production: Structured JSON output (for log aggregators)
+ * Simple logger using console methods - automatically captured by Vercel
+ * Vercel's observability dashboard automatically captures console.log/error
  */
 const isDevelopment = process.env.NODE_ENV === 'development'
 
-const pinoLogger = pino({
-    level: process.env.LOG_LEVEL || (isDevelopment ? 'debug' : 'info'),
-    transport: isDevelopment
-        ? {
-            target: 'pino-pretty',
-            options: {
-                colorize: true,
-                translateTime: 'HH:MM:ss.l',
-                ignore: 'pid,hostname',
-                singleLine: false,
-            },
-        }
-        : undefined, // Production uses default JSON output
-    base: {
+/**
+ * Format log entry as structured JSON for Vercel dashboard
+ */
+function formatLog(level: string, message: string, context?: Record<string, unknown>) {
+    const timestamp = new Date().toISOString()
+    const logEntry = {
+        level: level.toUpperCase(),
+        message,
+        timestamp,
         env: process.env.NODE_ENV || 'unknown',
-    },
-    formatters: {
-        level: (label: string) => {
-            return { level: label.toUpperCase() }
-        },
-    },
-})
+        ...(context && { context }),
+    }
+    return JSON.stringify(logEntry)
+}
 
 /**
- * Logger wrapper that maintains the same API as before
- * but uses Pino under the hood with automatic sensitive data masking
+ * Logger wrapper using console methods with automatic sensitive data masking
+ * All logs are automatically captured by Vercel's built-in observability
  */
 class Logger {
     /**
@@ -103,7 +91,8 @@ class Logger {
     debug(message: string, context?: Record<string, unknown>) {
         if (isDevelopment) {
             const masked = context ? maskSensitiveData(context) : undefined
-            pinoLogger.debug(masked, message)
+            const formatted = formatLog('debug', message, masked)
+            console.debug(formatted)
         }
     }
 
@@ -112,7 +101,8 @@ class Logger {
      */
     info(message: string, context?: Record<string, unknown>) {
         const masked = context ? maskSensitiveData(context) : undefined
-        pinoLogger.info(masked, message)
+        const formatted = formatLog('info', message, masked)
+        console.log(formatted)
     }
 
     /**
@@ -120,7 +110,8 @@ class Logger {
      */
     warn(message: string, context?: Record<string, unknown>) {
         const masked = context ? maskSensitiveData(context) : undefined
-        pinoLogger.warn(masked, message)
+        const formatted = formatLog('warn', message, masked)
+        console.warn(formatted)
     }
 
     /**
@@ -128,7 +119,8 @@ class Logger {
      */
     error(message: string, context?: Record<string, unknown>) {
         const masked = context ? maskSensitiveData(context) : undefined
-        pinoLogger.error(masked, message)
+        const formatted = formatLog('error', message, masked)
+        console.error(formatted)
     }
 
     /**
@@ -136,17 +128,19 @@ class Logger {
      */
     errorWithStack(message: string, error: Error, context?: Record<string, unknown>) {
         const masked = context ? maskSensitiveData(context) : undefined
-        pinoLogger.error(
-            {
-                ...masked,
-                err: {
-                    message: error.message,
-                    stack: error.stack,
-                    name: error.name,
-                },
+        const logEntry = {
+            level: 'ERROR',
+            message,
+            timestamp: new Date().toISOString(),
+            env: process.env.NODE_ENV || 'unknown',
+            ...(masked && { context: masked }),
+            err: {
+                message: error.message,
+                stack: error.stack,
+                name: error.name,
             },
-            message
-        )
+        }
+        console.error(JSON.stringify(logEntry))
     }
 }
 
