@@ -56,7 +56,11 @@ export async function updateSession(request: NextRequest) {
 
     const user = data?.claims
 
-    const publicRoutes = ['/', '/login', '/signup', '/auth']
+    // Public routes that don't require authentication
+    // - Landing, auth flows, and public leaderboard routes
+    // - /rankings is public for the campus leaderboard (university-vs-university)
+    // - Player-specific data is protected by RLS policies, not route protection
+    const publicRoutes = ['/', '/login', '/signup', '/auth', '/rankings']
     const isPublicRoute = publicRoutes.some(route =>
         request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route + '/')
     )

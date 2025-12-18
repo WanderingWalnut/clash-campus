@@ -35,12 +35,18 @@ export async function signUpNewUser(formData: FormData): Promise<ActionResult> {
     try {
         // Attempt to sign up the user with Supabase Auth
         // This will automatically send a confirmation email if email confirmation is enabled
+        //
+        // NOTE: For server-side auth, the email template must be configured in Supabase Dashboard:
+        // Authentication > Email Templates > "Confirm signup" template:
+        // Change {{ .ConfirmationURL }} to:
+        // {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
             options: {
-                // URL to redirect to after user clicks confirmation link in email
-                emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/callback`,
+                // Fallback redirect URL (used only if using default Supabase email template)
+                // With token_hash template, the redirect is handled by /auth/confirm route
+                emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/confirm`,
             },
         })
 
