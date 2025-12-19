@@ -19,7 +19,7 @@ export function SignUpForm() {
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   
-  const { email, setEmail, validation, validate } = useUniversityEmailValidation();
+  const { email, setEmail, validation, validate, handleBlur } = useUniversityEmailValidation();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -93,6 +93,7 @@ export function SignUpForm() {
                 placeholder="you@stanford.edu"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
+                onBlur={handleBlur}
                 className="w-full px-4 py-3 bg-[#0D0D0D] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#4717F6] focus:ring-1 focus:ring-[#4717F6] transition-colors"
               />
               <p className="mt-1 text-xs text-gray-500">
@@ -152,7 +153,7 @@ export function SignUpForm() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading || validation.isLoading || validation.status === 'invalid'}
+              disabled={loading || validation.isLoading}
               className="w-full bg-[#4717F6] hover:bg-[#350ec9] disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-[0_0_20px_rgba(71,23,246,0.5)] hover:shadow-[0_0_30px_rgba(71,23,246,0.7)] flex items-center justify-center gap-2 mt-6"
             >
               <UserPlus size={20} />

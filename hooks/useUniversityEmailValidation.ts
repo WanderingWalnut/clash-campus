@@ -17,18 +17,19 @@ export interface UniversityEmailValidationResult {
  * Custom hook for validating university email domains.
  * 
  * Fetches all valid university domains once on mount, then provides
- * instant client-side validation as the user types.
+ * validation when explicitly called (on blur or submit).
  * 
  * @returns Object containing validation state and helper functions
  * 
  * @example
  * ```tsx
- * const { email, setEmail, validation } = useUniversityEmailValidation()
+ * const { email, setEmail, validation, handleBlur } = useUniversityEmailValidation()
  * 
  * return (
  *   <input
  *     value={email}
  *     onChange={(e) => setEmail(e.target.value)}
+ *     onBlur={handleBlur}
  *   />
  * )
  * ```
@@ -40,6 +41,18 @@ export function useUniversityEmailValidation() {
     const [matchedUniversity, setMatchedUniversity] = useState<string | null>(null)
     const [validDomains, setValidDomains] = useState<Record<string, string> | null>(null)
     const [isLoading, setIsLoading] = useState(true)
+    const [hasValidated, setHasValidated] = useState(false)
+
+    // Clear validation state when user starts typing again after validation
+    function handleEmailChange(newEmail: string) {
+        setEmail(newEmail)
+        if (hasValidated) {
+            setStatus('idle')
+            setError(null)
+            setMatchedUniversity(null)
+            setHasValidated(false)
+        }
+    }
 
     // Fetch all valid domains once on mount
     useEffect(() => {
@@ -83,51 +96,44 @@ export function useUniversityEmailValidation() {
         }
     }
 
-    // Instant client-side validation as the user types
-    useEffect(() => {
-        const trimmed = email.trim()
+    // Validate a specific email (called on blur or submit)
+    function validate(emailToCheck?: string): boolean {
+        const emailToValidate = emailToCheck ?? email
+        const trimmed = emailToValidate.trim()
+
         if (!trimmed) {
             setStatus('idle')
             setError(null)
             setMatchedUniversity(null)
-            return
+            setHasValidated(false)
+            return false
         }
 
         // Wait for domains to load before validating
-        if (isLoading) {
-            setStatus('typing')
-            return
+        if (isLoading || !validDomains) {
+            return false
         }
 
+        setHasValidated(true)
         const result = validateEmail(trimmed)
         if (result.valid && result.universityName) {
             setStatus('valid')
             setError(null)
             setMatchedUniversity(result.universityName)
-        } else if (trimmed.includes('@')) {
-            // Only show error if they've typed an @ (partial email)
-            setStatus('invalid')
-            setError(
-                'Your email domain is not associated with a registered university.'
-            )
-            setMatchedUniversity(null)
+            return true
         } else {
-            setStatus('typing')
-            setError(null)
-            setMatchedUniversity(null)
-        }
-    }, [email, validDomains, isLoading])
-
-    // Validate a specific email (useful for form submission)
-    function validate(emailToCheck: string): boolean {
-        const result = validateEmail(emailToCheck.trim())
-        if (!result.valid) {
+            setStatus('invalid')
             setError(
                 'Your email domain is not associated with a registered university.'
             )
-            setStatus('invalid')
+            setMatchedUniversity(null)
+            return false
         }
-        return result.valid
+    }
+
+    // Handle blur event - validate when user finishes typing
+    function handleBlur() {
+        validate()
     }
 
     const validation: UniversityEmailValidationResult = {
@@ -140,9 +146,10 @@ export function useUniversityEmailValidation() {
 
     return {
         email,
-        setEmail,
+        setEmail: handleEmailChange,
         validation,
         validate,
+        handleBlur,
     }
 }
 

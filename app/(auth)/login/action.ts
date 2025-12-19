@@ -62,6 +62,11 @@ export async function logInUser(formData: FormData): Promise<ActionResult> {
         // Fallback success case (shouldn't normally reach here)
         return { success: true }
     } catch (err) {
+        // Re-throw redirect errors - Next.js uses these internally for navigation (not an actual error)
+        if (err instanceof Error && err.message === 'NEXT_REDIRECT') {
+            throw err
+        }
+
         // Handle unexpected errors (network issues, server errors, etc.)
         if (err instanceof Error) {
             logger.errorWithStack('Login unexpected error', err, { email })

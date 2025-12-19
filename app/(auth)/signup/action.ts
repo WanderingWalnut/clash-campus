@@ -118,6 +118,11 @@ export async function signUpNewUser(formData: FormData): Promise<ActionResult> {
         // Fallback success case
         return { success: true }
     } catch (err) {
+        // Re-throw redirect errors - Next.js uses these internally for navigation
+        if (err instanceof Error && err.message === 'NEXT_REDIRECT') {
+            throw err
+        }
+
         // Handle unexpected errors (network issues, server errors, etc.)
         if (err instanceof Error) {
             logger.errorWithStack('Signup unexpected error', err, { email })
