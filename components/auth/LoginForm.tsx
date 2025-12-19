@@ -3,19 +3,48 @@
 import Link from 'next/link';
 import { LogIn } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
+import { logInUser } from '@/app/(auth)/login/action';
+import { useState } from 'react';
 
 /**
  * Login form component.
- * Displays form fields for email and password.
- * No backend logic implemented yet.
+ * Handles user authentication with email and password.
  */
 export function LoginForm() {
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    setError(null);
+    setLoading(true);
+
+    const formData = new FormData(e.currentTarget);
+
+    // Call server action
+    const result = await logInUser(formData);
+
+    if ('error' in result) {
+      setError(result.error);
+    }
+    // Note: On success, the server action redirects, so we don't need to handle success here
+
+    setLoading(false);
+  }
+
   return (
     <>
       <Reveal delay="delay-100">
         {/* Login Card */}
         <div className="bg-[#121212] border border-gray-800 rounded-2xl p-8 shadow-2xl">
-          <form className="space-y-5">
+          <form className="space-y-5" onSubmit={handleSubmit}>
+            {/* Error Message */}
+            {error && (
+              <div className="bg-red-900/20 border border-red-700 rounded-lg p-3 text-red-300 text-sm">
+                {error}
+              </div>
+            )}
+
             {/* Email Field */}
             <div>
               <label
@@ -28,6 +57,7 @@ export function LoginForm() {
                 type="email"
                 id="email"
                 name="email"
+                required
                 placeholder="you@university.edu"
                 className="w-full px-4 py-3 bg-[#0D0D0D] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#4717F6] focus:ring-1 focus:ring-[#4717F6] transition-colors"
               />
@@ -45,6 +75,7 @@ export function LoginForm() {
                 type="password"
                 id="password"
                 name="password"
+                required
                 placeholder="Enter your password"
                 className="w-full px-4 py-3 bg-[#0D0D0D] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#4717F6] focus:ring-1 focus:ring-[#4717F6] transition-colors"
               />
@@ -63,10 +94,11 @@ export function LoginForm() {
             {/* Submit Button */}
             <button
               type="submit"
-              className="w-full bg-[#4717F6] hover:bg-[#350ec9] text-white px-6 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-[0_0_20px_rgba(71,23,246,0.5)] hover:shadow-[0_0_30px_rgba(71,23,246,0.7)] flex items-center justify-center gap-2"
+              disabled={loading}
+              className="w-full bg-[#4717F6] hover:bg-[#350ec9] disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-[0_0_20px_rgba(71,23,246,0.5)] hover:shadow-[0_0_30px_rgba(71,23,246,0.7)] flex items-center justify-center gap-2"
             >
               <LogIn size={20} />
-              Log In
+              {loading ? 'Logging in...' : 'Log In'}
             </button>
           </form>
 
