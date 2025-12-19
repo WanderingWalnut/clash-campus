@@ -4,6 +4,8 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { logger } from "@/lib/logger"
 import { ActionResult } from "@/types"
+import { getEmailDomain } from "@/lib/auth/email"
+import { getUniversityByEmailDomain } from "@/lib/auth/universityEmail.server"
 
 /**
  * Server action to handle user signup.
@@ -29,8 +31,43 @@ export async function signUpNewUser(formData: FormData): Promise<ActionResult> {
         return { error: 'Email and password are required' }
     }
 
+    // Extract email domain (part after @)
+    const emailDomain = getEmailDomain(email)
+    if (!emailDomain) {
+        logger.warn('Signup validation failed - invalid email format', { email })
+        return { error: 'Invalid email format' }
+    }
+
     // Create Supabase client for server-side operations
     const supabase = await createClient()
+
+    // Validate that the email domain exists in the universities table
+    let university = null
+    try {
+        university = await getUniversityByEmailDomain(supabase, emailDomain)
+    } catch (err) {
+        logger.warn('Signup validation failed - university domain lookup error', {
+            email,
+            emailDomain,
+            error: err instanceof Error ? err.message : 'Unknown error',
+        })
+    }
+
+    if (!university) {
+        logger.warn('Signup validation failed - email domain not found', {
+            email,
+            emailDomain,
+        })
+        return {
+            error: 'Your email domain is not associated with a registered university. Please use your university email address.',
+        }
+    }
+
+    logger.info('Email domain validated', {
+        email,
+        emailDomain,
+        university: university.name,
+    })
 
     try {
         // Attempt to sign up the user with Supabase Auth

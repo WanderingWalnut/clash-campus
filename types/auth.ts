@@ -23,3 +23,13 @@ export type ActionResult =
     | { success: true; message?: string }
     | { error: string }
 
+/**
+ * University data returned when validating an email domain.
+ * Used for email domain validation during signup.
+ */
+export type UniversityEmailDomainMatch = {
+    id: string
+    name: string
+    email_domain: string
+}
+
