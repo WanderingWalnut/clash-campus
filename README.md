@@ -102,7 +102,7 @@ supabase gen types typescript --local > lib/supabase/types.ts
 ```
 app/                    # Next.js App Router pages
 ├── (auth)/             # Auth route group (login, signup)
-├── auth/               # Auth callbacks (confirm, callback, error)
+├── auth/               # Auth callbacks (confirm, error)
 ├── rankings/           # Public rankings page
 └── layout.tsx          # Root layout
 
@@ -130,8 +130,6 @@ types/                  # Shared TypeScript types
 2. **Email sent**: Supabase sends confirmation email
 3. **Confirmation**: User clicks link → `/auth/confirm` verifies token
 4. **Session**: User is redirected to `/rankings` with active session
-
-OAuth flows (if enabled) use `/auth/callback` for code exchange.
 
 ## Proxy (Route Protection)
 
