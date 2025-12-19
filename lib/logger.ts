@@ -1,3 +1,5 @@
+import 'server-only'
+
 /**
  * Simple logger that uses console methods - automatically captured by Vercel
  * 

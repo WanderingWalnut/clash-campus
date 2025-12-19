@@ -1,3 +1,5 @@
+import 'server-only'
+
 /**
  * Verification status helper for Clash account verification
  * 

@@ -1,7 +1,26 @@
+import 'server-only'
+
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { logger } from '@/lib/logger'
 import type { Database } from '@/lib/supabase/types'
+
+/**
+ * Copy all cookies from one response to another, preserving full cookie options.
+ * This is critical for Supabase SSR session management - cookies must retain
+ * HttpOnly, Secure, SameSite, Max-Age, and other attributes to avoid:
+ * - Session desync between browser and server
+ * - "Random logout" issues
+ * - Broken cookie chunking cleanup
+ */
+function copyResponseCookies(from: NextResponse, to: NextResponse): void {
+    from.cookies.getAll().forEach(cookie => {
+        // NextResponse.cookies.set accepts the full cookie object including options
+        // We need to read the Set-Cookie header to get full options since getAll()
+        // only returns { name, value }
+        to.cookies.set(cookie)
+    })
+}
 
 export async function updateSession(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
@@ -61,7 +80,8 @@ export async function updateSession(request: NextRequest) {
     // - Landing, auth flows, and public leaderboard routes
     // - /rankings is public for the campus leaderboard (university-vs-university)
     // - Player-specific data is protected by RLS policies, not route protection
-    const publicRoutes = ['/', '/login', '/signup', '/auth', '/rankings']
+    // - /forgot-password is public so users can request a password reset
+    const publicRoutes = ['/', '/login', '/signup', '/auth', '/rankings', '/forgot-password']
     const isPublicRoute = publicRoutes.some(route =>
         request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route + '/')
     )
@@ -70,13 +90,17 @@ export async function updateSession(request: NextRequest) {
         // Redirect unauthenticated users to login (except on public pages)
         const url = request.nextUrl.clone()
         url.pathname = "/login"
-        return NextResponse.redirect(url)
+        const redirectResponse = NextResponse.redirect(url)
+        // IMPORTANT: Copy Supabase cookies to redirect response to maintain session state
+        copyResponseCookies(supabaseResponse, redirectResponse)
+        return redirectResponse
     }
 
     // Routes that don't require Clash account verification
     // - /verify is where users go to verify their account
+    // - /reset-password is accessed after clicking the password reset email link
     // - Public routes don't need verification check
-    const verificationExemptRoutes = ['/verify']
+    const verificationExemptRoutes = ['/verify', '/reset-password']
     const isVerificationExempt = isPublicRoute || verificationExemptRoutes.some(route =>
         request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route + '/')
     )
@@ -95,10 +119,8 @@ export async function updateSession(request: NextRequest) {
             const url = request.nextUrl.clone()
             url.pathname = '/verify'
             const redirectResponse = NextResponse.redirect(url)
-            // Copy cookies to maintain session
-            supabaseResponse.cookies.getAll().forEach(cookie => {
-                redirectResponse.cookies.set(cookie.name, cookie.value)
-            })
+            // IMPORTANT: Copy Supabase cookies with full options to maintain session state
+            copyResponseCookies(supabaseResponse, redirectResponse)
             return redirectResponse
         }
     }

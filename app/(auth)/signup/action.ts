@@ -1,11 +1,12 @@
 'use server'
 
 import { createClient } from "@/lib/supabase/server"
-import { redirect } from "next/navigation"
+import { redirect, unstable_rethrow } from "next/navigation"
 import { logger } from "@/lib/logger"
 import { ActionResult } from "@/types"
 import { getEmailDomain } from "@/lib/auth/email"
 import { getUniversityByEmailDomain } from "@/lib/auth/universityEmail.server"
+import { validatePasswordStrength, validatePasswordMatch } from "@/lib/auth/validation"
 
 /**
  * Server action to handle user signup.
@@ -14,21 +15,38 @@ import { getUniversityByEmailDomain } from "@/lib/auth/universityEmail.server"
  * and returns appropriate success/error responses based on the signup flow.
  */
 export async function signUpNewUser(formData: FormData): Promise<ActionResult> {
-    // Extract email and password from form data
-    const email = formData.get("email") as string
+    // Extract and normalize inputs from form data
+    const rawEmail = formData.get("email") as string
     const password = formData.get("password") as string
+    const confirmPassword = formData.get("confirmPassword") as string
+    const email = rawEmail?.trim().toLowerCase()
 
     // Log the signup attempt for observability
     logger.info('Signup attempt', { email })
 
-    // Validate that both email and password are provided
-    // This is a guard clause to prevent unnecessary API calls
+    // Validate that required fields are provided
     if (!email || !password) {
         logger.warn('Signup validation failed', {
             email: email ? 'provided' : 'missing',
             password: password ? 'provided' : 'missing',
         })
         return { error: 'Email and password are required' }
+    }
+
+    // Server-side password strength validation
+    const strengthCheck = validatePasswordStrength(password)
+    if (!strengthCheck.isValid) {
+        logger.warn('Signup validation failed - weak password', { email })
+        return { error: strengthCheck.error || 'Password is too weak' }
+    }
+
+    // Server-side password match validation (if confirmPassword provided)
+    if (confirmPassword !== undefined && confirmPassword !== null) {
+        const matchCheck = validatePasswordMatch(password, confirmPassword)
+        if (!matchCheck.isValid) {
+            logger.warn('Signup validation failed - passwords do not match', { email })
+            return { error: matchCheck.error || 'Passwords do not match' }
+        }
     }
 
     // Extract email domain (part after @)
@@ -118,10 +136,9 @@ export async function signUpNewUser(formData: FormData): Promise<ActionResult> {
         // Fallback success case
         return { success: true }
     } catch (err) {
-        // Re-throw redirect errors - Next.js uses these internally for navigation
-        if (err instanceof Error && err.message === 'NEXT_REDIRECT') {
-            throw err
-        }
+        // Re-throw Next.js framework-controlled exceptions (redirect, notFound, etc.)
+        // This is the Next.js 16 recommended pattern for handling redirects in try/catch
+        unstable_rethrow(err)
 
         // Handle unexpected errors (network issues, server errors, etc.)
         if (err instanceof Error) {

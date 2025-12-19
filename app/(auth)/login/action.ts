@@ -2,6 +2,7 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
+import { unstable_rethrow } from "next/navigation"
 import { logger } from "@/lib/logger"
 import { ActionResult } from "@/types"
 import { needsVerification } from "@/lib/auth/verification.server"
@@ -14,9 +15,10 @@ import { needsVerification } from "@/lib/auth/verification.server"
  * missing fields, and unexpected errors.
  */
 export async function logInUser(formData: FormData): Promise<ActionResult> {
-    // Extract email and password from the form data
-    const email = formData.get("email") as string
+    // Extract and normalize email from form data
+    const rawEmail = formData.get("email") as string
     const password = formData.get("password") as string
+    const email = rawEmail?.trim().toLowerCase()
 
     // Log the login attempt for observability
     logger.info('Login attempt', { email })
@@ -57,25 +59,24 @@ export async function logInUser(formData: FormData): Promise<ActionResult> {
                 userId: data.user.id,
                 email,
             })
-            
+
             // Check if user needs to complete Clash account verification
             const requiresVerification = await needsVerification(supabase, data.user.id)
-            
+
             if (requiresVerification) {
                 logger.info('Login redirect to verify', { userId: data.user.id })
                 redirect('/verify')
             }
-            
+
             redirect('/rankings')
         }
 
         // Fallback success case (shouldn't normally reach here)
         return { success: true }
     } catch (err) {
-        // Re-throw redirect errors - Next.js uses these internally for navigation (not an actual error)
-        if (err instanceof Error && err.message === 'NEXT_REDIRECT') {
-            throw err
-        }
+        // Re-throw Next.js framework-controlled exceptions (redirect, notFound, etc.)
+        // This is the Next.js 16 recommended pattern for handling redirects in try/catch
+        unstable_rethrow(err)
 
         // Handle unexpected errors (network issues, server errors, etc.)
         if (err instanceof Error) {

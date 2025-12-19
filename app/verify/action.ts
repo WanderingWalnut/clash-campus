@@ -1,7 +1,7 @@
 'use server'
 
 import { createClient } from '@/lib/supabase/server'
-import { redirect } from 'next/navigation'
+import { redirect, unstable_rethrow } from 'next/navigation'
 import { logger } from '@/lib/logger'
 import { ActionResult } from '@/types'
 import { requireAuth } from '@/lib/auth/session.server'
@@ -92,10 +92,9 @@ export async function bypassVerification(): Promise<ActionResult> {
 
         redirect('/rankings')
     } catch (err) {
-        // Re-throw redirect errors
-        if (err instanceof Error && err.message === 'NEXT_REDIRECT') {
-            throw err
-        }
+        // Re-throw Next.js framework-controlled exceptions (redirect, notFound, etc.)
+        // This is the Next.js 16 recommended pattern for handling redirects in try/catch
+        unstable_rethrow(err)
 
         logger.error('Bypass verification unexpected error', {
             userId: user.id,

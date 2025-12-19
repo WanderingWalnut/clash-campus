@@ -1,3 +1,5 @@
+import 'server-only'
+
 /**
  * Session utilities for server-side authentication.
  * 
