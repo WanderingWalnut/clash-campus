@@ -18,6 +18,7 @@ import { type EmailOtpType } from '@supabase/supabase-js'
 import { type NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
+import { needsVerification } from '@/lib/auth/verification.server'
 
 export async function GET(request: NextRequest) {
     const { searchParams } = new URL(request.url)
@@ -42,6 +43,21 @@ export async function GET(request: NextRequest) {
 
         if (!error) {
             logger.info('Email confirmation success', { type, next })
+            
+            // Get the user from the session to check verification status
+            const { data: { user } } = await supabase.auth.getUser()
+            
+            if (user) {
+                // Check if user needs to complete Clash account verification
+                const requiresVerification = await needsVerification(supabase, user.id)
+                
+                if (requiresVerification) {
+                    logger.info('Email confirmed, redirect to verify', { userId: user.id })
+                    redirectTo.pathname = '/verify'
+                    return NextResponse.redirect(redirectTo)
+                }
+            }
+            
             return NextResponse.redirect(redirectTo)
         } else {
             logger.error('Email confirmation error', {

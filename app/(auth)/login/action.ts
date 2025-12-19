@@ -4,6 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect } from "next/navigation"
 import { logger } from "@/lib/logger"
 import { ActionResult } from "@/types"
+import { needsVerification } from "@/lib/auth/verification.server"
 
 /**
  * Server action to handle user login.
@@ -56,6 +57,15 @@ export async function logInUser(formData: FormData): Promise<ActionResult> {
                 userId: data.user.id,
                 email,
             })
+            
+            // Check if user needs to complete Clash account verification
+            const requiresVerification = await needsVerification(supabase, data.user.id)
+            
+            if (requiresVerification) {
+                logger.info('Login redirect to verify', { userId: data.user.id })
+                redirect('/verify')
+            }
+            
             redirect('/rankings')
         }
 

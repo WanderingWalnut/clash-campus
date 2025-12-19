@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { logger } from '@/lib/logger'
+import type { Database } from '@/lib/supabase/types'
 
 export async function updateSession(request: NextRequest) {
     let supabaseResponse = NextResponse.next({
@@ -27,7 +28,7 @@ export async function updateSession(request: NextRequest) {
 
     // With Fluid compute, don't put this client in a global environment
     // variable. Always create a new one on each request.
-    const supabase = createServerClient(
+    const supabase = createServerClient<Database>(
         supabaseUrl,
         supabaseKey,
         {
@@ -70,6 +71,36 @@ export async function updateSession(request: NextRequest) {
         const url = request.nextUrl.clone()
         url.pathname = "/login"
         return NextResponse.redirect(url)
+    }
+
+    // Routes that don't require Clash account verification
+    // - /verify is where users go to verify their account
+    // - Public routes don't need verification check
+    const verificationExemptRoutes = ['/verify']
+    const isVerificationExempt = isPublicRoute || verificationExemptRoutes.some(route =>
+        request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route + '/')
+    )
+
+    // Check verification status for authenticated users on non-exempt routes
+    if (user && !isVerificationExempt) {
+        // Query clash_accounts to check if user is verified
+        const { data: clashAccount } = await supabase
+            .from('clash_accounts')
+            .select('verified')
+            .eq('profile_id', user.sub as string)
+            .maybeSingle()
+
+        // If no account or not verified, redirect to verification page
+        if (!clashAccount || !clashAccount.verified) {
+            const url = request.nextUrl.clone()
+            url.pathname = '/verify'
+            const redirectResponse = NextResponse.redirect(url)
+            // Copy cookies to maintain session
+            supabaseResponse.cookies.getAll().forEach(cookie => {
+                redirectResponse.cookies.set(cookie.name, cookie.value)
+            })
+            return redirectResponse
+        }
     }
 
     // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're
