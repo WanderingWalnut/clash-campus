@@ -42,6 +42,10 @@ export async function bypassVerification(): Promise<ActionResult> {
             return { error: 'Account exists but is not verified. Please contact support.' }
         }
 
+        // Note: Profile should already exist from signup trigger (handle_new_user)
+        // If it doesn't exist, the insert will fail with FK constraint error
+        // which is the correct behavior - profiles should be created on signup
+
         // Generate dummy data for development bypass
         const dummyPlayerTag = `#DEV${user.id.substring(0, 8).toUpperCase()}`
         const dummyUsername = `DevPlayer_${user.id.substring(0, 6)}`
