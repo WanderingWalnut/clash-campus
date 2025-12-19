@@ -6,8 +6,8 @@ import { Reveal } from '@/components/ui/Reveal';
 import { signUpNewUser } from '@/app/(auth)/signup/action';
 import { SignUpSuccessScreen } from './SignUpSuccessScreen';
 import { validateSignupForm } from '@/lib/auth/validation';
-import { useEffect, useState } from 'react';
-import { getEmailDomain } from '@/lib/auth/email';
+import { useState } from 'react';
+import { useUniversityEmailValidation } from '@/hooks';
 
 /**
  * Sign up form component.
@@ -15,95 +15,11 @@ import { getEmailDomain } from '@/lib/auth/email';
  */
 export function SignUpForm() {
   const [error, setError] = useState<string | null>(null);
-  const [emailError, setEmailError] = useState<string | null>(null);
-  const [emailStatus, setEmailStatus] = useState<
-    'idle' | 'typing' | 'valid' | 'invalid'
-  >('idle');
-  const [matchedUniversity, setMatchedUniversity] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
-  const [email, setEmail] = useState('');
-  // Cache of valid domains: domain -> university name
-  const [validDomains, setValidDomains] = useState<Record<string, string> | null>(null);
-  const [domainsLoading, setDomainsLoading] = useState(true);
-
-  // Fetch all valid domains once on mount
-  useEffect(() => {
-    async function fetchValidDomains() {
-      try {
-        const res = await fetch('/api/universities/domains')
-        if (!res.ok) {
-          console.error('Failed to fetch valid domains')
-          setDomainsLoading(false)
-          return
-        }
-        const data = (await res.json()) as { domains: Record<string, string> }
-        setValidDomains(data.domains)
-      } catch (err) {
-        console.error('Error fetching valid domains:', err)
-      } finally {
-        setDomainsLoading(false)
-      }
-    }
-    fetchValidDomains()
-  }, [])
-
-  // Client-side validation using cached domains (instant, no API calls)
-  function validateUniversityEmail(currentEmail: string): {
-    valid: boolean
-    universityName: string | null
-  } {
-    if (!currentEmail || !validDomains) {
-      return { valid: false, universityName: null }
-    }
-
-    const domain = getEmailDomain(currentEmail)
-    if (!domain) {
-      return { valid: false, universityName: null }
-    }
-
-    const universityName = validDomains[domain] || null
-    return {
-      valid: Boolean(universityName),
-      universityName,
-    }
-  }
-
-  // Instant client-side validation as the user types (no debouncing needed!)
-  useEffect(() => {
-    const trimmed = email.trim()
-    if (!trimmed) {
-      setEmailStatus('idle')
-      setEmailError(null)
-      setMatchedUniversity(null)
-      return
-    }
-
-    // Wait for domains to load before validating
-    if (domainsLoading) {
-      setEmailStatus('typing')
-      return
-    }
-
-    const result = validateUniversityEmail(trimmed)
-    if (result.valid && result.universityName) {
-      setEmailStatus('valid')
-      setEmailError(null)
-      setMatchedUniversity(result.universityName)
-    } else if (trimmed.includes('@')) {
-      // Only show error if they've typed an @ (partial email)
-      setEmailStatus('invalid')
-      setEmailError(
-        'Your email domain is not associated with a registered university.'
-      )
-      setMatchedUniversity(null)
-    } else {
-      setEmailStatus('typing')
-      setEmailError(null)
-      setMatchedUniversity(null)
-    }
-  }, [email, validDomains, domainsLoading])
+  
+  const { email, setEmail, validation, validate } = useUniversityEmailValidation();
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
@@ -116,20 +32,15 @@ export function SignUpForm() {
     const confirmPassword = formData.get('confirmPassword') as string;
 
     // Client-side validation
-    const validation = validateSignupForm(emailFromForm, password, confirmPassword);
-    if (!validation.isValid) {
-      setError(validation.error || 'Validation failed');
+    const formValidation = validateSignupForm(emailFromForm, password, confirmPassword);
+    if (!formValidation.isValid) {
+      setError(formValidation.error || 'Validation failed');
       setLoading(false);
       return;
     }
 
     // Client-side university domain validation (final check before submit)
-    const check = validateUniversityEmail(emailFromForm.trim());
-    if (!check.valid) {
-      setEmailError(
-        'Your email domain is not associated with a registered university.'
-      );
-      setEmailStatus('invalid');
+    if (!validate(emailFromForm)) {
       setLoading(false);
       return;
     }
@@ -187,15 +98,15 @@ export function SignUpForm() {
               <p className="mt-1 text-xs text-gray-500">
                 Use your .edu email to verify your student status.
               </p>
-              {domainsLoading && email && (
+              {validation.isLoading && email && (
                 <p className="mt-2 text-xs text-gray-400">Loading universities…</p>
               )}
-              {emailError && (
-                <p className="mt-2 text-xs text-red-300">{emailError}</p>
+              {validation.error && (
+                <p className="mt-2 text-xs text-red-300">{validation.error}</p>
               )}
-              {!emailError && emailStatus === 'valid' && matchedUniversity && (
+              {!validation.error && validation.isValid && validation.matchedUniversity && (
                 <p className="mt-2 text-xs text-green-300">
-                  ✓ {matchedUniversity}
+                  ✓ {validation.matchedUniversity}
                 </p>
               )}
             </div>
@@ -241,7 +152,7 @@ export function SignUpForm() {
             {/* Submit Button */}
             <button
               type="submit"
-              disabled={loading || domainsLoading || emailStatus === 'invalid'}
+              disabled={loading || validation.isLoading || validation.status === 'invalid'}
               className="w-full bg-[#4717F6] hover:bg-[#350ec9] disabled:opacity-50 disabled:cursor-not-allowed text-white px-6 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-[0_0_20px_rgba(71,23,246,0.5)] hover:shadow-[0_0_30px_rgba(71,23,246,0.7)] flex items-center justify-center gap-2 mt-6"
             >
               <UserPlus size={20} />

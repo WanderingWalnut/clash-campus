@@ -72,11 +72,6 @@ export async function signUpNewUser(formData: FormData): Promise<ActionResult> {
     try {
         // Attempt to sign up the user with Supabase Auth
         // This will automatically send a confirmation email if email confirmation is enabled
-        //
-        // NOTE: For server-side auth, the email template must be configured in Supabase Dashboard:
-        // Authentication > Email Templates > "Confirm signup" template:
-        // Change {{ .ConfirmationURL }} to:
-        // {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email
         const { data, error } = await supabase.auth.signUp({
             email,
             password,
