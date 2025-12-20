@@ -1,9 +1,8 @@
 'use client';
 
 import { useState } from 'react';
-import { Shield, Gamepad2, CheckCircle } from 'lucide-react';
+import { Shield } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
-import { bypassVerification } from '@/app/verify/action';
 
 /**
  * Verification form component.
@@ -13,10 +12,43 @@ export function VerifyForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [playerTag, setPlayerTag] = useState('');
+  const [cards, setCards] = useState<any[]>([]);
 
   async function handleVerify() {
-    // TODO: Implement logic to create the verification deck
-    console.log('Verifying player tag:', playerTag);
+    if (!playerTag.trim()) {
+      setError('Please enter a player tag');
+      return;
+    }
+
+    setError(null);
+    setLoading(true);
+
+    try {
+      // URL-encode the player tag to handle the '#' character
+      const encodedTag = encodeURIComponent(playerTag);
+      const response = await fetch(`/api/clash-royale-api/user?playerTag=${encodedTag}`);
+
+      if (!response.ok) {
+        const errorData = await response.json().catch(() => ({ error: 'Failed to fetch player data' }));
+        setError(errorData.error || `Error: ${response.statusText}`);
+        setLoading(false);
+        return;
+      }
+
+      const data = await response.json();
+      
+      // Extract the cards array from the response
+      const playerCards = data.cards || [];
+      setCards(playerCards);
+      
+      console.log('Player cards:', playerCards);
+      // TODO: Implement logic to create the verification deck using playerCards
+    } catch (err) {
+      setError('Failed to verify player tag. Please try again.');
+      console.error('Verification error:', err);
+    } finally {
+      setLoading(false);
+    }
   }
 
 
@@ -62,9 +94,10 @@ export function VerifyForm() {
                   <button
                     type="button"
                     onClick={handleVerify}
-                    className="px-6 py-3 bg-[#4717F6] hover:bg-[#5a1fff] text-white font-medium rounded-lg transition-colors duration-300"
+                    disabled={loading}
+                    className="px-6 py-3 bg-[#4717F6] hover:bg-[#5a1fff] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-300"
                   >
-                    Verify
+                    {loading ? 'Verifying...' : 'Verify'}
                   </button>
                 </div>
                 <p className="text-gray-500 text-sm mt-1">
