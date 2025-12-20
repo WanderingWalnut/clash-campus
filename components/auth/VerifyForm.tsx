@@ -12,19 +12,14 @@ import { bypassVerification } from '@/app/verify/action';
 export function VerifyForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [playerTag, setPlayerTag] = useState('');
 
-  async function handleBypass() {
-    setError(null);
-    setLoading(true);
-
-    const result = await bypassVerification();
-
-    if ('error' in result) {
-      setError(result.error);
-      setLoading(false);
-    }
-    // On success, the server action redirects
+  async function handleVerify() {
+    // TODO: Implement logic to create the verification deck
+    console.log('Verifying player tag:', playerTag);
   }
+
+
 
   return (
     <>
@@ -52,9 +47,27 @@ export function VerifyForm() {
               <div className="w-8 h-8 rounded-full bg-[#FFD700]/20 flex items-center justify-center flex-shrink-0 mt-0.5">
                 <span className="text-[#FFD700] font-bold text-sm">1</span>
               </div>
-              <div>
-                <p className="text-white font-medium">Enter Your Player Tag</p>
-                <p className="text-gray-500 text-sm">
+              <div className="w-full">
+                <p className="text-white font-medium mb-2">Enter Your Player Tag</p>
+                <div className="flex items-center gap-2">
+                  <input
+                    type="text"
+                    id="playerTag"
+                    name="playerTag"
+                    value={playerTag}
+                    onChange={(e) => setPlayerTag(e.target.value)}
+                    placeholder="Enter Your Player Tag"
+                    className="flex-1 max-w-xs px-4 py-3 bg-[#0D0D0D] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#4717F6] focus:ring-1 focus:ring-[#4717F6] transition-colors"
+                  />
+                  <button
+                    type="button"
+                    onClick={handleVerify}
+                    className="px-6 py-3 bg-[#4717F6] hover:bg-[#5a1fff] text-white font-medium rounded-lg transition-colors duration-300"
+                  >
+                    Verify
+                  </button>
+                </div>
+                <p className="text-gray-500 text-sm mt-1">
                   Find it in-game under Settings → Player Tag
                 </p>
               </div>
@@ -85,12 +98,6 @@ export function VerifyForm() {
             </div>
           </div>
 
-          {/* Divider */}
-          <div className="flex items-center my-6">
-            <div className="flex-1 border-t border-gray-700" />
-            <span className="px-4 text-sm text-gray-500">Coming Soon</span>
-            <div className="flex-1 border-t border-gray-700" />
-          </div>
 
           {/* Error Message */}
           {error && (
@@ -99,27 +106,7 @@ export function VerifyForm() {
             </div>
           )}
 
-          {/* Bypass Button (Development Only) */}
-          <div className="bg-yellow-900/20 border border-yellow-700/50 rounded-lg p-4 mb-4">
-            <div className="flex items-center gap-2 mb-2">
-              <Gamepad2 className="w-4 h-4 text-yellow-500" />
-              <span className="text-yellow-500 text-xs font-bold uppercase tracking-wider">
-                Development Mode
-              </span>
-            </div>
-            <p className="text-yellow-200/70 text-sm mb-3">
-              Skip verification during development. This will be removed in production.
-            </p>
-            <button
-              type="button"
-              onClick={handleBypass}
-              disabled={loading}
-              className="w-full bg-yellow-600 hover:bg-yellow-700 disabled:opacity-50 disabled:cursor-not-allowed text-black px-6 py-3 rounded-lg font-bold transition-all duration-300 flex items-center justify-center gap-2"
-            >
-              <CheckCircle size={18} />
-              {loading ? 'Bypassing...' : 'Bypass Verification'}
-            </button>
-          </div>
+
         </div>
       </Reveal>
 
