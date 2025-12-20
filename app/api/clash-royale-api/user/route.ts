@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server'
 import { getPlayer } from '@/lib/clash-royale'
 import { getAuthenticatedUser } from '@/lib/auth/session.server'
+import { logger } from '@/lib/logger'
 
 /**
  * API endpoint to get a Clash Royale player's profile.
@@ -44,11 +45,24 @@ export async function GET(request: Request) {
                 : result.error.includes('configuration') ? 500
                     : 502 // Bad Gateway for upstream API errors
 
+        logger.warn('Clash Royale API request failed', {
+            playerTag,
+            error: result.error,
+            status,
+            userId: user.id,
+        })
+
         return NextResponse.json(
             { error: result.error },
             { status }
         )
     }
+
+    logger.info('Clash Royale player fetched successfully', {
+        playerTag: result.data.tag,
+        playerName: result.data.name,
+        userId: user.id,
+    })
 
     return NextResponse.json(result.data)
 }

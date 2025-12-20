@@ -116,6 +116,13 @@ export async function getPlayer(playerTag: string): Promise<ClashRoyaleApiResult
         }
 
         const data = await response.json() as ClashRoyalePlayer
+
+        logger.info('Clash Royale API request successful', {
+            playerTag: normalizedTag,
+            playerName: data.name,
+            playerCards: data.cards.map(card => card.name),
+        })
+
         return {
             success: true,
             data,

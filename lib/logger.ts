@@ -68,7 +68,13 @@ function maskSensitiveData(obj: Record<string, unknown>): Record<string, unknown
 const isDevelopment = process.env.NODE_ENV === 'development'
 
 /**
- * Format log entry as structured JSON for Vercel dashboard
+ * Format log entry for both development and production.
+ * 
+ * In development: readable format for terminal debugging
+ * In production: structured JSON for Vercel observability dashboard
+ * 
+ * Both formats are logged - the format just changes for better readability
+ * in each environment.
  */
 function formatLog(level: string, message: string, context?: Record<string, unknown>) {
     const timestamp = new Date().toISOString()
@@ -79,6 +85,15 @@ function formatLog(level: string, message: string, context?: Record<string, unkn
         env: process.env.NODE_ENV || 'unknown',
         ...(context && { context }),
     }
+
+    // In development, output readable format for easier terminal debugging
+    if (isDevelopment) {
+        const contextStr = context ? ` ${JSON.stringify(context, null, 2)}` : ''
+        return `[${level.toUpperCase()}] ${message}${contextStr}`
+    }
+
+    // In production, output structured JSON for Vercel's observability dashboard
+    // Vercel automatically captures console.log/error and parses JSON logs
     return JSON.stringify(logEntry)
 }
 
