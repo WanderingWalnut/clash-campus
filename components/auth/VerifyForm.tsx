@@ -3,19 +3,40 @@
 import { useState } from 'react';
 import { Shield } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
+import type { ClashRoyaleCard, ClashRoyalePlayer } from '@/types/clash-royale';
+
+/**
+ * Fetches a player's profile from the Clash Royale API.
+ * 
+ * @param playerTag - The player tag (with or without '#')
+ * @returns The player data or throws an error
+ */
+async function fetchPlayer(playerTag: string): Promise<ClashRoyalePlayer> {
+  const encodedTag = encodeURIComponent(playerTag);
+  const response = await fetch(`/api/clash-royale-api/user?playerTag=${encodedTag}`);
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({ error: 'Failed to fetch player data' }));
+    throw new Error(errorData.error || `Error: ${response.statusText}`);
+  }
+
+  return response.json();
+}
 
 /**
  * Verification form component.
- * Displays verification instructions and a temporary bypass button for development.
+ * Allows users to link their Clash Royale account by entering their player tag.
  */
 export function VerifyForm() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [playerTag, setPlayerTag] = useState('');
-  const [cards, setCards] = useState<any[]>([]);
+  const [cards, setCards] = useState<ClashRoyaleCard[]>([]);
+  const [playerName, setPlayerName] = useState<string | null>(null);
 
   async function handleVerify() {
-    if (!playerTag.trim()) {
+    const trimmedTag = playerTag.trim();
+    if (!trimmedTag) {
       setError('Please enter a player tag');
       return;
     }
@@ -24,28 +45,16 @@ export function VerifyForm() {
     setLoading(true);
 
     try {
-      // URL-encode the player tag to handle the '#' character
-      const encodedTag = encodeURIComponent(playerTag);
-      const response = await fetch(`/api/clash-royale-api/user?playerTag=${encodedTag}`);
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ error: 'Failed to fetch player data' }));
-        setError(errorData.error || `Error: ${response.statusText}`);
-        setLoading(false);
-        return;
-      }
-
-      const data = await response.json();
+      const player = await fetchPlayer(trimmedTag);
       
-      // Extract the cards array from the response
-      const playerCards = data.cards || [];
-      setCards(playerCards);
+      // Store the player's cards and name
+      setCards(player.cards);
+      setPlayerName(player.name);
       
-      console.log('Player cards:', playerCards);
-      // TODO: Implement logic to create the verification deck using playerCards
+      // TODO: Implement logic to create the verification deck using player.cards
     } catch (err) {
-      setError('Failed to verify player tag. Please try again.');
-      console.error('Verification error:', err);
+      const message = err instanceof Error ? err.message : 'Failed to verify player tag. Please try again.';
+      setError(message);
     } finally {
       setLoading(false);
     }

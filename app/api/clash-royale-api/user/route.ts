@@ -1,50 +1,54 @@
 import { NextResponse } from 'next/server'
+import { getPlayer } from '@/lib/clash-royale'
+import { getAuthenticatedUser } from '@/lib/auth/session.server'
 
 /**
- * API endpoint to get user information from the Clash Royale API.
+ * API endpoint to get a Clash Royale player's profile.
  * 
- * Player tags start with '#' and must be URL-encoded (e.g., '#2ABC' becomes '%232ABC').
+ * This endpoint requires authentication to prevent abuse.
+ * Player tags start with '#' and are automatically normalized.
+ * 
+ * @example GET /api/clash-royale-api/user?playerTag=%232YPQVV8P
  * 
  * @param request - The request object
- * @returns The user information from Clash Royale API
+ * @returns The player profile or an error
  */
 export async function GET(request: Request) {
+    // Require authentication to prevent API abuse
+    const { user, error: authError } = await getAuthenticatedUser()
+    if (authError || !user) {
+        return NextResponse.json(
+            { error: 'Authentication required' },
+            { status: 401 }
+        )
+    }
+
+    // Extract player tag from query params
     const { searchParams } = new URL(request.url)
     const playerTag = searchParams.get('playerTag')
-    const apiKey = process.env.CLASH_ROYALE_API_KEY
 
-    if (!playerTag || !apiKey) {
+    if (!playerTag) {
         return NextResponse.json(
-            { error: 'Player tag and API key are required' },
+            { error: 'Player tag is required' },
             { status: 400 }
         )
     }
 
-    // URL-encode the player tag (e.g., '#2YPQVV8P' becomes '%232YPQVV8P')
-    // encodeURIComponent handles the '#' character and any other special characters
-    const encodedPlayerTag = encodeURIComponent(playerTag)
-    const apiUrl = `https://api.clashroyale.com/v1/players/${encodedPlayerTag}`
+    // Use the Clash Royale client service
+    const result = await getPlayer(playerTag)
 
-    try {
-        const response = await fetch(apiUrl, {
-            headers: {
-                'Authorization': `Bearer ${apiKey}`
-            }
-        })
+    if (!result.success) {
+        // Determine appropriate status code based on error
+        const status = result.error.includes('not found') ? 404
+            : result.error.includes('Invalid') ? 400
+                : result.error.includes('configuration') ? 500
+                    : 502 // Bad Gateway for upstream API errors
 
-        if (!response.ok) {
-            return NextResponse.json(
-                { error: `Clash Royale API error: ${response.statusText}` },
-                { status: response.status }
-            )
-        }
-
-        const data = await response.json()
-        return NextResponse.json(data)
-    } catch (error) {
         return NextResponse.json(
-            { error: 'Failed to fetch player data' },
-            { status: 500 }
+            { error: result.error },
+            { status }
         )
     }
+
+    return NextResponse.json(result.data)
 }
