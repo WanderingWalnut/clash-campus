@@ -4,9 +4,7 @@ import { createClient } from "@/lib/supabase/server"
 import { redirect, unstable_rethrow } from "next/navigation"
 import { logger } from "@/lib/logger"
 import { ActionResult } from "@/types"
-import { getEmailDomain } from "@/lib/auth/email"
-import { getUniversityByEmailDomain } from "@/lib/auth/universityEmail.server"
-import { validatePasswordStrength, validatePasswordMatch } from "@/lib/auth/validation"
+import { validateSignupInput } from "@/lib/auth/signupValidation.server"
 
 /**
  * Server action to handle user signup.
@@ -16,70 +14,32 @@ import { validatePasswordStrength, validatePasswordMatch } from "@/lib/auth/vali
  */
 export async function signUpNewUser(formData: FormData): Promise<ActionResult> {
     // Extract and normalize inputs from form data
-    const rawEmail = formData.get("email") as string
+    const email = (formData.get("email") as string)?.trim().toLowerCase()
     const password = formData.get("password") as string
     const confirmPassword = formData.get("confirmPassword") as string
-    const email = rawEmail?.trim().toLowerCase()
 
     // Log the signup attempt for observability
     logger.info('Signup attempt', { email })
 
-    // Validate that required fields are provided
-    if (!email || !password) {
-        logger.warn('Signup validation failed', {
-            email: email ? 'provided' : 'missing',
-            password: password ? 'provided' : 'missing',
-        })
-        return { error: 'Email and password are required' }
-    }
-
-    // Server-side password strength validation
-    const strengthCheck = validatePasswordStrength(password)
-    if (!strengthCheck.isValid) {
-        logger.warn('Signup validation failed - weak password', { email })
-        return { error: strengthCheck.error || 'Password is too weak' }
-    }
-
-    // Server-side password match validation (if confirmPassword provided)
-    if (confirmPassword !== undefined && confirmPassword !== null) {
-        const matchCheck = validatePasswordMatch(password, confirmPassword)
-        if (!matchCheck.isValid) {
-            logger.warn('Signup validation failed - passwords do not match', { email })
-            return { error: matchCheck.error || 'Passwords do not match' }
-        }
-    }
-
-    // Extract email domain (part after @)
-    const emailDomain = getEmailDomain(email)
-    if (!emailDomain) {
-        logger.warn('Signup validation failed - invalid email format', { email })
-        return { error: 'Invalid email format' }
-    }
-
     // Create Supabase client for server-side operations
     const supabase = await createClient()
 
-    // Validate that the email domain exists in the universities table
-    let university = null
-    try {
-        university = await getUniversityByEmailDomain(supabase, emailDomain)
-    } catch (err) {
-        logger.warn('Signup validation failed - university domain lookup error', {
+    // Validate all signup inputs (required fields, password strength, email format, university domain)
+    const validation = await validateSignupInput(email, password, confirmPassword, supabase)
+
+    if (!validation.isValid) {
+        // Log validation failure with context
+        logger.warn('Signup validation failed', {
             email,
-            emailDomain,
-            error: err instanceof Error ? err.message : 'Unknown error',
+            emailDomain: validation.emailDomain,
+            error: validation.error,
         })
+        return { error: validation.error || 'Validation failed' }
     }
 
-    if (!university) {
-        logger.warn('Signup validation failed - email domain not found', {
-            email,
-            emailDomain,
-        })
-        return {
-            error: 'Your email domain is not associated with a registered university. Please use your university email address.',
-        }
-    }
+    // Validation passed - extract validated data
+    // TypeScript now knows university and emailDomain are guaranteed when isValid is true
+    const { university, emailDomain } = validation
 
     logger.info('Email domain validated', {
         email,

@@ -33,3 +33,36 @@ export type UniversityEmailDomainMatch = {
     email_domain: string
 }
 
+/**
+ * Result type for server-side signup validation.
+ * 
+ * Uses a discriminated union to ensure type safety:
+ * - When `isValid` is true, `university` and `emailDomain` are guaranteed
+ * - When `isValid` is false, `error` is guaranteed
+ * 
+ * @example
+ * ```ts
+ * const validation = await validateSignupInput(email, password, confirmPassword, supabase)
+ * if (validation.isValid) {
+ *   // TypeScript knows university and emailDomain exist here
+ *   console.log(validation.university.name)
+ * } else {
+ *   // TypeScript knows error exists here
+ *   console.error(validation.error)
+ * }
+ * ```
+ */
+export type SignupValidationResult =
+    | {
+        isValid: true
+        error: null
+        university: UniversityEmailDomainMatch
+        emailDomain: string
+    }
+    | {
+        isValid: false
+        error: string
+        university: null
+        emailDomain: string | null
+    }
+
