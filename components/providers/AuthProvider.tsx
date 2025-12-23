@@ -166,6 +166,27 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []); // Only run on mount - we handle pathname separately
 
+  // Re-check session when pathname changes (catches redirects from server-side login)
+  // When login happens server-side via signInWithPassword(), the server redirects,
+  // but the client-side auth state might not update immediately. This ensures we
+  // check for the session after the redirect completes.
+  useEffect(() => {
+    const supabase = createClient();
+    const checkSession = async () => {
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        setUser(session?.user ?? null);
+      } catch (error) {
+        console.error('[AuthProvider] Error fetching session on pathname change:', error);
+      }
+    };
+    
+    // Small delay to ensure cookies are available after redirect
+    const timeoutId = setTimeout(checkSession, 50);
+    
+    return () => clearTimeout(timeoutId);
+  }, [pathname]);
+
   /**
    * Handle redirect after logout based on current route.
    * Uses startTransition to avoid blocking UI updates.
