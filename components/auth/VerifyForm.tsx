@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Shield, Clock, CheckCircle2 } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 import { initiateVerification } from '@/app/verify/action';
@@ -61,6 +61,20 @@ export function VerifyForm({ initialSession }: VerifyFormProps) {
         }
       : null
   );
+
+  // Sync initialSession prop with component state when it's provided
+  // This handles the case where user refreshes page after initiating verification
+  useEffect(() => {
+    if (initialSession && !session) {
+      setSession({
+        sessionId: initialSession.sessionId,
+        playerTag: initialSession.playerTag,
+        requiredDeck: initialSession.requiredDeck,
+        expiresAt: new Date(initialSession.expiresAt),
+      });
+      setPlayerName(initialSession.playerName);
+    }
+  }, [initialSession, session]);
 
   async function handleVerify() {
     const trimmedTag = playerTag.trim();
