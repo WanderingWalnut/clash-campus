@@ -22,11 +22,9 @@ export async function bypassVerification(): Promise<ActionResult> {
 
     logger.info('Bypass verification attempt', { userId: user.id })
 
-    const supabase = await createClient()
-
     try {
         // Check current verification status
-        const status = await getVerificationStatus(supabase, user.id)
+        const status = await getVerificationStatus(user.id)
 
         if (status.isVerified) {
             logger.info('Bypass verification - already verified', { userId: user.id })

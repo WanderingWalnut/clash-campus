@@ -61,7 +61,7 @@ export async function logInUser(formData: FormData): Promise<ActionResult> {
             })
 
             // Check if user needs to complete Clash account verification
-            const requiresVerification = await needsVerification(supabase, data.user.id)
+            const requiresVerification = await needsVerification(data.user.id)
 
             if (requiresVerification) {
                 logger.info('Login redirect to verify', { userId: data.user.id })

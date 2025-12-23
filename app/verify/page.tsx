@@ -15,11 +15,8 @@ export default async function VerifyPage() {
   // Require authentication (redirects to /login if not authenticated)
   const user = await requireAuth();
   
-  // Get Supabase client for verification check
-  const supabase = await createClient();
-  
   // Check verification status
-  const verificationStatus = await getVerificationStatus(supabase, user.id);
+  const verificationStatus = await getVerificationStatus(user.id);
   
   // If already verified, redirect to rankings
   if (verificationStatus.isVerified) {

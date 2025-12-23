@@ -6,9 +6,9 @@ import 'server-only'
  * Use this to check if a user has completed the Supercell ID verification flow.
  * Users must have a verified clash_account to access protected routes.
  */
-import { SupabaseClient } from '@supabase/supabase-js'
 import { logger } from '@/lib/logger'
-import type { Database, Tables } from '@/lib/supabase/types'
+import { createClient } from '@/lib/supabase/server'
+import type { Tables } from '@/lib/supabase/types'
 
 export type ClashAccount = Tables<'clash_accounts'>
 
@@ -27,14 +27,14 @@ export interface VerificationStatus {
  * Checks if the user has a clash_account and if it's verified.
  * Both conditions (no account OR unverified account) should redirect to /verify.
  * 
- * @param supabase - The Supabase client
  * @param userId - The user's auth.uid() (same as profile_id)
  * @returns VerificationStatus object
  */
 export async function getVerificationStatus(
-    supabase: SupabaseClient<Database>,
     userId: string
 ): Promise<VerificationStatus> {
+    const supabase = await createClient()
+
     try {
         // Only select columns allowed by RLS: id, profile_id
         // We also need verified, so we'll need to update RLS or use a different approach
@@ -92,15 +92,13 @@ export async function getVerificationStatus(
  * 
  * Convenience function that returns true if user should be redirected to /verify.
  * 
- * @param supabase - The Supabase client
  * @param userId - The user's auth.uid()
  * @returns true if user needs to verify, false if already verified
  */
 export async function needsVerification(
-    supabase: SupabaseClient<Database>,
     userId: string
 ): Promise<boolean> {
-    const status = await getVerificationStatus(supabase, userId)
+    const status = await getVerificationStatus(userId)
     return !status.isVerified
 }
 

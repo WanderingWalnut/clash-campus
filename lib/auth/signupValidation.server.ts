@@ -1,7 +1,6 @@
 import 'server-only'
 
-import type { SupabaseClient } from '@supabase/supabase-js'
-import type { Database } from '@/lib/supabase/types'
+import { createClient } from '@/lib/supabase/server'
 import type { SignupValidationResult, UniversityEmailDomainMatch } from '@/types/auth'
 import { getEmailDomain } from '@/lib/auth/email'
 import { getUniversityByEmailDomain } from '@/lib/auth/universityEmail.server'
@@ -16,15 +15,14 @@ import { validatePasswordStrength, validatePasswordMatch } from '@/lib/auth/vali
  * @param email - Normalized email address
  * @param password - User password
  * @param confirmPassword - Password confirmation (optional)
- * @param supabase - Supabase client for database queries
  * @returns Validation result with error message or validated university
  */
 export async function validateSignupInput(
     email: string | null | undefined,
     password: string | null | undefined,
     confirmPassword: string | null | undefined,
-    supabase: SupabaseClient<Database>
 ): Promise<SignupValidationResult> {
+    const supabase = await createClient()
     // Validate required fields
     if (!email || !password) {
         return {
@@ -73,7 +71,7 @@ export async function validateSignupInput(
     // Validate university domain exists in database
     let university: UniversityEmailDomainMatch | null = null
     try {
-        university = await getUniversityByEmailDomain(supabase, emailDomain)
+        university = await getUniversityByEmailDomain(emailDomain)
     } catch (err) {
         // Return error if database lookup fails
         return {

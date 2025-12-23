@@ -21,11 +21,8 @@ export async function signUpNewUser(formData: FormData): Promise<ActionResult> {
     // Log the signup attempt for observability
     logger.info('Signup attempt', { email })
 
-    // Create Supabase client for server-side operations
-    const supabase = await createClient()
-
     // Validate all signup inputs (required fields, password strength, email format, university domain)
-    const validation = await validateSignupInput(email, password, confirmPassword, supabase)
+    const validation = await validateSignupInput(email, password, confirmPassword)
 
     if (!validation.isValid) {
         // Log validation failure with context

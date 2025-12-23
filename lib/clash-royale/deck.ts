@@ -9,7 +9,7 @@ import type { ClashRoyaleCard } from '@/types/clash-royale';
 export function generateRandomDeck(
     availableCards: ClashRoyaleCard[],
     maxCards: number = 8,
-): { cards: ClashRoyaleCard[] } {
+): { cards: ClashRoyaleCard[], maxCards: number } {
     const deck = [];
     for (let i = 0; i < maxCards; i++) {
         // Math.random() returns a float in [0, 1), so multiplying by availableCards.length
@@ -20,5 +20,6 @@ export function generateRandomDeck(
     }
     return {
         cards: deck,
+        maxCards: maxCards,
     };
 }
