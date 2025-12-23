@@ -44,6 +44,8 @@ export async function signUpNewUser(formData: FormData): Promise<ActionResult> {
         university: university.name,
     })
 
+    const supabase = await createClient()
+
     try {
         // Attempt to sign up the user with Supabase Auth
         // This will automatically send a confirmation email if email confirmation is enabled
