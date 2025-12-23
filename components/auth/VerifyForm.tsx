@@ -5,6 +5,7 @@ import { Shield, Clock, CheckCircle2 } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 import { initiateVerification } from '@/app/verify/action';
 import type { ClashRoyaleCard, ClashRoyalePlayer } from '@/types/clash-royale';
+import type { PendingVerificationSession } from '@/types/auth';
 
 /**
  * Fetches a player's profile from the Clash Royale API.
@@ -29,20 +30,37 @@ async function fetchPlayer(playerTag: string): Promise<ClashRoyalePlayer> {
  */
 interface VerificationSession {
   sessionId: string;
+  playerTag?: string;
   requiredDeck: ClashRoyaleCard[];
   expiresAt: Date;
+}
+
+interface VerifyFormProps {
+  /** Pre-existing pending session from server */
+  initialSession?: PendingVerificationSession | null;
 }
 
 /**
  * Verification form component.
  * Allows users to link their Clash Royale account by entering their player tag.
  */
-export function VerifyForm() {
+export function VerifyForm({ initialSession }: VerifyFormProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [playerTag, setPlayerTag] = useState('');
-  const [playerName, setPlayerName] = useState<string | null>(null);
-  const [session, setSession] = useState<VerificationSession | null>(null);
+  const [playerName, setPlayerName] = useState<string | null>(
+    initialSession?.playerName ?? null
+  );
+  const [session, setSession] = useState<VerificationSession | null>(
+    initialSession
+      ? {
+          sessionId: initialSession.sessionId,
+          playerTag: initialSession.playerTag,
+          requiredDeck: initialSession.requiredDeck,
+          expiresAt: new Date(initialSession.expiresAt),
+        }
+      : null
+  );
 
   async function handleVerify() {
     const trimmedTag = playerTag.trim();
@@ -85,6 +103,11 @@ export function VerifyForm() {
   function formatTimeRemaining(expiresAt: Date): string {
     const now = new Date();
     const diff = expiresAt.getTime() - now.getTime();
+    
+    if (diff <= 0) {
+      return 'Expired';
+    }
+    
     const hours = Math.floor(diff / (1000 * 60 * 60));
     const minutes = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
     return `${hours}h ${minutes}m`;
@@ -128,27 +151,34 @@ export function VerifyForm() {
                 Required Deck
               </p>
               <div className="grid grid-cols-4 gap-2">
-                {session.requiredDeck.map((card, index) => (
-                  <div
-                    key={`${card.id}-${index}`}
-                    className="bg-[#1a1a1a] rounded-lg p-2 flex flex-col items-center"
-                  >
-                    {card.iconUrls?.heroMedium || card.iconUrls?.evolutionMedium ? (
-                      <img
-                        src={card.iconUrls.heroMedium || card.iconUrls.evolutionMedium}
-                        alt={card.name}
-                        className="w-12 h-12 object-contain mb-1"
-                      />
-                    ) : (
-                      <div className="w-12 h-12 bg-gray-700 rounded mb-1 flex items-center justify-center">
-                        <span className="text-gray-500 text-xs">?</span>
-                      </div>
-                    )}
-                    <span className="text-gray-300 text-xs text-center truncate w-full">
-                      {card.name}
-                    </span>
-                  </div>
-                ))}
+                {session.requiredDeck.map((card, index) => {
+                  // Prefer evolution/hero variants, fall back to standard medium icon
+                  const imageUrl = card.iconUrls?.evolutionMedium 
+                    || card.iconUrls?.heroMedium 
+                    || card.iconUrls?.medium;
+                  
+                  return (
+                    <div
+                      key={`${card.id}-${index}`}
+                      className="bg-[#1a1a1a] rounded-lg p-2 flex flex-col items-center"
+                    >
+                      {imageUrl ? (
+                        <img
+                          src={imageUrl}
+                          alt={card.name}
+                          className="w-12 h-12 object-contain mb-1"
+                        />
+                      ) : (
+                        <div className="w-12 h-12 bg-gray-700 rounded mb-1 flex items-center justify-center">
+                          <span className="text-gray-500 text-xs">?</span>
+                        </div>
+                      )}
+                      <span className="text-gray-300 text-xs text-center truncate w-full">
+                        {card.name}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
             </div>
 
@@ -172,18 +202,12 @@ export function VerifyForm() {
               Verify My Deck (Coming Soon)
             </button>
 
-            {/* Cancel / Start Over */}
-            <button
-              type="button"
-              onClick={() => {
-                setSession(null);
-                setPlayerName(null);
-                setError(null);
-              }}
-              className="w-full mt-3 py-2 text-gray-500 hover:text-gray-300 text-sm transition-colors"
-            >
-              Start Over
-            </button>
+            {/* Session Info */}
+            {session.playerTag && (
+              <p className="mt-4 text-center text-xs text-gray-600">
+                Player Tag: {session.playerTag}
+              </p>
+            )}
           </div>
         </Reveal>
 

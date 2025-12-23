@@ -63,3 +63,17 @@ export type InitiateVerificationResult =
     }
     | { error: string }
 
+/**
+ * Pending verification session data.
+ * 
+ * Returned when a user has an existing verification session in progress.
+ * Used to display the required deck on page load.
+ */
+export type PendingVerificationSession = {
+    sessionId: string
+    playerTag: string
+    playerName: string
+    requiredDeck: ClashRoyaleCard[]
+    expiresAt: string // ISO string
+}
+

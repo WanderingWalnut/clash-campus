@@ -6,9 +6,12 @@ import 'server-only'
  * Use this to check if a user has completed the Supercell ID verification flow.
  * Users must have a verified clash_account to access protected routes.
  */
+import { redirect } from 'next/navigation'
 import { logger } from '@/lib/logger'
 import { createClient } from '@/lib/supabase/server'
 import type { Tables } from '@/lib/supabase/types'
+import type { PendingVerificationSession } from '@/types/auth'
+import type { ClashRoyaleCard } from '@/types/clash-royale'
 
 export type ClashAccount = Tables<'clash_accounts'>
 
@@ -100,5 +103,105 @@ export async function needsVerification(
 ): Promise<boolean> {
     const status = await getVerificationStatus(userId)
     return !status.isVerified
+}
+
+/**
+ * Get the user's pending verification session if one exists.
+ * 
+ * This is called on page load to show the existing session instead of
+ * the input form if verification is already in progress.
+ * 
+ * @param userId - The user's auth.uid() (same as profile_id)
+ * @returns The pending session data or null if none exists
+ */
+export async function getPendingVerificationSession(
+    userId: string
+): Promise<PendingVerificationSession | null> {
+    const supabase = await createClient()
+
+    try {
+        // First check if user has a clash_account
+        const { data: clashAccount, error: accountError } = await supabase
+            .from('clash_accounts')
+            .select('id, player_tag, name, verified')
+            .eq('profile_id', userId)
+            .maybeSingle()
+
+        if (accountError) {
+            logger.error('Failed to fetch clash_account for pending session', {
+                userId,
+                error: accountError.message,
+            })
+            return null
+        }
+
+        // No account means no pending session
+        if (!clashAccount) {
+            return null
+        }
+
+        // Already verified - redirect to rankings
+        if (clashAccount.verified) {
+            redirect('/rankings')
+        }
+
+        // Fetch the pending verification session
+        const { data: session, error: sessionError } = await supabase
+            .from('verification_sessions')
+            .select('id, required_deck, expires_at, status')
+            .eq('clash_account_id', clashAccount.id)
+            .eq('status', 'pending')
+            .order('created_at', { ascending: false })
+            .limit(1)
+            .maybeSingle()
+
+        if (sessionError) {
+            logger.error('Failed to fetch verification session', {
+                userId,
+                clashAccountId: clashAccount.id,
+                error: sessionError.message,
+            })
+            return null
+        }
+
+        if (!session || !session.expires_at) {
+            // Has account but no pending session (expired or completed)
+            logger.warn('Clash account exists but no pending session', {
+                userId,
+                clashAccountId: clashAccount.id,
+            })
+            return null
+        }
+
+        // Check if session is expired
+        const expiresAt = new Date(session.expires_at)
+        if (expiresAt < new Date()) {
+            logger.info('Verification session expired', {
+                userId,
+                sessionId: session.id,
+            })
+            return null
+        }
+
+        logger.info('Found pending verification session', {
+            userId,
+            sessionId: session.id,
+            playerTag: clashAccount.player_tag,
+        })
+
+        return {
+            sessionId: session.id,
+            playerTag: clashAccount.player_tag,
+            playerName: clashAccount.name || 'Unknown',
+            requiredDeck: session.required_deck as unknown as ClashRoyaleCard[],
+            expiresAt: session.expires_at,
+        }
+    } catch (err) {
+        logger.error('Unexpected error fetching pending session', {
+            userId,
+            error: err instanceof Error ? err.message : 'Unknown error',
+        })
+        return null
+    }
 }
 

@@ -1,6 +1,5 @@
 import { redirect } from 'next/navigation';
-import { createClient } from '@/lib/supabase/server';
-import { getVerificationStatus } from '@/lib/auth/verification.server';
+import { getVerificationStatus, getPendingVerificationSession } from '@/lib/auth/verification.server';
 import { requireAuth } from '@/lib/auth/session.server';
 import { AuthLayout, VerifyForm } from '@/components/auth';
 
@@ -22,14 +21,16 @@ export default async function VerifyPage() {
   if (verificationStatus.isVerified) {
     redirect('/rankings');
   }
+
+  // Check for existing pending verification session
+  const pendingSession = await getPendingVerificationSession(user.id);
   
   return (
     <AuthLayout
       title="Verify Your Identity"
       subtitle="Link your Clash Royale account to compete on campus."
     >
-      <VerifyForm />
+      <VerifyForm initialSession={pendingSession} />
     </AuthLayout>
   );
 }
-
