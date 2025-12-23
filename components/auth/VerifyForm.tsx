@@ -43,6 +43,9 @@ interface VerifyFormProps {
 /**
  * Verification form component.
  * Allows users to link their Clash Royale account by entering their player tag.
+ * 
+ * Note: Auth state and logout redirects are handled by AuthProvider at the root level.
+ * This component focuses purely on the verification UI and logic.
  */
 export function VerifyForm({ initialSession }: VerifyFormProps) {
   const [loading, setLoading] = useState(false);

@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import Link from 'next/link';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { Crown, Menu, X, User, LogOut } from 'lucide-react';
 import { useScrolled, useAuth } from '@/hooks';
 import { createClient } from '@/lib/supabase/client';
@@ -25,7 +25,6 @@ export function Navigation() {
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const scrolled = useScrolled(50);
   const pathname = usePathname();
-  const router = useRouter();
   const { user, isLoading } = useAuth();
 
   /**
@@ -37,15 +36,17 @@ export function Navigation() {
 
   /**
    * Handles user logout.
-   * Signs out via Supabase and refreshes server state.
+   * Signs out via Supabase. AuthProvider handles all redirects centrally:
+   * - Updates auth context state (UI updates automatically)
+   * - Triggers router.refresh() to sync server state
+   * - Redirects from protected routes to appropriate destinations
    */
   const handleLogout = async () => {
     setIsLoggingOut(true);
     try {
       const supabase = createClient();
       await supabase.auth.signOut();
-      router.push('/');
-      router.refresh();
+      // AuthProvider handles all redirects - no manual navigation needed
     } catch (error) {
       console.error('Logout error:', error);
     } finally {

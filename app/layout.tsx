@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import { TopBanner, Navigation } from '@/components/landing';
+import { AuthProvider } from '@/components/providers';
 import './globals.css';
 
 /**
@@ -68,9 +69,11 @@ export default function RootLayout({
       <body
         className={`${plusJakartaSans.variable} font-sans antialiased bg-[#0D0D0D] text-white`}
       >
-        <TopBanner />
-        <Navigation />
-        {children}
+        <AuthProvider>
+          <TopBanner />
+          <Navigation />
+          {children}
+        </AuthProvider>
       </body>
     </html>
   );

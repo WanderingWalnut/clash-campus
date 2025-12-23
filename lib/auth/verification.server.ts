@@ -106,6 +106,27 @@ export async function needsVerification(
 }
 
 /**
+ * Check if an authenticated user should be redirected to the verification page.
+ * 
+ * This is a convenience function for use in Server Components that need to
+ * conditionally redirect users who haven't completed Clash account verification.
+ * 
+ * Use this in pages that are accessible to authenticated users but should
+ * redirect to /verify if they haven't linked their Clash account.
+ * 
+ * @param userId - The user's auth.uid()
+ * @returns true if user should be redirected to /verify, false otherwise
+ * 
+ */
+export async function shouldRedirectToVerify(
+    userId: string
+): Promise<boolean> {
+    const status = await getVerificationStatus(userId)
+    // User should be redirected if they don't have a verified account
+    return !status.isVerified
+}
+
+/**
  * Get the user's pending verification session if one exists.
  * 
  * This is called on page load to show the existing session instead of
