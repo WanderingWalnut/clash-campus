@@ -2,6 +2,8 @@
  * Type definitions for authentication-related functionality.
  */
 
+import type { ClashRoyaleCard } from './clash-royale'
+
 /**
  * Standard result type for server actions.
  *
@@ -44,4 +46,20 @@ export type SignupValidationResult =
         university: null
         emailDomain: string | null
     }
+
+/**
+ * Result type for verification initiation server action.
+ * 
+ * Uses a discriminated union to ensure type safety:
+ * - When `success` is true, session data is guaranteed
+ * - When `success` is false (error case), only error message is present
+ */
+export type InitiateVerificationResult =
+    | {
+        success: true
+        sessionId: string
+        requiredDeck: ClashRoyaleCard[]
+        expiresAt: string // ISO string for serialization across server/client boundary
+    }
+    | { error: string }
 
