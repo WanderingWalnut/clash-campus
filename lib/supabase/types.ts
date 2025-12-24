@@ -339,7 +339,20 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
-      [_ in never]: never
+      approve_verification_session: {
+        Args: {
+          p_session_id: string
+        }
+        Returns: boolean
+      }
+      record_verification_check: {
+        Args: {
+          p_session_id: string
+          p_failure_reason: string
+          p_mark_expired?: boolean
+        }
+        Returns: boolean
+      }
     }
     Enums: {
       [_ in never]: never

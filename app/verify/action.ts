@@ -3,12 +3,15 @@
 import { createClient } from '@/lib/supabase/server'
 import { redirect, unstable_rethrow } from 'next/navigation'
 import { logger } from '@/lib/logger'
-import { InitiateVerificationResult } from '@/types'
+import { InitiateVerificationResult, VerifyDeckResult } from '@/types'
 import { requireAuth } from '@/lib/auth/session.server'
 import { getVerificationStatus } from '@/lib/auth/verification.server'
 import { createVerificationServerSession } from '@/lib/auth/verificaiton-server-session'
-import { normalizePlayerTag } from '@/lib/clash-royale'
+import { getPlayer, normalizePlayerTag } from '@/lib/clash-royale'
 import type { ClashRoyalePlayer } from '@/types/clash-royale'
+import type { ClashRoyaleCard } from '@/types/clash-royale'
+
+const DECK_CHECK_THROTTLE_SECONDS = 15
 
 /**
  * Initiate verification flow for linking a Clash Royale account.
@@ -166,6 +169,240 @@ export async function initiateVerification(
         logger.error('Initiate verification unexpected error', {
             userId: user.id,
             playerTag,
+            error: err instanceof Error ? err.message : 'Unknown error',
+        })
+        return { error: 'An unexpected error occurred. Please try again.' }
+    }
+}
+
+/**
+ * Verify the user's current Clash Royale deck against the required deck.
+ * 
+ * This action:
+ * 1. Validates authentication and ownership
+ * 2. Loads the latest pending verification session
+ * 3. Fetches fresh player data from the Clash Royale API
+ * 4. Compares the current deck to the required deck
+ * 5. Updates the verification session and clash account on success
+ */
+export async function verifyDeck(sessionId?: string): Promise<VerifyDeckResult> {
+    const user = await requireAuth()
+    const supabase = await createClient()
+
+    logger.info('Verify deck attempt', {
+        userId: user.id,
+        sessionId,
+    })
+
+    try {
+        const { data: clashAccount, error: accountError } = await supabase
+            .from('clash_accounts')
+            .select('id, player_tag, verified')
+            .eq('profile_id', user.id)
+            .maybeSingle()
+
+        if (accountError || !clashAccount) {
+            logger.error('Verify deck - clash account not found', {
+                userId: user.id,
+                error: accountError?.message,
+            })
+            return { error: 'No linked Clash account found. Please start verification again.' }
+        }
+
+        if (clashAccount.verified) {
+            return { success: true }
+        }
+
+        let sessionQuery = supabase
+            .from('verification_sessions')
+            .select('id, required_deck, expires_at, status, last_checked_at')
+            .eq('clash_account_id', clashAccount.id)
+            .eq('status', 'pending')
+            .order('created_at', { ascending: false })
+            .limit(1)
+
+        if (sessionId) {
+            sessionQuery = sessionQuery.eq('id', sessionId)
+        }
+
+        const { data: session, error: sessionError } = await sessionQuery.maybeSingle()
+
+        if (sessionError || !session) {
+            logger.warn('Verify deck - no pending session found', {
+                userId: user.id,
+                sessionId,
+                error: sessionError?.message,
+            })
+            return { error: 'No pending verification session found. Please start verification again.' }
+        }
+
+        const now = new Date()
+        if (session.expires_at && new Date(session.expires_at) < now) {
+            const { error: expireError } = await supabase.rpc('record_verification_check', {
+                p_session_id: session.id,
+                p_failure_reason: 'Session expired',
+                p_mark_expired: true,
+            })
+
+            if (expireError) {
+                logger.error('Verify deck - failed to mark session expired', {
+                    userId: user.id,
+                    sessionId: session.id,
+                    error: expireError.message,
+                })
+            }
+
+            return { error: 'Verification session expired. Please start again.' }
+        }
+
+        if (session.last_checked_at) {
+            const lastChecked = new Date(session.last_checked_at).getTime()
+            const elapsedSeconds = Math.floor((Date.now() - lastChecked) / 1000)
+            if (elapsedSeconds < DECK_CHECK_THROTTLE_SECONDS) {
+                const retryAfterSeconds = DECK_CHECK_THROTTLE_SECONDS - elapsedSeconds
+                return {
+                    error: `Please wait ${retryAfterSeconds}s before verifying again.`,
+                    retryAfterSeconds,
+                }
+            }
+        }
+
+        const requiredDeck = session.required_deck as unknown as ClashRoyaleCard[] | null
+        if (!requiredDeck || !Array.isArray(requiredDeck) || requiredDeck.length === 0) {
+            logger.error('Verify deck - required deck missing', {
+                userId: user.id,
+                sessionId: session.id,
+            })
+            return { error: 'Verification deck is missing. Please contact support.' }
+        }
+
+        const requiredIds = new Set(requiredDeck.map((card) => card.id))
+        if (requiredIds.size !== 8) {
+            logger.error('Verify deck - invalid required deck', {
+                userId: user.id,
+                sessionId: session.id,
+                requiredCount: requiredIds.size,
+            })
+            return { error: 'Verification deck is invalid. Please contact support.' }
+        }
+
+        const playerResult = await getPlayer(clashAccount.player_tag, { cacheSeconds: 0 })
+        if (!playerResult.success) {
+            const { error: recordError } = await supabase.rpc('record_verification_check', {
+                p_session_id: session.id,
+                p_failure_reason: playerResult.error,
+                p_mark_expired: false,
+            })
+
+            if (recordError) {
+                logger.error('Verify deck - failed to record API failure', {
+                    userId: user.id,
+                    sessionId: session.id,
+                    error: recordError.message,
+                })
+            }
+
+            return { error: playerResult.error }
+        }
+
+        const normalizedAccountTag = normalizePlayerTag(clashAccount.player_tag)
+        const normalizedPlayerTag = normalizePlayerTag(playerResult.data.tag)
+        if (!normalizedAccountTag || normalizedAccountTag !== normalizedPlayerTag) {
+            logger.warn('Verify deck - player tag mismatch', {
+                userId: user.id,
+                accountTag: normalizedAccountTag,
+                playerTag: normalizedPlayerTag,
+            })
+            const { error: recordError } = await supabase.rpc('record_verification_check', {
+                p_session_id: session.id,
+                p_failure_reason: 'Player tag mismatch',
+                p_mark_expired: false,
+            })
+
+            if (recordError) {
+                logger.error('Verify deck - failed to record tag mismatch', {
+                    userId: user.id,
+                    sessionId: session.id,
+                    error: recordError.message,
+                })
+            }
+            return { error: 'Player tag mismatch. Please contact support.' }
+        }
+
+        // Check if the current deck matches the required deck
+        const currentDeck = playerResult.data.currentDeck ?? []
+        const currentIds = new Set(currentDeck.map((card) => card.id))
+        const currentDeckNames = currentDeck.map((card) => card.name)
+        const requiredDeckNames = requiredDeck.map((card) => card.name)
+
+        const deckMatches = currentIds.size === 8
+            && requiredIds.size === 8
+            && [...requiredIds].every((id) => currentIds.has(id))
+
+        if (!deckMatches) {
+            const missingCardIds = [...requiredIds].filter((id) => !currentIds.has(id))
+            const extraCardIds = [...currentIds].filter((id) => !requiredIds.has(id))
+            const missingCards = requiredDeck
+                .filter((card) => missingCardIds.includes(card.id))
+                .map((card) => card.name)
+            const extraCards = currentDeck
+                .filter((card) => extraCardIds.includes(card.id))
+                .map((card) => card.name)
+
+            logger.info('Verify deck mismatch', {
+                userId: user.id,
+                sessionId: session.id,
+                requiredDeck: requiredDeckNames,
+                currentDeck: currentDeckNames,
+                missingCards,
+                extraCards,
+            })
+
+            const { error: recordError } = await supabase.rpc('record_verification_check', {
+                p_session_id: session.id,
+                p_failure_reason: 'Deck does not match',
+                p_mark_expired: false,
+            })
+
+            if (recordError) {
+                logger.error('Verify deck - failed to record deck mismatch', {
+                    userId: user.id,
+                    sessionId: session.id,
+                    error: recordError.message,
+                })
+            }
+
+            return { error: 'Your current deck does not match the required deck.' }
+        }
+
+        const { data: approved, error: approveError } = await supabase.rpc('approve_verification_session', {
+            p_session_id: session.id,
+        })
+
+        if (approveError || !approved) {
+            logger.error('Verify deck - failed to approve session', {
+                userId: user.id,
+                sessionId: session.id,
+                error: approveError?.message,
+            })
+            return { error: 'Verification failed. Please try again.' }
+        }
+
+        logger.info('Verify deck success', {
+            userId: user.id,
+            sessionId: session.id,
+            clashAccountId: clashAccount.id,
+            requiredDeck: requiredDeckNames,
+            currentDeck: currentDeckNames,
+        })
+
+        return { success: true }
+    } catch (err) {
+        unstable_rethrow(err)
+
+        logger.error('Verify deck unexpected error', {
+            userId: user.id,
+            sessionId,
             error: err instanceof Error ? err.message : 'Unknown error',
         })
         return { error: 'An unexpected error occurred. Please try again.' }

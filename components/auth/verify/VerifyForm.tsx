@@ -22,15 +22,28 @@ export function VerifyForm({ initialSession }: VerifyFormProps) {
     session,
     loading,
     error,
+    verifyLoading,
+    verifyError,
+    verifySuccess,
     playerTag,
     setPlayerTag,
     playerName,
     handleVerify,
+    handleVerifyDeck,
   } = useVerification(initialSession);
 
   // If session exists, show the deck verification UI
   if (session) {
-    return <DeckVerificationView session={session} playerName={playerName} />;
+    return (
+      <DeckVerificationView
+        session={session}
+        playerName={playerName}
+        loading={verifyLoading}
+        error={verifyError}
+        success={verifySuccess}
+        onVerifyDeck={handleVerifyDeck}
+      />
+    );
   }
 
   // Default: Show the initial verification form
@@ -44,4 +57,3 @@ export function VerifyForm({ initialSession }: VerifyFormProps) {
     />
   );
 }
-

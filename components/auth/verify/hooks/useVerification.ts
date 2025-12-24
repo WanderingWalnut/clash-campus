@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
-import { initiateVerification } from '@/app/verify/action';
+import { initiateVerification, verifyDeck } from '@/app/verify/action';
 import { fetchPlayer } from '../utils/fetchPlayer';
 import type { ClashRoyaleCard } from '@/types/clash-royale';
 import type { PendingVerificationSession } from '@/types/auth';
+import { useRouter } from 'next/navigation';
 
 /**
  * Verification session state after initiation
@@ -20,11 +21,15 @@ export interface VerificationSession {
 export interface UseVerificationReturn {
   session: VerificationSession | null;
   loading: boolean;
+  verifyLoading: boolean;
   error: string | null;
+  verifyError: string | null;
+  verifySuccess: boolean;
   playerTag: string;
   setPlayerTag: (tag: string) => void;
   playerName: string | null;
   handleVerify: () => Promise<void>;
+  handleVerifyDeck: () => Promise<void>;
 }
 
 /**
@@ -43,11 +48,15 @@ export function useVerification(
   initialSession?: PendingVerificationSession | null
 ): UseVerificationReturn {
   const [loading, setLoading] = useState(false);
+  const [verifyLoading, setVerifyLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+  const [verifySuccess, setVerifySuccess] = useState(false);
   const [playerTag, setPlayerTag] = useState('');
   const [playerName, setPlayerName] = useState<string | null>(
     initialSession?.playerName ?? null
   );
+  const router = useRouter();
   const [session, setSession] = useState<VerificationSession | null>(
     initialSession
       ? {
@@ -99,9 +108,12 @@ export function useVerification(
       // Step 3: Store session info and display required deck
       setSession({
         sessionId: result.sessionId,
+        playerTag: player.tag,
         requiredDeck: result.requiredDeck,
         expiresAt: new Date(result.expiresAt),
       });
+      setVerifyError(null);
+      setVerifySuccess(false);
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to verify player tag. Please try again.';
       setError(message);
@@ -110,14 +122,44 @@ export function useVerification(
     }
   }
 
+  async function handleVerifyDeck() {
+    if (!session?.sessionId) {
+      setVerifyError('No active verification session found.');
+      return;
+    }
+
+    setVerifyError(null);
+    setVerifyLoading(true);
+
+    try {
+      const result = await verifyDeck(session.sessionId);
+
+      if ('error' in result) {
+        setVerifyError(result.error);
+        return;
+      }
+
+      setVerifySuccess(true);
+      router.push('/rankings');
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Failed to verify deck. Please try again.';
+      setVerifyError(message);
+    } finally {
+      setVerifyLoading(false);
+    }
+  }
+
   return {
     session,
     loading,
+    verifyLoading,
     error,
+    verifyError,
+    verifySuccess,
     playerTag,
     setPlayerTag,
     playerName,
     handleVerify,
+    handleVerifyDeck,
   };
 }
-

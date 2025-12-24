@@ -58,7 +58,14 @@ export function normalizePlayerTag(tag: string): string | null {
  * @param playerTag - The player tag (with or without '#')
  * @returns The player data or an error
  */
-export async function getPlayer(playerTag: string): Promise<ClashRoyaleApiResult<ClashRoyalePlayer>> {
+export interface GetPlayerOptions {
+    cacheSeconds?: number
+}
+
+export async function getPlayer(
+    playerTag: string,
+    options: GetPlayerOptions = {}
+): Promise<ClashRoyaleApiResult<ClashRoyalePlayer>> {
     const apiKey = process.env.CLASH_ROYALE_API_KEY
 
     if (!apiKey) {
@@ -83,13 +90,20 @@ export async function getPlayer(playerTag: string): Promise<ClashRoyaleApiResult
     const url = `${CLASH_ROYALE_API_BASE}/players/${encodedTag}`
 
     try {
-        const response = await fetch(url, {
+        const cacheSeconds = options.cacheSeconds ?? 300
+        const requestOptions: RequestInit & { next?: { revalidate: number } } = {
             headers: {
                 'Authorization': `Bearer ${apiKey}`,
             },
-            // Cache for 5 minutes to reduce API calls
-            next: { revalidate: 300 },
-        })
+        }
+
+        if (cacheSeconds === 0) {
+            requestOptions.cache = 'no-store'
+        } else {
+            requestOptions.next = { revalidate: cacheSeconds }
+        }
+
+        const response = await fetch(url, requestOptions)
 
         if (!response.ok) {
             // Map Clash Royale API errors to user-friendly messages
@@ -120,7 +134,7 @@ export async function getPlayer(playerTag: string): Promise<ClashRoyaleApiResult
         logger.info('Clash Royale API request successful', {
             playerTag: normalizedTag,
             playerName: data.name,
-            playerCards: data.cards.map(card => card.name),
+            currentDeck: data.currentDeck?.map(card => card.name) ?? [],
         })
 
         return {
@@ -139,4 +153,3 @@ export async function getPlayer(playerTag: string): Promise<ClashRoyaleApiResult
         }
     }
 }
-

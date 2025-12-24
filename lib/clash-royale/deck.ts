@@ -10,14 +10,14 @@ export function generateRandomDeck(
     availableCards: ClashRoyaleCard[],
     maxCards: number = 8,
 ): { cards: ClashRoyaleCard[], maxCards: number } {
-    const deck = [];
-    for (let i = 0; i < maxCards; i++) {
-        // Math.random() returns a float in [0, 1), so multiplying by availableCards.length
-        // scales it to [0, availableCards.length), ensuring every index from 0 to (length-1)
-        // has an equal chance of being picked.
-        const card = availableCards[Math.floor(Math.random() * availableCards.length)];
-        deck.push(card);
+    const shuffled = [...availableCards];
+
+    for (let i = shuffled.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
     }
+
+    const deck = shuffled.slice(0, maxCards);
     return {
         cards: deck,
         maxCards: maxCards,

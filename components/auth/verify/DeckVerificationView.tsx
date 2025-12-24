@@ -8,6 +8,10 @@ import type { VerificationSession } from './hooks/useVerification';
 interface DeckVerificationViewProps {
   session: VerificationSession;
   playerName: string | null;
+  loading: boolean;
+  error: string | null;
+  success: boolean;
+  onVerifyDeck: () => void;
 }
 
 /**
@@ -17,6 +21,10 @@ interface DeckVerificationViewProps {
 export function DeckVerificationView({
   session,
   playerName,
+  loading,
+  error,
+  success,
+  onVerifyDeck,
 }: DeckVerificationViewProps) {
   return (
     <>
@@ -96,14 +104,21 @@ export function DeckVerificationView({
             </ol>
           </div>
 
-          {/* Verify Button (placeholder for future implementation) */}
+          {/* Verify Button */}
           <button
             type="button"
-            disabled
-            className="w-full py-3 bg-gray-700 text-gray-400 font-medium rounded-lg cursor-not-allowed"
+            onClick={onVerifyDeck}
+            disabled={loading || success}
+            className="w-full py-3 bg-[#4717F6] hover:bg-[#5a1fff] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-300"
           >
-            Verify My Deck (Coming Soon)
+            {loading ? 'Verifying...' : success ? 'Verified!' : 'Verify My Deck'}
           </button>
+
+          {error && (
+            <div className="bg-red-900/20 border border-red-700 rounded-lg p-3 text-red-300 text-sm mt-4">
+              {error}
+            </div>
+          )}
 
           {/* Session Info */}
           {session.playerTag && (
@@ -122,4 +137,3 @@ export function DeckVerificationView({
     </>
   );
 }
-

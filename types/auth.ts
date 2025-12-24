@@ -64,6 +64,13 @@ export type InitiateVerificationResult =
     | { error: string }
 
 /**
+ * Result type for deck verification server action.
+ */
+export type VerifyDeckResult =
+    | { success: true }
+    | { error: string; retryAfterSeconds?: number }
+
+/**
  * Pending verification session data.
  * 
  * Returned when a user has an existing verification session in progress.
@@ -76,4 +83,3 @@ export type PendingVerificationSession = {
     requiredDeck: ClashRoyaleCard[]
     expiresAt: string // ISO string
 }
-
