@@ -47,6 +47,10 @@ const nextConfig: NextConfig = {
         hostname: 'api.dicebear.com',
       },
     ],
+    // Allow SVG optimization for dicebear avatars (trusted source)
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
+    contentSecurityPolicy: "default-src 'self'; script-src 'none'; sandbox;",
   },
   async headers() {
     return [
