@@ -65,8 +65,11 @@ export function InitialVerificationForm({
                     onClick={onVerify}
                     disabled={loading}
                     className="px-6 py-3 bg-[#4717F6] hover:bg-[#5a1fff] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-300"
+                    style={{ minWidth: "94px" }} // ensures width doesn't shrink/grow noticeably
                   >
-                    {loading ? 'Verifying...' : 'Verify'}
+                    <span className="inline-block w-[60px] text-center">
+                      {loading ? 'Verifying...' : 'Verify'}
+                    </span>
                   </button>
                 </div>
                 <p className="text-gray-500 text-sm mt-1">
