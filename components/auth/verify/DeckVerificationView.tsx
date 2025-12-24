@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Clock, CheckCircle2 } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 import { formatTimeRemaining } from './utils/formatTimeRemaining';
@@ -74,9 +75,11 @@ export function DeckVerificationView({
                     className="bg-[#1a1a1a] rounded-lg p-2 flex flex-col items-center"
                   >
                     {imageUrl ? (
-                      <img
+                      <Image
                         src={imageUrl}
                         alt={card.name}
+                        width={48}
+                        height={48}
                         className="w-12 h-12 object-contain mb-1"
                       />
                     ) : (

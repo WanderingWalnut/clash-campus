@@ -1,6 +1,5 @@
 import 'server-only'
 
-import { createClient } from '@/lib/supabase/server'
 import type { SignupValidationResult, UniversityEmailDomainMatch } from '@/types/auth'
 import { getEmailDomain } from '@/lib/auth/email'
 import { getUniversityByEmailDomain } from '@/lib/auth/universityEmail.server'
@@ -22,7 +21,6 @@ export async function validateSignupInput(
     password: string | null | undefined,
     confirmPassword: string | null | undefined,
 ): Promise<SignupValidationResult> {
-    const supabase = await createClient()
     // Validate required fields
     if (!email || !password) {
         return {
@@ -72,7 +70,7 @@ export async function validateSignupInput(
     let university: UniversityEmailDomainMatch | null = null
     try {
         university = await getUniversityByEmailDomain(emailDomain)
-    } catch (err) {
+    } catch {
         // Return error if database lookup fails
         return {
             isValid: false,

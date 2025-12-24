@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { Crown, ArrowRight } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
@@ -138,9 +139,11 @@ function LeaderboardRow({ player }: LeaderboardRowProps) {
 
       {/* Player Info */}
       <div className="col-span-6 md:col-span-4 flex items-center gap-3">
-        <img
+        <Image
           src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${player.avatarSeed}`}
           alt={`${player.name}'s avatar`}
+          width={40}
+          height={40}
           className={`w-10 h-10 rounded-full border bg-gray-800 ${
             player.isHighlighted ? 'border-[#FFD700]' : 'border-gray-600'
           }`}

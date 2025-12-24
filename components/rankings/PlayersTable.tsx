@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Crown, Trophy } from 'lucide-react';
 import { RankChange } from './RankChange';
 import type { RankedPlayer } from '@/types/rankings';
@@ -92,9 +93,11 @@ function PlayerRow({ player }: PlayerRowProps) {
       <div className="col-span-7 md:col-span-4">
         <div className="flex items-center gap-3">
           <div className="relative">
-            <img
+            <Image
               src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${player.name}`}
               alt={`${player.name}'s avatar`}
+              width={40}
+              height={40}
               className={`w-10 h-10 rounded-full bg-gray-800 border ${
                 player.isUser ? 'border-[#4717F6]' : 'border-gray-700'
               }`}
