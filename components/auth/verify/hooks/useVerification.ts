@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { initiateVerification, verifyDeck } from '@/app/verify/action';
+import { initiateVerification, verifyDeck } from '@/app/verify/actions';
 import { fetchPlayer } from '../utils/fetchPlayer';
 import type { ClashRoyaleCard } from '@/types/clash-royale';
 import type { PendingVerificationSession } from '@/types/auth';

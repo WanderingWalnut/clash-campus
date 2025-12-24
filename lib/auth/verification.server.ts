@@ -197,10 +197,30 @@ export async function getPendingVerificationSession(
         // Check if session is expired
         const expiresAt = new Date(session.expires_at)
         if (expiresAt < new Date()) {
-            logger.info('Verification session expired', {
+            logger.info('Verification session expired, deleting', {
                 userId,
                 sessionId: session.id,
             })
+            
+            // Delete the expired session
+            const { error: deleteError } = await supabase
+                .from('verification_sessions')
+                .delete()
+                .eq('id', session.id)
+
+            if (deleteError) {
+                logger.warn('Failed to delete expired verification session', {
+                    userId,
+                    sessionId: session.id,
+                    error: deleteError.message,
+                })
+            } else {
+                logger.info('Deleted expired verification session', {
+                    userId,
+                    sessionId: session.id,
+                })
+            }
+            
             return null
         }
 
