@@ -102,7 +102,8 @@ export function DeckVerificationView({
             <ol className="text-gray-400 text-sm space-y-1 list-decimal list-inside">
               <li>Open Clash Royale</li>
               <li>Create a new deck with these exact 8 cards</li>
-              <li>Save the deck and return here</li>
+              <li>Save the deck </li>
+              <li>Play a friendly game with the deck (or any)</li>
               <li>Click &quot;Verify My Deck&quot; below</li>
             </ol>
           </div>
