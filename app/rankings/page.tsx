@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { RankingsHero, RankingsClient, RankingsCTA } from '@/components/rankings';
+import { RankingsHero, RankingsClient } from '@/components/rankings';
 import { Footer } from '@/components/landing';
 
 /**
@@ -29,7 +29,6 @@ export default function RankingsPage() {
     <div className="pt-28 min-h-screen bg-[#0D0D0D]">
       <RankingsHero />
       <RankingsClient />
-      <RankingsCTA />
       <Footer />
     </div>
   );

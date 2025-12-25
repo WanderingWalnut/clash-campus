@@ -16,6 +16,7 @@ import { useEffect, useMemo, useState } from 'react';
 import { RankingsControls } from './RankingsControls';
 import { PlayersTable } from './PlayersTable';
 import { CampusesTable } from './CampusesTable';
+import { RankingsCTA } from './RankingsCTA';
 import {
   LoadingPanel,
   ErrorPanel,
@@ -141,6 +142,9 @@ export function RankingsClient() {
           </p>
         </div>
       </div>
+
+      {/* CTA - Only show when logged out and viewing campuses */}
+      {!user && mode === 'campuses' && <RankingsCTA />}
     </>
   );
 }
