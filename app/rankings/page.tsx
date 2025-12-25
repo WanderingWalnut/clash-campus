@@ -26,9 +26,11 @@ export const metadata: Metadata = {
  */
 export default function RankingsPage() {
   return (
-    <div className="pt-28 min-h-screen bg-[#0D0D0D]">
-      <RankingsHero />
-      <RankingsClient />
+    <div className="flex flex-col min-h-screen bg-[#0D0D0D] pt-28">
+      <div className="flex-1">
+        <RankingsHero />
+        <RankingsClient />
+      </div>
       <Footer />
     </div>
   );
