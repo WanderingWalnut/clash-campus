@@ -50,7 +50,7 @@ export function calculateRankingScore(player: ClashRoyalePlayer): PlayerRankingS
         + 5 * winRate
         + 5 * threeCrownRate
 
-    const rankingScore = Math.round(rawScore * 1000)
+    const rankingScore = rawScore
 
     return {
         rankingScore,

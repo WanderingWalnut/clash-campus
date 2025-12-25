@@ -25,8 +25,9 @@ export function PlayersTable({ players }: PlayersTableProps) {
         <div className="col-span-3 md:col-span-3 text-right md:text-left">
           Composite Score
         </div>
+        <div className="hidden md:block col-span-1 text-right">POL</div>
         <div className="hidden md:block col-span-2 text-right">Trophies</div>
-        <div className="hidden md:block col-span-2 text-right">Wins</div>
+        <div className="hidden md:block col-span-1 text-right">Wins</div>
       </div>
 
       {/* Table Body */}
@@ -133,6 +134,14 @@ function PlayerRow({ player }: PlayerRowProps) {
         <div className="text-[10px] text-gray-500 md:hidden">Composite</div>
       </div>
 
+
+      {/* POL Current League */}
+      <div className="hidden md:block col-span-1 text-right">
+        <div className="text-gray-300 font-mono">
+          {player.polCurrentLeague > 0 ? `L${player.polCurrentLeague}` : '-'}
+        </div>
+      </div>
+
       {/* Trophies (Hidden Mobile) */}
       <div className="hidden md:block col-span-2 text-right">
         <div className="flex items-center justify-end gap-1 text-gray-300 font-mono">
@@ -142,7 +151,7 @@ function PlayerRow({ player }: PlayerRowProps) {
       </div>
 
       {/* Wins (Hidden Mobile) */}
-      <div className="hidden md:block col-span-2 text-right">
+      <div className="hidden md:block col-span-1 text-right">
         <div className="text-gray-400 font-mono">{player.wins}</div>
       </div>
     </div>

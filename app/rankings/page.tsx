@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import { RankingsHero, RankingsTable, RankingsCTA } from '@/components/rankings';
+import { RankingsHero, RankingsClient, RankingsCTA } from '@/components/rankings';
 import { Footer } from '@/components/landing';
 
 /**
@@ -28,7 +28,7 @@ export default function RankingsPage() {
   return (
     <div className="pt-28 min-h-screen bg-[#0D0D0D]">
       <RankingsHero />
-      <RankingsTable />
+      <RankingsClient />
       <RankingsCTA />
       <Footer />
     </div>

@@ -27,6 +27,10 @@ export interface RankedPlayer {
     trophies: number;
     /** Total number of wins */
     wins: number;
+    /** Path of Legends current league (0-10) */
+    polCurrentLeague: number;
+    /** Path of Legends best league (0-10) */
+    polBestLeague: number;
     /** Direction of rank change since last update */
     change: RankChangeType;
     /** Whether this player is the currently logged-in user */
