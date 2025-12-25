@@ -133,10 +133,10 @@ export function Navigation() {
             ) : (
               // Not authenticated: Show signup CTA
               <Link
-                href="/signup"
+                href="/login"
                 className="bg-white text-[#0D0D0D] hover:bg-[#FFD700] hover:text-black px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 transform hover:scale-105 inline-block"
               >
-                Verify Student ID
+                Log In
               </Link>
             )}
           </div>
@@ -191,13 +191,13 @@ export function Navigation() {
                 </button>
               </>
             ) : (
-              // Not authenticated: Show signup link
+              // Not authenticated: Show login link
               <Link
-                href="/signup"
+                href="/login"
                 className="block px-3 py-2 text-base font-bold text-[#FFD700]"
                 onClick={handleNavClick}
               >
-                Verify Student ID
+                Log In
               </Link>
             )}
           </div>
