@@ -1,7 +1,7 @@
 import 'server-only'
 
 /**
- * Server-side Supabase client
+ * Server-side Supabase client (respects RLS)
  * 
  * Use this in Server Components, Server Actions, and Route Handlers.
  * 
@@ -10,9 +10,13 @@ import 'server-only'
  * - Can write cookies back (though Server Components may fail silently)
  * - Automatically includes the user's auth token in all requests
  * - Respects RLS policies based on the authenticated user
+ * - Uses the anon/public key (NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY)
  * 
  * Note: The proxy (proxy.ts) handles token refresh automatically.
  * If cookie writes fail here, the proxy will handle it on the next request.
+ * 
+ * For operations that need to bypass RLS (admin/system operations),
+ * use lib/supabase/admin.ts instead.
  * 
  * @example
  * ```ts

@@ -62,9 +62,16 @@ export type Database = {
           created_at: string
           current_trophies: number
           id: string
+          last_error: string | null
           last_synced_at: string | null
           losses: number
+          next_refresh_at: string | null
+          pol_best_league: number
+          pol_current_league: number
           ranking_score: number
+          refresh_attempts: number
+          score_version: string
+          snapshot: Json | null
           three_crown_wins: number
           university_id: string
           updated_at: string
@@ -76,9 +83,16 @@ export type Database = {
           created_at?: string
           current_trophies?: number
           id?: string
+          last_error?: string | null
           last_synced_at?: string | null
           losses?: number
+          next_refresh_at?: string | null
+          pol_best_league?: number
+          pol_current_league?: number
           ranking_score?: number
+          refresh_attempts?: number
+          score_version?: string
+          snapshot?: Json | null
           three_crown_wins?: number
           university_id: string
           updated_at?: string
@@ -90,9 +104,16 @@ export type Database = {
           created_at?: string
           current_trophies?: number
           id?: string
+          last_error?: string | null
           last_synced_at?: string | null
           losses?: number
+          next_refresh_at?: string | null
+          pol_best_league?: number
+          pol_current_league?: number
           ranking_score?: number
+          refresh_attempts?: number
+          score_version?: string
+          snapshot?: Json | null
           three_crown_wins?: number
           university_id?: string
           updated_at?: string
@@ -340,16 +361,14 @@ export type Database = {
     }
     Functions: {
       approve_verification_session: {
-        Args: {
-          p_session_id: string
-        }
+        Args: { p_session_id: string }
         Returns: boolean
       }
       record_verification_check: {
         Args: {
-          p_session_id: string
           p_failure_reason: string
           p_mark_expired?: boolean
+          p_session_id: string
         }
         Returns: boolean
       }

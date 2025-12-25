@@ -5,10 +5,13 @@ import { unstable_rethrow } from 'next/navigation'
 import { logger } from '@/lib/logger'
 import { VerifyDeckResult } from '@/types'
 import { requireAuth } from '@/lib/auth/session.server'
-import { getPlayer, normalizePlayerTag } from '@/lib/clash-royale'
+import { calculateRankingScore, getPlayer, normalizePlayerTag, SCORE_VERSION } from '@/lib/clash-royale'
 import type { ClashRoyaleCard } from '@/types/clash-royale'
+import type { Json } from '@/lib/supabase/types'
+import { createAdminClient } from '@/lib/supabase/admin'
 
 const DECK_CHECK_THROTTLE_SECONDS = 15
+const PLAYER_RANKINGS_REFRESH_MINUTES = 30
 
 /**
  * Verify the user's current Clash Royale deck against the required deck.
@@ -229,6 +232,66 @@ export async function verifyDeck(sessionId?: string): Promise<VerifyDeckResult> 
                 error: approveError?.message,
             })
             return { error: 'Verification failed. Please try again.' }
+        }
+
+        const { data: profile, error: profileError } = await supabase
+            .from('profiles')
+            .select('university_id')
+            .eq('id', user.id)
+            .maybeSingle()
+
+        if (profileError || !profile) {
+            logger.error('Verify deck - failed to fetch profile for rankings', {
+                userId: user.id,
+                sessionId: session.id,
+                error: profileError?.message,
+            })
+        } else {
+            try {
+                const syncTime = new Date()
+                const nextRefreshAt = new Date(
+                    syncTime.getTime() + PLAYER_RANKINGS_REFRESH_MINUTES * 60 * 1000
+                )
+                const score = calculateRankingScore(playerResult.data)
+                const admin = createAdminClient()
+
+                const { error: rankingError } = await admin
+                    .from('player_rankings')
+                    .upsert({
+                        clash_account_id: clashAccount.id,
+                        university_id: profile.university_id,
+                        current_trophies: playerResult.data.trophies,
+                        best_trophies: playerResult.data.bestTrophies,
+                        wins: playerResult.data.wins,
+                        losses: playerResult.data.losses,
+                        three_crown_wins: playerResult.data.threeCrownWins,
+                        ranking_score: score.rankingScore,
+                        pol_current_league: score.polCurrentLeague,
+                        pol_best_league: score.polBestLeague,
+                        score_version: SCORE_VERSION,
+                        snapshot: playerResult.data as unknown as Json,
+                        last_synced_at: syncTime.toISOString(),
+                        next_refresh_at: nextRefreshAt.toISOString(),
+                        refresh_attempts: 0,
+                        last_error: null,
+                    }, {
+                        onConflict: 'clash_account_id',
+                    })
+
+                if (rankingError) {
+                    logger.error('Verify deck - failed to upsert player rankings', {
+                        userId: user.id,
+                        sessionId: session.id,
+                        error: rankingError.message,
+                    })
+                }
+            } catch (error) {
+                logger.error('Verify deck - unexpected ranking upsert error', {
+                    userId: user.id,
+                    sessionId: session.id,
+                    error: error instanceof Error ? error.message : 'Unknown error',
+                })
+            }
         }
 
         logger.info('Verify deck success', {
