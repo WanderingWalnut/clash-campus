@@ -1,24 +1,19 @@
-'use client';
-
 import Link from 'next/link';
 import { Crown, Trophy, Zap, Search, Medal } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
-import { useScrolled } from '@/hooks/useScrolled';
+import { HeroSectionWrapper } from './HeroSectionWrapper';
 
 /**
  * Hero section of the landing page.
  * Features animated taglines, CTAs, and a floating player card preview.
  * This is the first impression users see when visiting ClashCampus.
+ * 
+ * Most of this component is server-side. Only the scroll-dependent padding
+ * is handled by a small client component wrapper.
  */
 export function Hero() {
-  const scrolled = useScrolled(50);
-
   return (
-    <section
-      className={`relative min-h-screen flex items-center justify-center overflow-hidden transition-all duration-300 ${
-        scrolled ? 'pt-20' : 'pt-[116px]'
-      }`}
-    >
+    <HeroSectionWrapper>
       {/* Background Effects */}
       <div className="absolute inset-0 bg-hero-glow z-0" />
       <div
@@ -67,16 +62,17 @@ export function Hero() {
             >
               <Zap size={20} /> Claim Your Rank
             </Link>
-            <button className="glass hover:bg-white/10 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2">
-              <Search size={20} /> Find My Campus
-            </button>
+            <Link
+              href="/rankings"
+              className="glass hover:bg-white/10 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2">
+              <Search size={20} /> Find My Campus </Link>
           </div>
         </Reveal>
 
         {/* Floating Player Card Preview */}
         <HeroPlayerCard />
       </div>
-    </section>
+    </HeroSectionWrapper>
   );
 }
 

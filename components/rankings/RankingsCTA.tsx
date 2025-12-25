@@ -1,7 +1,10 @@
 /**
  * Call-to-action section at the bottom of the rankings page.
  * Encourages users to join and help their campus climb the rankings.
+ * Server component - uses Next.js Link for navigation (no client-side JS needed).
  */
+import Link from 'next/link';
+
 export function RankingsCTA() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-16 text-center">
@@ -17,9 +20,12 @@ export function RankingsCTA() {
             Join ClashCampus, link your account, and help your university climb
             the Royale Rankings.
           </p>
-          <button className="bg-white text-black hover:bg-[#FFD700] px-8 py-3 rounded-full font-bold transition-all shadow-lg transform hover:scale-105">
+          <Link
+            href="/signup"
+            className="inline-block bg-white text-black hover:bg-[#FFD700] px-8 py-3 rounded-full font-bold transition-all shadow-lg transform hover:scale-105"
+          >
             Claim Your Spot
-          </button>
+          </Link>
         </div>
       </div>
     </div>
