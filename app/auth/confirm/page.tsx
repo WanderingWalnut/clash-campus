@@ -3,13 +3,9 @@ import { AuthLayout } from '@/components/auth'
 
 interface ConfirmEmailPageProps {
     searchParams: {
-        token_hash?: string
-        type?: string
-        next?: string
+        confirmation_url?: string
     }
 }
-
-const DEFAULT_NEXT = '/rankings'
 
 // Always render on-demand so search params are respected in production.
 export const dynamic = 'force-dynamic'
@@ -17,16 +13,14 @@ export const dynamic = 'force-dynamic'
 /**
  * Email confirmation landing page.
  *
- * This page renders a POST form so email scanners do not consume the token
- * before the user explicitly continues.
+ * This page renders a POST form so email scanners do not consume the actual
+ * confirmation link before the user explicitly continues.
  */
 export default function ConfirmEmailPage({ searchParams }: ConfirmEmailPageProps) {
-    const tokenHash = searchParams.token_hash
-    const type = searchParams.type
-    const nextPath = searchParams.next ?? DEFAULT_NEXT
+    const confirmationUrl = searchParams.confirmation_url
 
-    // Missing params means the link is invalid or already consumed.
-    if (!tokenHash || !type) {
+    // Missing confirmation URL means the link is invalid or already consumed.
+    if (!confirmationUrl) {
         redirect('/auth/auth-code-error')
     }
 
@@ -41,10 +35,8 @@ export default function ConfirmEmailPage({ searchParams }: ConfirmEmailPageProps
                 </p>
 
                 <form method="post" action="/auth/confirm/verify" className="space-y-4">
-                    {/* Hidden fields preserve the token and redirect target. */}
-                    <input type="hidden" name="token_hash" value={tokenHash} />
-                    <input type="hidden" name="type" value={type} />
-                    <input type="hidden" name="next" value={nextPath} />
+                    {/* Hidden field carries the real confirmation URL to the POST handler. */}
+                    <input type="hidden" name="confirmation_url" value={confirmationUrl} />
 
                     <button
                         type="submit"
