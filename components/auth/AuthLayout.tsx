@@ -38,7 +38,7 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
           <Reveal>
             {/* Header */}
             <div className="text-center mb-8">
-              <div className="inline-flex items-center gap-2 mb-4">
+              <div className="hidden md:inline-flex items-center gap-2 mb-4">
                 <Crown className="text-[#FFD700]" size={32} />
                 <span className="font-bold text-2xl tracking-tight">
                   CLASH<span className="text-[#4717F6]">CAMPUS</span>
