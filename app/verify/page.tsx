@@ -26,10 +26,7 @@ export default async function VerifyPage() {
   const pendingSession = await getPendingVerificationSession(user.id);
   
   return (
-    <AuthLayout
-      title="Verify Your Identity"
-      subtitle="Link your Clash Royale account to compete on campus."
-    >
+    <AuthLayout>
       <VerifyForm initialSession={pendingSession} />
     </AuthLayout>
   );
