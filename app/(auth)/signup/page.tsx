@@ -1,4 +1,6 @@
+import { redirect } from 'next/navigation';
 import { AuthLayout, SignUpForm } from '@/components/auth';
+import { getAuthenticatedUser } from '@/lib/auth/session.server';
 
 /**
  * Sign Up Page
@@ -7,7 +9,12 @@ import { AuthLayout, SignUpForm } from '@/components/auth';
  * Features a glass morphism card with form fields for university email,
  * password, and confirm password. No backend logic implemented yet.
  */
-export default function SignUpPage() {
+export default async function SignUpPage() {
+  const { user } = await getAuthenticatedUser();
+  if (user) {
+    redirect('/profile');
+  }
+
   return (
     <AuthLayout
       title="Join the Arena"

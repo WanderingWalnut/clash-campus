@@ -96,6 +96,21 @@ export async function updateSession(request: NextRequest) {
         return redirectResponse
     }
 
+    // Redirect authenticated users away from auth pages to their profile
+    const authRedirectRoutes = ['/login', '/signup']
+    const isAuthRedirectRoute = authRedirectRoutes.some(route =>
+        request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route + '/')
+    )
+
+    if (user && isAuthRedirectRoute) {
+        const url = request.nextUrl.clone()
+        url.pathname = '/profile'
+        const redirectResponse = NextResponse.redirect(url)
+        // IMPORTANT: Copy Supabase cookies with full options to maintain session state
+        copyResponseCookies(supabaseResponse, redirectResponse)
+        return redirectResponse
+    }
+
     // Routes that don't require Clash account verification
     // - /verify is where users go to verify their account
     // - /reset-password is accessed after clicking the password reset email link

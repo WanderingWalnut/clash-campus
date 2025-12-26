@@ -1,4 +1,6 @@
+import { redirect } from 'next/navigation';
 import { AuthLayout, LoginForm } from '@/components/auth';
+import { getAuthenticatedUser } from '@/lib/auth/session.server';
 
 /**
  * Login Page
@@ -7,7 +9,12 @@ import { AuthLayout, LoginForm } from '@/components/auth';
  * Features a glass morphism card with email and password fields.
  * No backend logic implemented yet.
  */
-export default function LoginPage() {
+export default async function LoginPage() {
+  const { user } = await getAuthenticatedUser();
+  if (user) {
+    redirect('/profile');
+  }
+
   return (
     <AuthLayout
       title="Welcome Back"
