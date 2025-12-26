@@ -27,6 +27,38 @@ function isAllowedConfirmationUrl(url: URL) {
     return url.host === expectedHost
 }
 
+function fixRedirectTo(confirmationUrl: URL, request: NextRequest): URL {
+    const redirectTo = confirmationUrl.searchParams.get('redirect_to')
+
+    if (!redirectTo) {
+        // No redirect_to parameter, add it
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ||
+            `${request.nextUrl.protocol}//${request.nextUrl.host}`
+        confirmationUrl.searchParams.set('redirect_to', `${siteUrl}/auth/confirm/callback`)
+        return confirmationUrl
+    }
+
+    try {
+        const redirectUrl = new URL(redirectTo)
+
+        // Check if redirect_to is missing the callback path
+        if (redirectUrl.pathname === '/' || !redirectUrl.pathname.endsWith('/auth/confirm/callback')) {
+            // Fix the redirect_to to point to the callback route
+            const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ||
+                `${request.nextUrl.protocol}//${request.nextUrl.host}`
+            const fixedRedirect = `${siteUrl}/auth/confirm/callback`
+            confirmationUrl.searchParams.set('redirect_to', fixedRedirect)
+        }
+    } catch {
+        // Invalid redirect_to URL, replace it
+        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ||
+            `${request.nextUrl.protocol}//${request.nextUrl.host}`
+        confirmationUrl.searchParams.set('redirect_to', `${siteUrl}/auth/confirm/callback`)
+    }
+
+    return confirmationUrl
+}
+
 export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const confirmationUrlValue =
@@ -53,7 +85,11 @@ export async function POST(request: NextRequest) {
         )
     }
 
+    // Fix the redirect_to parameter if it's missing the callback path.
+    // This handles cases where Supabase uses the Site URL from dashboard instead of emailRedirectTo.
+    const fixedUrl = fixRedirectTo(confirmationUrl, request)
+
     // Redirect the user to Supabase's confirmation URL to finish the flow.
     // Use 303 to ensure the browser performs a GET.
-    return NextResponse.redirect(confirmationUrl, { status: 303 })
+    return NextResponse.redirect(fixedUrl, { status: 303 })
 }

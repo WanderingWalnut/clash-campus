@@ -2,9 +2,50 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { redirect, unstable_rethrow } from "next/navigation"
+import { headers } from "next/headers"
 import { logger } from "@/lib/logger"
 import { ActionResult } from "@/types"
 import { validateSignupInput } from "@/lib/auth/signupValidation.server"
+
+/**
+ * Builds the callback URL for email confirmation redirects.
+ * 
+ * Priority:
+ * 1. NEXT_PUBLIC_SITE_URL (should be set in production)
+ * 2. NEXT_PUBLIC_VERCEL_URL (automatically set by Vercel)
+ * 3. Request headers (fallback for dynamic detection)
+ * 4. localhost (development fallback)
+ */
+async function getCallbackUrl(): Promise<string> {
+    // Prefer explicitly set site URL
+    if (process.env.NEXT_PUBLIC_SITE_URL) {
+        return `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm/callback`
+    }
+
+    // Use Vercel's automatically provided URL (available at build/runtime)
+    if (process.env.NEXT_PUBLIC_VERCEL_URL) {
+        const vercelUrl = process.env.NEXT_PUBLIC_VERCEL_URL
+        // Vercel URL might not include protocol
+        const url = vercelUrl.startsWith('http') ? vercelUrl : `https://${vercelUrl}`
+        return `${url}/auth/confirm/callback`
+    }
+
+    // Fallback: build from request headers (for dynamic detection)
+    try {
+        const headerList = await headers()
+        const host = headerList.get('x-forwarded-host') ?? headerList.get('host')
+        const protocol = headerList.get('x-forwarded-proto') ?? 'https'
+
+        if (host) {
+            return `${protocol}://${host}/auth/confirm/callback`
+        }
+    } catch {
+        // Headers not available (shouldn't happen in server actions, but safe fallback)
+    }
+
+    // Development fallback
+    return 'http://localhost:3000/auth/confirm/callback'
+}
 
 /**
  * Server action to handle user signup.
@@ -47,6 +88,16 @@ export async function signUpNewUser(formData: FormData): Promise<ActionResult> {
     const supabase = await createClient()
 
     try {
+        // Build the callback URL dynamically to handle Vercel preview deployments
+        const callbackUrl = await getCallbackUrl()
+
+        logger.info('Signup with email redirect', {
+            email,
+            callbackUrl,
+            hasSiteUrl: !!process.env.NEXT_PUBLIC_SITE_URL,
+            hasVercelUrl: !!process.env.NEXT_PUBLIC_VERCEL_URL,
+        })
+
         // Attempt to sign up the user with Supabase Auth
         // This will automatically send a confirmation email if email confirmation is enabled
         const { data, error } = await supabase.auth.signUp({
@@ -55,7 +106,7 @@ export async function signUpNewUser(formData: FormData): Promise<ActionResult> {
             options: {
                 // Redirect back to the callback after Supabase confirms the email.
                 // The callback exchanges the auth code for a session cookie.
-                emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/confirm/callback`,
+                emailRedirectTo: callbackUrl,
             },
         })
 
