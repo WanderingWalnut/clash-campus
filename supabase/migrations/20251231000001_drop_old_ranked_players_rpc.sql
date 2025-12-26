@@ -1,0 +1,11 @@
+-- ----------------------------
+-- Drop the old get_ranked_players function
+-- 
+-- This migration drops the old get_ranked_players function in favor of
+-- the new get_ranked_players_complete function which returns JSONB and
+-- includes user context. This reduces API queries from 7 to 2.
+-- 
+-- The old function is being replaced by get_ranked_players_complete
+-- which provides the same functionality plus user ranking data.
+-- ----------------------------
+drop function if exists public.get_ranked_players(uuid, int, int);
