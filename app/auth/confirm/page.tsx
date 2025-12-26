@@ -10,32 +10,6 @@ interface ConfirmEmailPageProps {
     searchParams: ConfirmEmailSearchParams | Promise<ConfirmEmailSearchParams>
 }
 
-type EmailOtpType =
-    | 'email'
-    | 'signup'
-    | 'invite'
-    | 'magiclink'
-    | 'recovery'
-    | 'email_change'
-
-const ALLOWED_TYPES = new Set<EmailOtpType>([
-    'email',
-    'signup',
-    'invite',
-    'magiclink',
-    'recovery',
-    'email_change',
-])
-
-function normalizeOtpType(value?: string): EmailOtpType {
-    if (!value) {
-        return 'signup'
-    }
-
-    const candidate = value as EmailOtpType
-    return ALLOWED_TYPES.has(candidate) ? candidate : 'signup'
-}
-
 // Always render on-demand so search params are respected in production.
 export const dynamic = 'force-dynamic'
 
@@ -51,10 +25,10 @@ export const dynamic = 'force-dynamic'
 export default async function ConfirmEmailPage({ searchParams }: ConfirmEmailPageProps) {
     const resolvedSearchParams = await searchParams
     const tokenHash = resolvedSearchParams.token_hash
-    const otpType = normalizeOtpType(resolvedSearchParams.type)
+    const otpType = resolvedSearchParams.type
 
-    // Missing token hash means the link is invalid or already consumed.
-    if (!tokenHash) {
+    // Missing params means the link is invalid or already consumed.
+    if (!tokenHash || !otpType) {
         redirect('/auth/auth-code-error')
     }
 

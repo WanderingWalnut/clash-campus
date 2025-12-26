@@ -57,23 +57,10 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createClient()
-    let { data, error } = await supabase.auth.verifyOtp({
+    const { data, error } = await supabase.auth.verifyOtp({
         token_hash: tokenHash,
         type: otpType,
     })
-
-    if (error && (otpType === 'signup' || otpType === 'email')) {
-        const fallbackType: EmailOtpType = otpType === 'signup' ? 'email' : 'signup'
-        const fallback = await supabase.auth.verifyOtp({
-            token_hash: tokenHash,
-            type: fallbackType,
-        })
-
-        if (!fallback.error) {
-            data = fallback.data
-            error = null
-        }
-    }
 
     if (error) {
         logger.error('Email confirmation verifyOtp failed', {
@@ -95,16 +82,18 @@ export async function POST(request: NextRequest) {
 
     const user = data.user ?? (await supabase.auth.getUser()).data.user
 
-    if (user) {
-        const requiresVerification = await needsVerification(user.id)
-        const nextPath = requiresVerification ? '/verify' : '/rankings'
-        return NextResponse.redirect(new URL(nextPath, request.url), {
-            status: 303,
+    if (!user) {
+        logger.warn('Email confirmation succeeded without user', {
+            type: otpType,
         })
+        return NextResponse.redirect(
+            new URL('/auth/auth-code-error', request.url)
+        )
     }
 
-    const fallbackPath = otpType === 'signup' ? '/verify' : '/rankings'
-    return NextResponse.redirect(new URL(fallbackPath, request.url), {
+    const requiresVerification = await needsVerification(user.id)
+    const nextPath = requiresVerification ? '/verify' : '/rankings'
+    return NextResponse.redirect(new URL(nextPath, request.url), {
         status: 303,
     })
 }
