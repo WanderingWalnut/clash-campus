@@ -1,4 +1,5 @@
 import { redirect } from 'next/navigation'
+import { headers } from 'next/headers'
 import { AuthLayout } from '@/components/auth'
 
 interface ConfirmEmailPageProps {
@@ -16,11 +17,47 @@ export const dynamic = 'force-dynamic'
  * This page renders a POST form so email scanners do not consume the actual
  * confirmation link before the user explicitly continues.
  */
-export default function ConfirmEmailPage({ searchParams }: ConfirmEmailPageProps) {
+async function buildCallbackUrl() {
+    const headerList = await headers()
+    const host =
+        headerList.get('x-forwarded-host') ??
+        headerList.get('host')
+    const protocol = headerList.get('x-forwarded-proto') ?? 'https'
+
+    if (!host) {
+        return null
+    }
+
+    return `${protocol}://${host}/auth/confirm/callback`
+}
+
+async function updateRedirectTarget(confirmationUrl: string) {
+    try {
+        const parsed = new URL(confirmationUrl)
+        const callbackUrl = await buildCallbackUrl()
+
+        // Ensure Supabase redirects to our callback so we can exchange the code.
+        if (callbackUrl) {
+            parsed.searchParams.set('redirect_to', callbackUrl)
+        }
+
+        return parsed.toString()
+    } catch {
+        return null
+    }
+}
+
+export default async function ConfirmEmailPage({ searchParams }: ConfirmEmailPageProps) {
     const confirmationUrl = searchParams.confirmation_url
 
     // Missing confirmation URL means the link is invalid or already consumed.
     if (!confirmationUrl) {
+        redirect('/auth/auth-code-error')
+    }
+
+    const confirmationUrlToUse = await updateRedirectTarget(confirmationUrl)
+
+    if (!confirmationUrlToUse) {
         redirect('/auth/auth-code-error')
     }
 
@@ -36,7 +73,7 @@ export default function ConfirmEmailPage({ searchParams }: ConfirmEmailPageProps
 
                 <form method="post" action="/auth/confirm/verify" className="space-y-4">
                     {/* Hidden field carries the real confirmation URL to the POST handler. */}
-                    <input type="hidden" name="confirmation_url" value={confirmationUrl} />
+                    <input type="hidden" name="confirmation_url" value={confirmationUrlToUse} />
 
                     <button
                         type="submit"
