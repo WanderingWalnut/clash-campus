@@ -111,28 +111,28 @@ export function Navigation() {
         ${scrolled ? 'top-0 z-50 glass' : 'top-[36px] z-40 bg-transparent'}
       `}
     >
-      <div className="max-w-7xl mx-auto px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20">
+      <div className="max-w-7xl mx-auto px-3 md:px-6 lg:px-8">
+        <div className="flex items-center justify-between h-16 md:h-20">
           {/* Logo */}
           <Link
             href="/"
-            className="flex-shrink-0 flex items-center gap-2 cursor-pointer"
+            className="flex-shrink-0 flex items-center gap-1.5 md:gap-2 cursor-pointer"
           >
-            <Crown className="text-[#FFD700]" size={28} />
-            <span className="font-bold text-xl tracking-tight">
+            <Crown className="text-[#FFD700] w-6 h-6 md:w-7 md:h-7" />
+            <span className="font-bold text-base md:text-xl tracking-tight">
               CLASH<span className="text-[#4717F6]">CAMPUS</span>
             </span>
           </Link>
 
           {/* Desktop Menu */}
           <div className="hidden md:block">
-            <div className="ml-10 flex items-baseline space-x-8">
+            <div className="ml-6 md:ml-10 flex items-baseline space-x-6 md:space-x-8">
               {NAV_ITEMS.map((item) => (
                 <Link
                   key={item.label}
                   href={item.href}
                   className={`
-                    hover:text-[#FFD700] transition-colors text-sm font-medium tracking-wide
+                    hover:text-[#FFD700] transition-colors text-xs md:text-sm font-medium tracking-wide
                     ${isActive(item.href) ? 'text-[#FFD700]' : 'text-white'}
                   `}
                 >
@@ -188,7 +188,7 @@ export function Navigation() {
               // Not authenticated: Show signup CTA
               <Link
                 href="/login"
-                className="bg-white text-[#0D0D0D] hover:bg-[#FFD700] hover:text-black px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 transform hover:scale-105 inline-block"
+                className="bg-white text-[#0D0D0D] hover:bg-[#FFD700] hover:text-black px-4 py-2 md:px-5 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition-all duration-300 transform hover:scale-105 inline-block"
               >
                 Log In
               </Link>
@@ -217,7 +217,7 @@ export function Navigation() {
                 key={item.label}
                 href={item.href}
                 className={`
-                  block px-3 py-2 text-base font-medium rounded-md
+                  block px-3 py-2 text-sm md:text-base font-medium rounded-md
                   ${isActive(item.href)
                     ? 'text-[#FFD700] bg-gray-800'
                     : 'text-gray-300 hover:text-white hover:bg-gray-800'
@@ -233,7 +233,7 @@ export function Navigation() {
               <>
                 <Link
                   href="/profile"
-                  className="flex items-center gap-2 px-3 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 rounded-md"
+                  className="flex items-center gap-2 px-3 py-2 text-sm md:text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 rounded-md"
                   onClick={handleNavClick}
                 >
                   <User className="w-4 h-4" />
@@ -241,12 +241,12 @@ export function Navigation() {
                 </Link>
                 <div className="flex items-center gap-2 px-3 py-2 text-gray-400">
                   <User className="w-4 h-4" />
-                  <span className="text-sm truncate">{user.email}</span>
+                  <span className="text-xs md:text-sm truncate">{user.email}</span>
                 </div>
                 <button
                   onClick={handleLogout}
                   disabled={isLoggingOut}
-                  className="flex items-center gap-2 w-full px-3 py-2 text-base font-medium text-red-400 hover:text-red-300 hover:bg-gray-800 rounded-md"
+                  className="flex items-center gap-2 w-full px-3 py-2 text-sm md:text-base font-medium text-red-400 hover:text-red-300 hover:bg-gray-800 rounded-md"
                 >
                   <LogOut className="w-4 h-4" />
                   <span>{isLoggingOut ? 'Logging out...' : 'Log out'}</span>
@@ -256,7 +256,7 @@ export function Navigation() {
               // Not authenticated: Show login link
               <Link
                 href="/login"
-                className="block px-3 py-2 text-base font-bold text-[#FFD700]"
+                className="block px-3 py-2 text-sm md:text-base font-bold text-[#FFD700]"
                 onClick={handleNavClick}
               >
                 Log In

@@ -26,10 +26,10 @@ export function Hero() {
         }}
       />
 
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col items-center text-center">
+      <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex flex-col items-center text-center">
         {/* Launch Badge */}
         <Reveal>
-          <div className="mb-6 inline-flex items-center gap-2 px-4 py-2 rounded-full border border-[#4717F6]/30 bg-[#4717F6]/10 backdrop-blur-sm">
+          <div className="mb-3 md:mb-6 inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-[#4717F6]/30 bg-[#4717F6]/10 backdrop-blur-sm">
             <span className="w-2 h-2 rounded-full bg-[#4717F6] animate-pulse" />
             <span className="text-[#4717F6] text-xs font-bold tracking-widest uppercase">
               The Arena Just Moved to Campus
@@ -39,7 +39,7 @@ export function Hero() {
 
         {/* Main Headline */}
         <Reveal delay="delay-100">
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-6 leading-tight">
+          <h1 className="text-3xl md:text-7xl lg:text-8xl font-extrabold tracking-tight mb-3 md:mb-6 leading-tight">
             Where Clash <br />
             Becomes <span className="text-gradient-gold">Culture</span>.
           </h1>
@@ -47,7 +47,7 @@ export function Hero() {
 
         {/* Subheadline */}
         <Reveal delay="delay-200">
-          <p className="max-w-2xl text-lg md:text-xl text-gray-400 mb-10 font-light leading-relaxed mx-auto">
+          <p className="max-w-2xl text-base md:text-xl text-gray-400 mb-6 md:mb-10 font-light leading-relaxed mx-auto">
             Every campus has a king or queen. Link your account, verify your
             campus, and rise to power. Skill is your new currency.
           </p>
@@ -55,16 +55,16 @@ export function Hero() {
 
         {/* CTA Buttons */}
         <Reveal delay="delay-300">
-          <div className="flex flex-col sm:flex-row gap-4 w-full justify-center">
+          <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full justify-center">
             <Link
               href="/signup"
-              className="bg-[#4717F6] hover:bg-[#350ec9] text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-[0_0_20px_rgba(71,23,246,0.5)] hover:shadow-[0_0_30px_rgba(71,23,246,0.7)] flex items-center justify-center gap-2"
+              className="bg-[#4717F6] hover:bg-[#350ec9] text-white px-6 py-3 md:px-8 md:py-4 rounded-lg font-bold text-base md:text-lg transition-all duration-300 shadow-[0_0_20px_rgba(71,23,246,0.5)] hover:shadow-[0_0_30px_rgba(71,23,246,0.7)] flex items-center justify-center gap-2"
             >
               <Zap size={20} /> Claim Your Rank
             </Link>
             <Link
               href="/rankings"
-              className="glass hover:bg-white/10 text-white px-8 py-4 rounded-lg font-semibold text-lg transition-all duration-300 flex items-center justify-center gap-2">
+              className="glass hover:bg-white/10 text-white px-6 py-3 md:px-8 md:py-4 rounded-lg font-semibold text-base md:text-lg transition-all duration-300 flex items-center justify-center gap-2">
               <Search size={20} /> Find My Campus </Link>
           </div>
         </Reveal>

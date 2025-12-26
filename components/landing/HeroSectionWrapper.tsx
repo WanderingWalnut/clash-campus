@@ -17,7 +17,7 @@ export function HeroSectionWrapper({ children }: HeroSectionWrapperProps) {
   return (
     <section
       className={`relative min-h-screen flex items-center justify-center overflow-hidden transition-all duration-300 ${
-        scrolled ? 'pt-20' : 'pt-[116px]'
+        scrolled ? 'pt-16 md:pt-20' : 'pt-[100px] md:pt-[116px]'
       }`}
     >
       {children}
