@@ -8,11 +8,10 @@ import { Footer } from '@/components/landing';
 export const metadata: Metadata = {
   title: 'Royale Rankings | ClashCampus',
   description:
-    'View the official Clash Royale rankings for university players. See who dominates at your campus and how universities stack up against each other.',
+    'View Clash Royale rankings for university players. See who dominates at your campus and how universities stack up against each other.',
   openGraph: {
     title: 'Royale Rankings | ClashCampus',
-    description:
-      'View the official Clash Royale rankings for university players.',
+    description: 'View Clash Royale rankings for university players.',
   },
 };
 

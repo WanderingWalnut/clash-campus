@@ -2,10 +2,8 @@ import { Crown } from 'lucide-react';
 
 /** Footer navigation links */
 const FOOTER_LINKS = [
-  { label: 'Privacy', href: '#' },
-  { label: 'Terms', href: '#' },
-  { label: 'Discord', href: '#' },
-  { label: 'Twitter', href: '#' },
+  { label: 'Privacy', href: '/privacy' },
+  { label: 'Terms', href: '/terms' },
 ];
 
 /**
@@ -40,8 +38,21 @@ export function Footer() {
         </div>
 
         {/* Legal Disclaimer */}
-        <div className="text-xs text-gray-700">
-          © {currentYear} ClashCampus. Not affiliated with Supercell.
+        <div className="text-xs text-gray-700 text-center md:text-left">
+          <div>© {currentYear} ClashCampus. Not affiliated with Supercell.</div>
+          <div className="mt-1">
+            This material is unofficial and is not endorsed by Supercell. For
+            more information, see{' '}
+            <a
+              href="https://supercell.com/en/fan-content-policy/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline hover:text-gray-500"
+            >
+              Supercell's Fan Content Policy
+            </a>
+            .
+          </div>
         </div>
       </div>
     </footer>
