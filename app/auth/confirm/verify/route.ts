@@ -10,6 +10,7 @@ import { logger } from '@/lib/logger'
 import { needsVerification } from '@/lib/auth/verification.server'
 
 type EmailOtpType =
+    | 'email'
     | 'signup'
     | 'invite'
     | 'magiclink'
@@ -17,6 +18,7 @@ type EmailOtpType =
     | 'email_change'
 
 const ALLOWED_TYPES = new Set<EmailOtpType>([
+    'email',
     'signup',
     'invite',
     'magiclink',
@@ -32,10 +34,6 @@ function normalizeOtpType(value: FormDataEntryValue | null): EmailOtpType | null
     const candidate = value.trim()
     if (!candidate) {
         return null
-    }
-
-    if (candidate === 'email') {
-        return 'signup'
     }
 
     const normalized = candidate as EmailOtpType
@@ -59,10 +57,23 @@ export async function POST(request: NextRequest) {
     }
 
     const supabase = await createClient()
-    const { data, error } = await supabase.auth.verifyOtp({
+    let { data, error } = await supabase.auth.verifyOtp({
         token_hash: tokenHash,
         type: otpType,
     })
+
+    if (error && (otpType === 'signup' || otpType === 'email')) {
+        const fallbackType: EmailOtpType = otpType === 'signup' ? 'email' : 'signup'
+        const fallback = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: fallbackType,
+        })
+
+        if (!fallback.error) {
+            data = fallback.data
+            error = null
+        }
+    }
 
     if (error) {
         logger.error('Email confirmation verifyOtp failed', {
@@ -84,19 +95,16 @@ export async function POST(request: NextRequest) {
 
     const user = data.user ?? (await supabase.auth.getUser()).data.user
 
-    if (!user) {
-        logger.warn('Email confirmation succeeded without user', {
-            type: otpType,
+    if (user) {
+        const requiresVerification = await needsVerification(user.id)
+        const nextPath = requiresVerification ? '/verify' : '/rankings'
+        return NextResponse.redirect(new URL(nextPath, request.url), {
+            status: 303,
         })
-        return NextResponse.redirect(
-            new URL('/auth/auth-code-error', request.url)
-        )
     }
 
-    const requiresVerification = await needsVerification(user.id)
-    const nextPath = requiresVerification ? '/verify' : '/rankings'
-
-    return NextResponse.redirect(new URL(nextPath, request.url), {
+    const fallbackPath = otpType === 'signup' ? '/verify' : '/rankings'
+    return NextResponse.redirect(new URL(fallbackPath, request.url), {
         status: 303,
     })
 }

@@ -9,6 +9,7 @@ interface ConfirmEmailPageProps {
 }
 
 type EmailOtpType =
+    | 'email'
     | 'signup'
     | 'invite'
     | 'magiclink'
@@ -16,6 +17,7 @@ type EmailOtpType =
     | 'email_change'
 
 const ALLOWED_TYPES = new Set<EmailOtpType>([
+    'email',
     'signup',
     'invite',
     'magiclink',
@@ -25,10 +27,6 @@ const ALLOWED_TYPES = new Set<EmailOtpType>([
 
 function normalizeOtpType(value?: string): EmailOtpType {
     if (!value) {
-        return 'signup'
-    }
-
-    if (value === 'email') {
         return 'signup'
     }
 
