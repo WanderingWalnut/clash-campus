@@ -3,9 +3,27 @@ import { AuthLayout } from '@/components/auth'
 
 interface ConfirmEmailPageProps {
     searchParams: {
-        confirmation_url?: string
+        token_hash?: string
+        type?: string
     }
 }
+
+type EmailOtpType =
+    | 'email'
+    | 'signup'
+    | 'invite'
+    | 'magiclink'
+    | 'recovery'
+    | 'email_change'
+
+const ALLOWED_TYPES = new Set<EmailOtpType>([
+    'email',
+    'signup',
+    'invite',
+    'magiclink',
+    'recovery',
+    'email_change',
+])
 
 // Always render on-demand so search params are respected in production.
 export const dynamic = 'force-dynamic'
@@ -16,14 +34,18 @@ export const dynamic = 'force-dynamic'
  * This page renders a POST form so email scanners do not consume the actual
  * confirmation link before the user explicitly continues.
  *
- * The confirmation URL from Supabase already contains the correct redirect_to
- * parameter set during signup, so we use it as-is without modification.
+ * The token hash is only verified after the user clicks the button to avoid
+ * email scanners consuming the token.
  */
 export default function ConfirmEmailPage({ searchParams }: ConfirmEmailPageProps) {
-    const confirmationUrl = searchParams.confirmation_url
+    const tokenHash = searchParams.token_hash
+    const rawType = searchParams.type
+    const otpType = ALLOWED_TYPES.has(rawType as EmailOtpType)
+        ? (rawType as EmailOtpType)
+        : 'email'
 
-    // Missing confirmation URL means the link is invalid or already consumed.
-    if (!confirmationUrl) {
+    // Missing token hash means the link is invalid or already consumed.
+    if (!tokenHash) {
         redirect('/auth/auth-code-error')
     }
 
@@ -38,9 +60,8 @@ export default function ConfirmEmailPage({ searchParams }: ConfirmEmailPageProps
                 </p>
 
                 <form method="post" action="/auth/confirm/verify" className="space-y-4">
-                    {/* Hidden field carries the confirmation URL to the POST handler.
-                        The URL already contains the correct redirect_to parameter from Supabase. */}
-                    <input type="hidden" name="confirmation_url" value={confirmationUrl} />
+                    <input type="hidden" name="token_hash" value={tokenHash} />
+                    <input type="hidden" name="type" value={otpType} />
 
                     <button
                         type="submit"

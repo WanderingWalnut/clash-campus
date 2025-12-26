@@ -2,49 +2,25 @@
 
 import { createClient } from "@/lib/supabase/server"
 import { redirect, unstable_rethrow } from "next/navigation"
-import { headers } from "next/headers"
 import { logger } from "@/lib/logger"
 import { ActionResult } from "@/types"
 import { validateSignupInput } from "@/lib/auth/signupValidation.server"
 
 /**
- * Builds the callback URL for email confirmation redirects.
- * 
+ * Builds the base site URL for auth redirects.
+ *
  * Priority:
- * 1. NEXT_PUBLIC_SITE_URL (should be set in production)
- * 2. NEXT_PUBLIC_VERCEL_URL (automatically set by Vercel)
- * 3. Request headers (fallback for dynamic detection)
- * 4. localhost (development fallback)
+ * 1. NEXT_PUBLIC_SITE_URL (production)
+ * 2. NEXT_PUBLIC_VERCEL_URL (preview)
+ * 3. localhost (development)
  */
-async function getCallbackUrl(): Promise<string> {
-    // Prefer explicitly set site URL
-    if (process.env.NEXT_PUBLIC_SITE_URL) {
-        return `${process.env.NEXT_PUBLIC_SITE_URL}/auth/confirm/callback`
-    }
-
-    // Use Vercel's automatically provided URL (available at build/runtime)
-    if (process.env.NEXT_PUBLIC_VERCEL_URL) {
-        const vercelUrl = process.env.NEXT_PUBLIC_VERCEL_URL
-        // Vercel URL might not include protocol
-        const url = vercelUrl.startsWith('http') ? vercelUrl : `https://${vercelUrl}`
-        return `${url}/auth/confirm/callback`
-    }
-
-    // Fallback: build from request headers (for dynamic detection)
-    try {
-        const headerList = await headers()
-        const host = headerList.get('x-forwarded-host') ?? headerList.get('host')
-        const protocol = headerList.get('x-forwarded-proto') ?? 'https'
-
-        if (host) {
-            return `${protocol}://${host}/auth/confirm/callback`
-        }
-    } catch {
-        // Headers not available (shouldn't happen in server actions, but safe fallback)
-    }
-
-    // Development fallback
-    return 'http://localhost:3000/auth/confirm/callback'
+function getSiteUrl(): string {
+    let url =
+        process.env.NEXT_PUBLIC_SITE_URL ??
+        process.env.NEXT_PUBLIC_VERCEL_URL ??
+        'http://localhost:3000'
+    url = url.startsWith('http') ? url : `https://${url}`
+    return url.endsWith('/') ? url.slice(0, -1) : url
 }
 
 /**
@@ -88,14 +64,11 @@ export async function signUpNewUser(formData: FormData): Promise<ActionResult> {
     const supabase = await createClient()
 
     try {
-        // Build the callback URL dynamically to handle Vercel preview deployments
-        const callbackUrl = await getCallbackUrl()
+        const siteUrl = getSiteUrl()
 
         logger.info('Signup with email redirect', {
             email,
-            callbackUrl,
-            hasSiteUrl: !!process.env.NEXT_PUBLIC_SITE_URL,
-            hasVercelUrl: !!process.env.NEXT_PUBLIC_VERCEL_URL,
+            siteUrl,
         })
 
         // Attempt to sign up the user with Supabase Auth
@@ -104,9 +77,8 @@ export async function signUpNewUser(formData: FormData): Promise<ActionResult> {
             email,
             password,
             options: {
-                // Redirect back to the callback after Supabase confirms the email.
-                // The callback exchanges the auth code for a session cookie.
-                emailRedirectTo: callbackUrl,
+                // Base URL used in email templates via {{ .RedirectTo }}.
+                emailRedirectTo: siteUrl,
             },
         })
 

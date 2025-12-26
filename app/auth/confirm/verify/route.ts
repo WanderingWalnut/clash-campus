@@ -1,95 +1,95 @@
 /**
  * Email Confirmation Route Handler (POST-only)
  *
- * Redirects to the Supabase confirmation URL only after a user-initiated POST.
- * Keeping this as POST prevents email scanners from consuming one-time links on GET.
+ * Verifies the token hash only after a user-initiated POST so email scanners
+ * cannot consume one-time links on GET.
  */
 import { type NextRequest, NextResponse } from 'next/server'
+import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
+import { needsVerification } from '@/lib/auth/verification.server'
 
-function parseConfirmationUrl(value: string) {
-    try {
-        return new URL(value)
-    } catch {
+type EmailOtpType =
+    | 'email'
+    | 'signup'
+    | 'invite'
+    | 'magiclink'
+    | 'recovery'
+    | 'email_change'
+
+const ALLOWED_TYPES = new Set<EmailOtpType>([
+    'email',
+    'signup',
+    'invite',
+    'magiclink',
+    'recovery',
+    'email_change',
+])
+
+function parseOtpType(value: FormDataEntryValue | null): EmailOtpType | null {
+    if (typeof value !== 'string') {
         return null
     }
-}
 
-function isAllowedConfirmationUrl(url: URL) {
-    const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-
-    if (!supabaseUrl) {
-        // If env is missing, only allow Supabase-hosted verification URLs.
-        return url.hostname.endsWith('.supabase.co')
-    }
-
-    const expectedHost = new URL(supabaseUrl).host
-    return url.host === expectedHost
-}
-
-function fixRedirectTo(confirmationUrl: URL, request: NextRequest): URL {
-    const redirectTo = confirmationUrl.searchParams.get('redirect_to')
-
-    if (!redirectTo) {
-        // No redirect_to parameter, add it
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ||
-            `${request.nextUrl.protocol}//${request.nextUrl.host}`
-        confirmationUrl.searchParams.set('redirect_to', `${siteUrl}/auth/confirm/callback`)
-        return confirmationUrl
-    }
-
-    try {
-        const redirectUrl = new URL(redirectTo)
-
-        // Check if redirect_to is missing the callback path
-        if (redirectUrl.pathname === '/' || !redirectUrl.pathname.endsWith('/auth/confirm/callback')) {
-            // Fix the redirect_to to point to the callback route
-            const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ||
-                `${request.nextUrl.protocol}//${request.nextUrl.host}`
-            const fixedRedirect = `${siteUrl}/auth/confirm/callback`
-            confirmationUrl.searchParams.set('redirect_to', fixedRedirect)
-        }
-    } catch {
-        // Invalid redirect_to URL, replace it
-        const siteUrl = process.env.NEXT_PUBLIC_SITE_URL ||
-            `${request.nextUrl.protocol}//${request.nextUrl.host}`
-        confirmationUrl.searchParams.set('redirect_to', `${siteUrl}/auth/confirm/callback`)
-    }
-
-    return confirmationUrl
+    const candidate = value.trim() as EmailOtpType
+    return ALLOWED_TYPES.has(candidate) ? candidate : null
 }
 
 export async function POST(request: NextRequest) {
     const formData = await request.formData()
-    const confirmationUrlValue =
-        (formData.get('confirmation_url') as string | null) ?? ''
+    const tokenHash = (formData.get('token_hash') as string | null)?.trim()
+    const otpType = parseOtpType(formData.get('type'))
 
     // Guard against missing inputs from the form.
-    if (!confirmationUrlValue) {
-        logger.warn('Email confirmation missing confirmation_url', {
-            hasConfirmationUrl: !!confirmationUrlValue,
+    if (!tokenHash || !otpType) {
+        logger.warn('Email confirmation missing required fields', {
+            hasTokenHash: !!tokenHash,
+            hasType: !!otpType,
         })
         return NextResponse.redirect(
             new URL('/auth/auth-code-error', request.url)
         )
     }
 
-    const confirmationUrl = parseConfirmationUrl(confirmationUrlValue)
+    const supabase = await createClient()
+    const { data, error } = await supabase.auth.verifyOtp({
+        token_hash: tokenHash,
+        type: otpType,
+    })
 
-    if (!confirmationUrl || !isAllowedConfirmationUrl(confirmationUrl)) {
-        logger.warn('Email confirmation invalid confirmation_url', {
-            confirmationUrl: confirmationUrlValue,
+    if (error) {
+        logger.error('Email confirmation verifyOtp failed', {
+            error: error.message,
+            code: error.status,
+            type: otpType,
         })
         return NextResponse.redirect(
             new URL('/auth/auth-code-error', request.url)
         )
     }
 
-    // Fix the redirect_to parameter if it's missing the callback path.
-    // This handles cases where Supabase uses the Site URL from dashboard instead of emailRedirectTo.
-    const fixedUrl = fixRedirectTo(confirmationUrl, request)
+    if (otpType === 'recovery') {
+        return NextResponse.redirect(
+            new URL('/reset-password', request.url),
+            { status: 303 }
+        )
+    }
 
-    // Redirect the user to Supabase's confirmation URL to finish the flow.
-    // Use 303 to ensure the browser performs a GET.
-    return NextResponse.redirect(fixedUrl, { status: 303 })
+    const user = data.user ?? (await supabase.auth.getUser()).data.user
+
+    if (!user) {
+        logger.warn('Email confirmation succeeded without user', {
+            type: otpType,
+        })
+        return NextResponse.redirect(
+            new URL('/auth/auth-code-error', request.url)
+        )
+    }
+
+    const requiresVerification = await needsVerification(user.id)
+    const nextPath = requiresVerification ? '/verify' : '/rankings'
+
+    return NextResponse.redirect(new URL(nextPath, request.url), {
+        status: 303,
+    })
 }
