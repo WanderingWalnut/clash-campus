@@ -11,6 +11,9 @@ interface ConfirmEmailPageProps {
 
 const DEFAULT_NEXT = '/rankings'
 
+// Always render on-demand so search params are respected in production.
+export const dynamic = 'force-dynamic'
+
 /**
  * Email confirmation landing page.
  *

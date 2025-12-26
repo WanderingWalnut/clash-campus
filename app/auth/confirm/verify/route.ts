@@ -3,6 +3,8 @@
  *
  * Verifies the token_hash sent from the confirm page and exchanges it for a session.
  * Keeping this as POST prevents email scanners from consuming one-time tokens on GET.
+ *
+ * Note: For "Confirm signup" emails, the template should pass type=signup.
  */
 import { type EmailOtpType } from '@supabase/supabase-js'
 import { type NextRequest, NextResponse } from 'next/server'
@@ -11,6 +13,24 @@ import { logger } from '@/lib/logger'
 import { needsVerification } from '@/lib/auth/verification.server'
 
 const DEFAULT_NEXT = '/rankings'
+const SUPPORTED_OTP_TYPES = new Set<EmailOtpType>([
+    'signup',
+    'invite',
+    'magiclink',
+    'recovery',
+    'email_change',
+    'email',
+])
+
+function normalizeOtpType(typeValue: string | null) {
+    if (!typeValue) {
+        return null
+    }
+
+    return SUPPORTED_OTP_TYPES.has(typeValue as EmailOtpType)
+        ? (typeValue as EmailOtpType)
+        : null
+}
 
 function buildRedirectUrl(request: NextRequest, nextPath: string) {
     const redirectTo = request.nextUrl.clone()
@@ -24,7 +44,8 @@ function buildRedirectUrl(request: NextRequest, nextPath: string) {
 export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const tokenHash = (formData.get('token_hash') as string | null) ?? ''
-    const type = (formData.get('type') as EmailOtpType | null) ?? null
+    const rawType = (formData.get('type') as string | null) ?? null
+    const type = normalizeOtpType(rawType)
     const nextPath = (formData.get('next') as string | null) ?? DEFAULT_NEXT
 
     // Guard against missing inputs from the form.
@@ -41,10 +62,19 @@ export async function POST(request: NextRequest) {
     const redirectTo = buildRedirectUrl(request, nextPath)
     const supabase = await createClient()
 
-    const { error } = await supabase.auth.verifyOtp({
+    let { error } = await supabase.auth.verifyOtp({
         type,
         token_hash: tokenHash,
     })
+
+    // Fallback for misconfigured templates that send type=email for signup confirmations.
+    if (error && type === 'email') {
+        const fallback = await supabase.auth.verifyOtp({
+            type: 'signup',
+            token_hash: tokenHash,
+        })
+        error = fallback.error
+    }
 
     if (!error) {
         logger.info('Email confirmation success', { type, next: nextPath })
