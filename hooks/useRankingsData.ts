@@ -52,11 +52,13 @@ async function fetchJson<T>(url: string, signal: AbortSignal): Promise<T> {
  */
 export function useCampusRankings() {
   const [campuses, setCampuses] = useState<RankedCampus[]>([]);
+  const [limit, setLimit] = useState(DEFAULT_CAMPUS_LIMIT);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
     const controller = new AbortController();
+    let isActive = true;
 
     const fetchCampuses = async () => {
       setIsLoading(true);
@@ -64,27 +66,47 @@ export function useCampusRankings() {
 
       try {
         const data = await fetchJson<CampusesResponse>(
-          `/api/rankings/universities?limit=${DEFAULT_CAMPUS_LIMIT}`,
+          `/api/rankings/universities?limit=${limit}`,
           controller.signal
         );
+        if (!isActive) {
+          return;
+        }
         setCampuses(data.campuses ?? []);
       } catch (err) {
         // Ignore abort errors (component unmounted), but show other errors
-        if (!(err instanceof DOMException && err.name === 'AbortError')) {
+        if (
+          isActive &&
+          !(err instanceof DOMException && err.name === 'AbortError')
+        ) {
           setError('Unable to load university rankings right now.');
         }
       } finally {
-        setIsLoading(false);
+        if (isActive) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchCampuses();
 
     // Abort in-flight fetches on unmount to avoid setting state after cleanup.
-    return () => controller.abort();
-  }, []);
+    return () => {
+      isActive = false;
+      controller.abort();
+    };
+  }, [limit]);
 
-  return { campuses, error, isLoading };
+  const hasMore = campuses.length >= limit;
+
+  const loadMore = () => {
+    if (isLoading || !hasMore) {
+      return;
+    }
+    setLimit((prev) => prev + DEFAULT_CAMPUS_LIMIT);
+  };
+
+  return { campuses, error, isLoading, hasMore, loadMore };
 }
 
 /**
@@ -103,22 +125,49 @@ export function usePlayerRankings(
   const [userEntry, setUserEntry] = useState<RankedPlayer | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [page, setPage] = useState(1);
+  const [total, setTotal] = useState(0);
 
   useEffect(() => {
-    const controller = new AbortController();
-
-    // Wait for auth to finish loading before making decisions
     if (isAuthLoading) {
-      return () => controller.abort();
+      return;
     }
 
-    // If no user, clear player data and don't fetch
     if (!user) {
       setPlayers([]);
       setUserEntry(null);
       setError(null);
       setIsLoading(false);
-      return () => controller.abort();
+      setPage(1);
+      setTotal(0);
+      return;
+    }
+
+    setPlayers([]);
+    setUserEntry(null);
+    setError(null);
+    setPage(1);
+    setTotal(0);
+  }, [user, isAuthLoading]);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    let isActive = true;
+
+    // Wait for auth to finish loading before making decisions
+    if (isAuthLoading) {
+      return () => {
+        isActive = false;
+        controller.abort();
+      };
+    }
+
+    // If no user, clear player data and don't fetch
+    if (!user) {
+      return () => {
+        isActive = false;
+        controller.abort();
+      };
     }
 
     const fetchPlayers = async () => {
@@ -127,28 +176,50 @@ export function usePlayerRankings(
 
       try {
         const data = await fetchJson<PlayersResponse>(
-          `/api/rankings/players?page=1&pageSize=${DEFAULT_PAGE_SIZE}`,
+          `/api/rankings/players?page=${page}&pageSize=${DEFAULT_PAGE_SIZE}`,
           controller.signal
         );
-        setPlayers(data.players ?? []);
+        if (!isActive) {
+          return;
+        }
+        setPlayers((prev) =>
+          page === 1 ? data.players ?? [] : [...prev, ...(data.players ?? [])]
+        );
         // User entry is provided separately if they're not on the current page
         setUserEntry(data.user ?? null);
+        setTotal(data.total ?? (data.players ?? []).length);
       } catch (err) {
         // Ignore abort errors (component unmounted), but show other errors
-        if (!(err instanceof DOMException && err.name === 'AbortError')) {
+        if (
+          isActive &&
+          !(err instanceof DOMException && err.name === 'AbortError')
+        ) {
           setError('Unable to load player rankings right now.');
         }
       } finally {
-        setIsLoading(false);
+        if (isActive) {
+          setIsLoading(false);
+        }
       }
     };
 
     fetchPlayers();
 
     // Abort in-flight fetches on unmount to avoid state updates after cleanup.
-    return () => controller.abort();
-  }, [user, isAuthLoading]);
+    return () => {
+      isActive = false;
+      controller.abort();
+    };
+  }, [user, isAuthLoading, page]);
 
-  return { players, userEntry, error, isLoading };
+  const hasMore = players.length < total;
+
+  const loadMore = () => {
+    if (isLoading || !hasMore) {
+      return;
+    }
+    setPage((prev) => prev + 1);
+  };
+
+  return { players, userEntry, error, isLoading, hasMore, loadMore };
 }
-

@@ -7,6 +7,12 @@ import type { RankedCampus } from '@/types/rankings';
 interface CampusesTableProps {
   /** Array of campus data to display */
   campuses: RankedCampus[];
+  /** Whether more campuses can be loaded */
+  hasMore: boolean;
+  /** Callback to load more campuses */
+  onShowMore: () => void;
+  /** Whether an additional batch is loading */
+  isLoadingMore?: boolean;
 }
 
 /**
@@ -14,7 +20,12 @@ interface CampusesTableProps {
  *
  * @param campuses - Array of RankedCampus objects to display
  */
-export function CampusesTable({ campuses }: CampusesTableProps) {
+export function CampusesTable({
+  campuses,
+  hasMore,
+  onShowMore,
+  isLoadingMore = false,
+}: CampusesTableProps) {
   return (
     <div className="bg-[#141414] border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
       {/* Table Header */}
@@ -37,12 +48,18 @@ export function CampusesTable({ campuses }: CampusesTableProps) {
         ))}
       </div>
 
-      {/* Pagination Footer */}
-      <div className="p-4 border-t border-gray-800 bg-gray-900/30 text-center">
-        <button className="text-xs text-gray-400 hover:text-white uppercase tracking-widest font-bold">
-          Show More
-        </button>
-      </div>
+      {hasMore && (
+        <div className="p-4 border-t border-gray-800 bg-gray-900/30 text-center">
+          <button
+            type="button"
+            onClick={onShowMore}
+            disabled={isLoadingMore}
+            className="text-xs text-gray-400 hover:text-white uppercase tracking-widest font-bold disabled:text-gray-600 disabled:hover:text-gray-600"
+          >
+            {isLoadingMore ? 'Loading...' : 'Show More'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -110,4 +127,3 @@ function CampusRow({ campus }: CampusRowProps) {
     </div>
   );
 }
-

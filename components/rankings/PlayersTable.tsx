@@ -8,6 +8,12 @@ import type { RankedPlayer } from '@/types/rankings';
 interface PlayersTableProps {
   /** Array of player data to display */
   players: RankedPlayer[];
+  /** Whether more players can be loaded */
+  hasMore: boolean;
+  /** Callback to load more players */
+  onShowMore: () => void;
+  /** Whether an additional page is loading */
+  isLoadingMore?: boolean;
 }
 
 /**
@@ -15,7 +21,12 @@ interface PlayersTableProps {
  *
  * @param players - Array of RankedPlayer objects to display
  */
-export function PlayersTable({ players }: PlayersTableProps) {
+export function PlayersTable({
+  players,
+  hasMore,
+  onShowMore,
+  isLoadingMore = false,
+}: PlayersTableProps) {
   return (
     <div className="bg-[#141414] border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
       {/* Table Header */}
@@ -37,12 +48,18 @@ export function PlayersTable({ players }: PlayersTableProps) {
         ))}
       </div>
 
-      {/* Pagination Footer */}
-      <div className="p-4 border-t border-gray-800 bg-gray-900/30 text-center">
-        <button className="text-xs text-gray-400 hover:text-white uppercase tracking-widest font-bold">
-          Show More
-        </button>
-      </div>
+      {hasMore && (
+        <div className="p-4 border-t border-gray-800 bg-gray-900/30 text-center">
+          <button
+            type="button"
+            onClick={onShowMore}
+            disabled={isLoadingMore}
+            className="text-xs text-gray-400 hover:text-white uppercase tracking-widest font-bold disabled:text-gray-600 disabled:hover:text-gray-600"
+          >
+            {isLoadingMore ? 'Loading...' : 'Show More'}
+          </button>
+        </div>
+      )}
     </div>
   );
 }
@@ -157,4 +174,3 @@ function PlayerRow({ player }: PlayerRowProps) {
     </div>
   );
 }
-

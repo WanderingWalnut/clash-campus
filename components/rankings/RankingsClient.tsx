@@ -35,12 +35,16 @@ export function RankingsClient() {
   const [mode, setMode] = useState<RankingsMode>('campuses');
   // Tracks if user has manually changed the mode (prevents auto-switching)
   const [hasManualMode, setHasManualMode] = useState(false);
+  // Search query state for filtering players/campuses
+  const [searchQuery, setSearchQuery] = useState('');
 
   // Fetch campus rankings (public, no auth required)
   const {
     campuses,
     error: campusError,
     isLoading: isCampusLoading,
+    hasMore: hasMoreCampuses,
+    loadMore: loadMoreCampuses,
   } = useCampusRankings();
 
   // Fetch player rankings (requires authentication)
@@ -49,6 +53,8 @@ export function RankingsClient() {
     userEntry,
     error: playerError,
     isLoading: isPlayerLoading,
+    hasMore: hasMorePlayers,
+    loadMore: loadMorePlayers,
   } = usePlayerRankings(user, isAuthLoading);
 
   /**
@@ -91,6 +97,37 @@ export function RankingsClient() {
     return [...players, userEntry];
   }, [players, userEntry]);
 
+  const normalizedQuery = searchQuery.trim().toLowerCase();
+  const hasSearch = normalizedQuery.length > 0;
+
+  const filteredPlayers = useMemo(() => {
+    if (!hasSearch) {
+      return displayPlayers;
+    }
+
+    return displayPlayers.filter((player) => {
+      const haystack = `${player.name} ${player.tag}`.toLowerCase();
+      return haystack.includes(normalizedQuery);
+    });
+  }, [displayPlayers, hasSearch, normalizedQuery]);
+
+  const filteredCampuses = useMemo(() => {
+    if (!hasSearch) {
+      return campuses;
+    }
+
+    return campuses.filter((campus) => {
+      const haystack = `${campus.name} ${campus.short}`.toLowerCase();
+      return haystack.includes(normalizedQuery);
+    });
+  }, [campuses, hasSearch, normalizedQuery]);
+
+  const isPlayerInitialLoading =
+    isAuthLoading || (isPlayerLoading && players.length === 0);
+  const isCampusInitialLoading = isCampusLoading && campuses.length === 0;
+  const isPlayerLoadingMore = isPlayerLoading && players.length > 0;
+  const isCampusLoadingMore = isCampusLoading && campuses.length > 0;
+
   return (
     <>
       {/* Mode switcher - allows manual toggle between players and campuses view */}
@@ -101,35 +138,59 @@ export function RankingsClient() {
           setHasManualMode(true);
           setMode(nextMode);
         }}
+        searchQuery={searchQuery}
+        onSearchChange={setSearchQuery}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {mode === 'players' ? (
           <>
             {/* Player rankings view - requires authentication */}
-            {isAuthLoading || isPlayerLoading ? (
+            {isPlayerInitialLoading ? (
               <LoadingPanel message="Loading player rankings..." />
             ) : !user ? (
               <AuthPrompt />
-            ) : playerError ? (
+            ) : playerError && players.length === 0 ? (
               <ErrorPanel message={playerError} />
-            ) : displayPlayers.length === 0 ? (
-              <EmptyPanel message="No player rankings yet. Check back soon." />
+            ) : filteredPlayers.length === 0 ? (
+              <EmptyPanel
+                message={
+                  hasSearch
+                    ? 'No players match your search.'
+                    : 'No player rankings yet. Check back soon.'
+                }
+              />
             ) : (
-              <PlayersTable players={displayPlayers} />
+              <PlayersTable
+                players={filteredPlayers}
+                hasMore={hasMorePlayers}
+                onShowMore={loadMorePlayers}
+                isLoadingMore={isPlayerLoadingMore}
+              />
             )}
           </>
         ) : (
           <>
             {/* Campus rankings view - public, no auth required */}
-            {isCampusLoading ? (
+            {isCampusInitialLoading ? (
               <LoadingPanel message="Loading university rankings..." />
-            ) : campusError ? (
+            ) : campusError && campuses.length === 0 ? (
               <ErrorPanel message={campusError} />
-            ) : campuses.length === 0 ? (
-              <EmptyPanel message="No university rankings yet. Check back soon." />
+            ) : filteredCampuses.length === 0 ? (
+              <EmptyPanel
+                message={
+                  hasSearch
+                    ? 'No universities match your search.'
+                    : 'No university rankings yet. Check back soon.'
+                }
+              />
             ) : (
-              <CampusesTable campuses={campuses} />
+              <CampusesTable
+                campuses={filteredCampuses}
+                hasMore={hasMoreCampuses}
+                onShowMore={loadMoreCampuses}
+                isLoadingMore={isCampusLoadingMore}
+              />
             )}
           </>
         )}
