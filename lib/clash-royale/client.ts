@@ -6,12 +6,13 @@ import type { ClashRoyalePlayer, ClashRoyaleApiResult } from '@/types/clash-roya
 /**
  * Clash Royale API client.
  * 
- * This module handles all communication with the Supercell Clash Royale API.
+ * This module handles all communication with the Supercell Clash Royale API
+ * via the RoyaleAPI proxy (https://proxy.royaleapi.dev).
  * It should only be used server-side to protect the API key.
  * 
  */
 
-const CLASH_ROYALE_API_BASE = 'https://api.clashroyale.com/v1'
+const CLASH_ROYALE_API_BASE = 'https://proxy.royaleapi.dev/v1'
 
 /**
  * Validates and normalizes a player tag.

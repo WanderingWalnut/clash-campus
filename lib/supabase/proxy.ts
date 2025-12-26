@@ -78,7 +78,7 @@ export async function updateSession(request: NextRequest) {
 
     // Public routes that don't require authentication
     // - Landing, auth flows, and public leaderboard routes
-    // - /rankings is public for the campus leaderboard (university-vs-university)
+    // - /rankings is public for signed-out users (campus leaderboard)
     // - Player-specific data is protected by RLS policies, not route protection
     // - /forgot-password is public so users can request a password reset
     const publicRoutes = ['/', '/login', '/signup', '/auth', '/rankings', '/forgot-password']
@@ -99,11 +99,14 @@ export async function updateSession(request: NextRequest) {
     // Routes that don't require Clash account verification
     // - /verify is where users go to verify their account
     // - /reset-password is accessed after clicking the password reset email link
-    // - Public routes don't need verification check
+    // - Public routes stay exempt, except /rankings which requires verification when signed in
     const verificationExemptRoutes = ['/verify', '/reset-password']
-    const isVerificationExempt = isPublicRoute || verificationExemptRoutes.some(route =>
+    const isRankingsRoute =
+        request.nextUrl.pathname === '/rankings'
+        || request.nextUrl.pathname.startsWith('/rankings/')
+    const isVerificationExempt = verificationExemptRoutes.some(route =>
         request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route + '/')
-    )
+    ) || (isPublicRoute && !isRankingsRoute)
 
     // Check verification status for authenticated users on non-exempt routes
     if (user && !isVerificationExempt) {

@@ -138,7 +138,8 @@ export function RankingsClient() {
         <div className="mt-4 text-center">
           <p className="text-xs text-gray-600">
             * Rankings update automatically based on season activity. Composite
-            scores favor recent win streaks and high ladder placement.
+            scores weight trophies, Path of Legends leagues, win rate, and
+            three-crown rate.
           </p>
         </div>
       </div>
@@ -148,4 +149,3 @@ export function RankingsClient() {
     </>
   );
 }
-
