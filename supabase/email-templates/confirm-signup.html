@@ -93,7 +93,7 @@
                             <table role="presentation" width="100%" cellpadding="0" cellspacing="0">
                                 <tr>
                                     <td align="center" style="padding-bottom: 24px;">
-                                        <a href="{{ .RedirectTo }}/auth/confirm?token_hash={{ .TokenHash }}&type=email"
+                                        <a href="{{ .RedirectTo }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup"
                                             style="display: inline-block; padding: 12px 32px; background: #4717F6; color: #ffffff; font-size: 14px; font-weight: 700; text-decoration: none; border-radius: 8px; box-shadow: 0 0 20px rgba(71, 23, 246, 0.4); transition: all 0.3s;">
                                             ⚡ Verify & Enter the Arena
                                         </a>
@@ -105,9 +105,9 @@
                             <p
                                 style="margin: 0; text-align: center; color: #6B7280; font-size: 11px; line-height: 1.4;">
                                 Button not working? Copy and paste this link:<br>
-                                <a href="{{ .RedirectTo }}/auth/confirm?token_hash={{ .TokenHash }}&type=email"
+                                <a href="{{ .RedirectTo }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup"
                                     style="color: #4717F6; text-decoration: none; word-break: break-all;">
-                                    {{ .RedirectTo }}/auth/confirm?token_hash={{ .TokenHash }}&type=email
+                                    {{ .RedirectTo }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup
                                 </a>
                             </p>
 

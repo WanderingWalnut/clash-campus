@@ -10,7 +10,6 @@ import { logger } from '@/lib/logger'
 import { needsVerification } from '@/lib/auth/verification.server'
 
 type EmailOtpType =
-    | 'email'
     | 'signup'
     | 'invite'
     | 'magiclink'
@@ -18,7 +17,6 @@ type EmailOtpType =
     | 'email_change'
 
 const ALLOWED_TYPES = new Set<EmailOtpType>([
-    'email',
     'signup',
     'invite',
     'magiclink',
@@ -26,19 +24,28 @@ const ALLOWED_TYPES = new Set<EmailOtpType>([
     'email_change',
 ])
 
-function parseOtpType(value: FormDataEntryValue | null): EmailOtpType | null {
+function normalizeOtpType(value: FormDataEntryValue | null): EmailOtpType | null {
     if (typeof value !== 'string') {
         return null
     }
 
-    const candidate = value.trim() as EmailOtpType
-    return ALLOWED_TYPES.has(candidate) ? candidate : null
+    const candidate = value.trim()
+    if (!candidate) {
+        return null
+    }
+
+    if (candidate === 'email') {
+        return 'signup'
+    }
+
+    const normalized = candidate as EmailOtpType
+    return ALLOWED_TYPES.has(normalized) ? normalized : null
 }
 
 export async function POST(request: NextRequest) {
     const formData = await request.formData()
     const tokenHash = (formData.get('token_hash') as string | null)?.trim()
-    const otpType = parseOtpType(formData.get('type'))
+    const otpType = normalizeOtpType(formData.get('type'))
 
     // Guard against missing inputs from the form.
     if (!tokenHash || !otpType) {

@@ -9,7 +9,6 @@ interface ConfirmEmailPageProps {
 }
 
 type EmailOtpType =
-    | 'email'
     | 'signup'
     | 'invite'
     | 'magiclink'
@@ -17,13 +16,25 @@ type EmailOtpType =
     | 'email_change'
 
 const ALLOWED_TYPES = new Set<EmailOtpType>([
-    'email',
     'signup',
     'invite',
     'magiclink',
     'recovery',
     'email_change',
 ])
+
+function normalizeOtpType(value?: string): EmailOtpType {
+    if (!value) {
+        return 'signup'
+    }
+
+    if (value === 'email') {
+        return 'signup'
+    }
+
+    const candidate = value as EmailOtpType
+    return ALLOWED_TYPES.has(candidate) ? candidate : 'signup'
+}
 
 // Always render on-demand so search params are respected in production.
 export const dynamic = 'force-dynamic'
@@ -39,10 +50,7 @@ export const dynamic = 'force-dynamic'
  */
 export default function ConfirmEmailPage({ searchParams }: ConfirmEmailPageProps) {
     const tokenHash = searchParams.token_hash
-    const rawType = searchParams.type
-    const otpType = ALLOWED_TYPES.has(rawType as EmailOtpType)
-        ? (rawType as EmailOtpType)
-        : 'email'
+    const otpType = normalizeOtpType(searchParams.type)
 
     // Missing token hash means the link is invalid or already consumed.
     if (!tokenHash) {
