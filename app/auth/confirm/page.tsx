@@ -1,11 +1,13 @@
 import { redirect } from 'next/navigation'
 import { AuthLayout } from '@/components/auth'
 
+type ConfirmEmailSearchParams = {
+    token_hash?: string
+    type?: string
+}
+
 interface ConfirmEmailPageProps {
-    searchParams: {
-        token_hash?: string
-        type?: string
-    }
+    searchParams: ConfirmEmailSearchParams | Promise<ConfirmEmailSearchParams>
 }
 
 type EmailOtpType =
@@ -46,9 +48,10 @@ export const dynamic = 'force-dynamic'
  * The token hash is only verified after the user clicks the button to avoid
  * email scanners consuming the token.
  */
-export default function ConfirmEmailPage({ searchParams }: ConfirmEmailPageProps) {
-    const tokenHash = searchParams.token_hash
-    const otpType = normalizeOtpType(searchParams.type)
+export default async function ConfirmEmailPage({ searchParams }: ConfirmEmailPageProps) {
+    const resolvedSearchParams = await searchParams
+    const tokenHash = resolvedSearchParams.token_hash
+    const otpType = normalizeOtpType(resolvedSearchParams.type)
 
     // Missing token hash means the link is invalid or already consumed.
     if (!tokenHash) {
