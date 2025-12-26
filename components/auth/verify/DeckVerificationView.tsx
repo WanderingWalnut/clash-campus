@@ -1,9 +1,10 @@
 'use client';
 
 import Image from 'next/image';
-import { Clock, CheckCircle2 } from 'lucide-react';
+import { Clock, CheckCircle2, ExternalLink } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 import { formatTimeRemaining } from './utils/formatTimeRemaining';
+import { generateDeckLink } from './utils/generateDeckLink';
 import type { VerificationSession } from './hooks/useVerification';
 
 interface DeckVerificationViewProps {
@@ -57,9 +58,26 @@ export function DeckVerificationView({
 
           {/* Required Deck Grid */}
           <div className="bg-[#0D0D0D] rounded-xl p-2 md:p-4 mb-3 md:mb-6">
-            <p className="text-gray-400 text-[10px] md:text-xs uppercase tracking-wide mb-1.5 md:mb-3 text-center">
-              Required Deck
-            </p>
+            <div className="flex items-center justify-between mb-1.5 md:mb-3">
+              <p className="text-gray-400 text-[10px] md:text-xs uppercase tracking-wide">
+                Required Deck
+              </p>
+              <button
+                type="button"
+                onClick={() => {
+                  const deckLink = generateDeckLink(session.requiredDeck);
+                  if (deckLink) {
+                    window.open(deckLink, '_blank', 'noopener,noreferrer');
+                  }
+                }}
+                className="flex items-center gap-1 text-[#4717F6] hover:text-[#5a1fff] text-[10px] md:text-xs font-medium transition-colors"
+                title="Open deck in Clash Royale"
+              >
+                <ExternalLink className="w-3 h-3 md:w-3.5 md:h-3.5" />
+                <span className="hidden sm:inline">Copy Deck</span>
+                <span className="sm:hidden">Copy</span>
+              </button>
+            </div>
             <div className="grid grid-cols-4 gap-1.5 md:gap-2">
               {session.requiredDeck.map((card, index) => {
                 // Prefer regular medium icon, fall back to evolution/hero variants
