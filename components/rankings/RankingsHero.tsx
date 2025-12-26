@@ -17,7 +17,8 @@ export function RankingsHero() {
         </p>
         <p className="text-gray-400 text-sm max-w-xl mx-auto">
           Rankings are calculated daily using a weighted composite score of
-          verified Trophies, Win Rates, and Tournament Standards.
+          verified Trophies, Path of Legends Current League, Best League,
+          Win Rate, and Three Crown Rate.
         </p>
       </div>
     </div>

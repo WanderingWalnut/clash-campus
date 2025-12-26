@@ -1,9 +1,9 @@
 'use client';
 
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { Crown, Menu, X, User, LogOut } from 'lucide-react';
+import { ChevronDown, Crown, Menu, X, User, LogOut } from 'lucide-react';
 import { useScrolled, useAuth } from '@/hooks';
 import { createClient } from '@/lib/supabase/client';
 import type { NavItem } from '@/types/landing';
@@ -23,9 +23,11 @@ const NAV_ITEMS: NavItem[] = [
 export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
+  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const scrolled = useScrolled(50);
   const pathname = usePathname();
   const { user, isLoading } = useAuth();
+  const userMenuRef = useRef<HTMLDivElement | null>(null);
 
   /**
    * Closes the mobile menu when a navigation link is clicked.
@@ -52,8 +54,42 @@ export function Navigation() {
     } finally {
       setIsLoggingOut(false);
       setIsMobileMenuOpen(false);
+      setIsUserMenuOpen(false);
     }
   };
+
+  useEffect(() => {
+    if (!isUserMenuOpen) {
+      return;
+    }
+
+    const handleOutsideClick = (event: MouseEvent) => {
+      if (
+        userMenuRef.current &&
+        !userMenuRef.current.contains(event.target as Node)
+      ) {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsUserMenuOpen(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleOutsideClick);
+    document.addEventListener('keydown', handleEscape);
+
+    return () => {
+      document.removeEventListener('mousedown', handleOutsideClick);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isUserMenuOpen]);
+
+  useEffect(() => {
+    setIsUserMenuOpen(false);
+  }, [pathname]);
 
   /**
    * Checks if a nav item is currently active based on the pathname.
@@ -113,22 +149,40 @@ export function Navigation() {
               <div className="w-24 h-10 bg-gray-700/50 rounded-full animate-pulse" />
             ) : user ? (
               // Authenticated: Show user menu with logout
-              <div className="flex items-center gap-3">
-                <div className="flex items-center gap-2 text-gray-300">
+              <div className="relative" ref={userMenuRef}>
+                <button
+                  type="button"
+                  onClick={() => setIsUserMenuOpen((prev) => !prev)}
+                  className="flex items-center gap-2 text-gray-300 hover:text-white px-3 py-2 rounded-full hover:bg-gray-800 transition-colors"
+                  aria-haspopup="menu"
+                  aria-expanded={isUserMenuOpen}
+                >
                   <User className="w-5 h-5" />
                   <span className="text-sm font-medium max-w-[120px] truncate">
                     {user.email?.split('@')[0]}
                   </span>
-                </div>
-                <button
-                  onClick={handleLogout}
-                  disabled={isLoggingOut}
-                  className="flex items-center gap-1.5 px-4 py-2 bg-gray-800 hover:bg-gray-700 disabled:opacity-50 text-gray-300 hover:text-white rounded-full text-sm font-medium transition-colors"
-                  aria-label="Log out"
-                >
-                  <LogOut className="w-4 h-4" />
-                  <span>{isLoggingOut ? 'Logging out...' : 'Log out'}</span>
+                  <ChevronDown className="w-4 h-4 text-gray-400" />
                 </button>
+                {isUserMenuOpen && (
+                  <div className="absolute right-0 mt-2 w-48 rounded-xl border border-gray-800 bg-[#121212] shadow-2xl overflow-hidden">
+                    <Link
+                      href="/profile"
+                      onClick={() => setIsUserMenuOpen(false)}
+                      className="flex items-center gap-2 px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 transition-colors"
+                    >
+                      <User className="w-4 h-4" />
+                      Profile
+                    </Link>
+                    <button
+                      onClick={handleLogout}
+                      disabled={isLoggingOut}
+                      className="flex items-center gap-2 w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800 transition-colors disabled:opacity-50"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>{isLoggingOut ? 'Logging out...' : 'Log out'}</span>
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               // Not authenticated: Show signup CTA
@@ -177,6 +231,14 @@ export function Navigation() {
             {user ? (
               // Authenticated: Show user info and logout
               <>
+                <Link
+                  href="/profile"
+                  className="flex items-center gap-2 px-3 py-2 text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 rounded-md"
+                  onClick={handleNavClick}
+                >
+                  <User className="w-4 h-4" />
+                  <span>Profile</span>
+                </Link>
                 <div className="flex items-center gap-2 px-3 py-2 text-gray-400">
                   <User className="w-4 h-4" />
                   <span className="text-sm truncate">{user.email}</span>

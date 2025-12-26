@@ -46,6 +46,10 @@ const nextConfig: NextConfig = {
         protocol: 'https',
         hostname: 'api.dicebear.com',
       },
+      {
+        protocol: 'https',
+        hostname: '*.supabase.co',
+      },
     ],
     // Allow SVG optimization for dicebear avatars (trusted source)
     dangerouslyAllowSVG: true,

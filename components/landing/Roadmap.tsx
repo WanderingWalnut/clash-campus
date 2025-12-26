@@ -54,8 +54,9 @@ export function Roadmap() {
                   Phase 2: Campus Showdown
                 </h3>
                 <p className="text-gray-300 text-sm mt-2">
-                  University vs. University wars. Custom tournament brackets.
-                  The NCAA of Mobile Esports.
+                  University vs. University wars. The top players from each campus
+                  compete head-to-head in custom tournament brackets. Represent your
+                  school and battle for campus supremacy.
                 </p>
               </div>
             </div>
