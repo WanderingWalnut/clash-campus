@@ -54,5 +54,6 @@ export async function POST(request: NextRequest) {
     }
 
     // Redirect the user to Supabase's confirmation URL to finish the flow.
-    return NextResponse.redirect(confirmationUrl)
+    // Use 303 to ensure the browser performs a GET.
+    return NextResponse.redirect(confirmationUrl, { status: 303 })
 }

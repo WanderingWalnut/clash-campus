@@ -53,9 +53,9 @@ export async function signUpNewUser(formData: FormData): Promise<ActionResult> {
             email,
             password,
             options: {
-                // Fallback redirect URL (used only if using default Supabase email template)
-                // With token_hash template, the redirect is handled by /auth/confirm route
-                emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/confirm`,
+                // Redirect back to the callback after Supabase confirms the email.
+                // The callback exchanges the auth code for a session cookie.
+                emailRedirectTo: `${process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000'}/auth/confirm/callback`,
             },
         })
 
