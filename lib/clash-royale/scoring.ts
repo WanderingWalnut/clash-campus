@@ -25,12 +25,12 @@ export function calculateRankingScore(player: ClashRoyalePlayer): PlayerRankingS
     const threeCrownWins = player.threeCrownWins ?? 0
 
     const polCurrentLeague = clamp(
-        player.leagueStatistics?.currentSeason?.leagueNumber ?? 0,
+        player.currentPathOfLegendSeasonResult?.leagueNumber ?? 0,
         0,
         MAX_POL_LEAGUE
     )
     const polBestLeague = clamp(
-        player.leagueStatistics?.bestSeason?.leagueNumber ?? 0,
+        player.bestPathOfLegendSeasonResult?.leagueNumber ?? 0,
         0,
         MAX_POL_LEAGUE
     )

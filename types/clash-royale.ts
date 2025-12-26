@@ -119,6 +119,9 @@ export interface ClashRoyalePlayer {
     clan?: ClashRoyaleClan
     arena: ClashRoyaleArena
     leagueStatistics?: LeagueStatistics
+    currentPathOfLegendSeasonResult?: SeasonResult
+    lastPathOfLegendSeasonResult?: SeasonResult
+    bestPathOfLegendSeasonResult?: SeasonResult
     badges: PlayerBadge[]
     achievements: PlayerAchievement[]
     cards: ClashRoyaleCard[]
