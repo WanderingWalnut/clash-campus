@@ -38,14 +38,14 @@ export function InitialVerificationForm({
           <h2 className="text-lg sm:text-xl font-bold text-white text-center mb-2">
             Link Your Clash Royale Account
           </h2>
-          <p className="text-gray-400 text-center text-sm mb-5 sm:mb-6">
+          <p className="text-gray-400 text-center text-sm mb-7 sm:mb-8">
             Verify ownership of your player tag to join the rankings.
           </p>
 
           {/* Steps */}
           <div className="space-y-4 mb-4 sm:mb-6">
             <div className="flex items-start gap-3">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#FFD700]/20 flex items-center justify-center flex-shrink-0 mt-0.5 aspect-square">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-transparent sm:bg-[#FFD700]/20 flex items-center justify-center flex-shrink-0 mt-0.5 aspect-square">
                 <span className="text-[#FFD700] font-bold text-xs sm:text-sm">1</span>
               </div>
               <div className="w-full">
@@ -76,7 +76,7 @@ export function InitialVerificationForm({
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#FFD700]/20 flex items-center justify-center flex-shrink-0 mt-0.5 aspect-square">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-transparent sm:bg-[#FFD700]/20 flex items-center justify-center flex-shrink-0 mt-0.5 aspect-square">
                 <span className="text-[#FFD700] font-bold text-xs sm:text-sm">2</span>
               </div>
               <div>
@@ -88,7 +88,7 @@ export function InitialVerificationForm({
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-[#FFD700]/20 flex items-center justify-center flex-shrink-0 mt-0.5 aspect-square">
+              <div className="w-7 h-7 sm:w-8 sm:h-8 rounded-full bg-transparent sm:bg-[#FFD700]/20 flex items-center justify-center flex-shrink-0 mt-0.5 aspect-square">
                 <span className="text-[#FFD700] font-bold text-xs sm:text-sm">3</span>
               </div>
               <div>
