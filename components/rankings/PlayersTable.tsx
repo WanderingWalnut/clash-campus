@@ -34,7 +34,7 @@ export function PlayersTable({
         <div className="col-span-2 md:col-span-1 text-center">Rank</div>
         <div className="col-span-7 md:col-span-4">Player</div>
         <div className="col-span-3 md:col-span-3 text-right md:text-left">
-          Composite Score
+          POWER LEVEL
         </div>
         <div className="hidden md:block col-span-1 text-right">POL</div>
         <div className="hidden md:block col-span-2 text-right">Trophies</div>
@@ -150,10 +150,10 @@ function PlayerRow({ player }: PlayerRowProps) {
         </div>
       </div>
 
-      {/* Composite Score */}
+      {/* POWER LEVEL */}
       <div className="col-span-3 md:col-span-3 text-right md:text-left">
         <div className="font-bold text-[#FFD700] text-lg">{player.score}</div>
-        <div className="text-[10px] text-gray-500 md:hidden">Composite</div>
+        <div className="text-[10px] text-gray-500 md:hidden">Power Level</div>
       </div>
 
 

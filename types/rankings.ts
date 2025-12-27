@@ -21,7 +21,7 @@ export interface RankedPlayer {
     university: string;
     /** Abbreviated university name for mobile displays */
     universityShort: string;
-    /** Composite score calculated from trophies, wins, and other metrics */
+    /** Power level calculated from trophies, wins, and other metrics (0-100,000) */
     score: number;
     /** Current trophy count */
     trophies: number;
@@ -47,7 +47,7 @@ export interface RankedCampus {
     name: string;
     /** Abbreviated university name */
     short: string;
-    /** Average composite score of all players */
+    /** Average power level of all players (0-100,000) */
     avgScore: number;
     /** Number of verified active players */
     activePlayers: number;

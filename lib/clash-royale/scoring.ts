@@ -50,8 +50,9 @@ export function calculateRankingScore(player: ClashRoyalePlayer): PlayerRankingS
         + 5 * winRate
         + 5 * threeCrownRate
 
-    // Ensure exactly 2 decimal places for database insertion
-    const rankingScore = parseFloat(rawScore.toFixed(2))
+    // Multiply by 1000 to scale from 0-100 to 0-100,000 (POWER LEVEL)
+    // Round to integer (no decimal places)
+    const rankingScore = Math.round(rawScore * 1000)
 
     return {
         rankingScore,

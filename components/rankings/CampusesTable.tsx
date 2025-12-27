@@ -33,7 +33,7 @@ export function CampusesTable({
         <div className="col-span-2 md:col-span-1 text-center">Rank</div>
         <div className="col-span-7 md:col-span-4">University</div>
         <div className="col-span-3 md:col-span-3 text-right md:text-left">
-          Avg Score
+          Avg Power Level
         </div>
         <div className="hidden md:block col-span-2 text-right">
           Active Players
@@ -103,10 +103,10 @@ function CampusRow({ campus }: CampusRowProps) {
         </div>
       </div>
 
-      {/* Avg Score */}
+      {/* Avg Power Level */}
       <div className="col-span-3 md:col-span-3 text-right md:text-left">
         <div className="font-bold text-white text-lg">{campus.avgScore}</div>
-        <div className="text-[10px] text-gray-500">Avg Composite</div>
+        <div className="text-[10px] text-gray-500">Avg Power Level</div>
       </div>
 
       {/* Active Players */}

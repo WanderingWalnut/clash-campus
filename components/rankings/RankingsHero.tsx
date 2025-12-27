@@ -16,7 +16,7 @@ export function RankingsHero() {
           Real Status. Real Campus Rivalries.
         </p>
         <p className="hidden md:block text-gray-400 text-sm max-w-xl mx-auto">
-          Rankings are calculated daily using a weighted composite score of
+          Rankings are calculated daily using a weighted power level of
           verified Trophies, Path of Legends Current League, Best League,
           Win Rate, and Three Crown Rate.
         </p>
