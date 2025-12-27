@@ -364,6 +364,16 @@ export type Database = {
         Args: { p_session_id: string }
         Returns: boolean
       }
+      get_my_university_id: { Args: never; Returns: string }
+      get_ranked_players_complete: {
+        Args: {
+          p_limit: number
+          p_offset: number
+          p_university_id: string
+          p_user_id: string
+        }
+        Returns: Json
+      }
       record_verification_check: {
         Args: {
           p_failure_reason: string

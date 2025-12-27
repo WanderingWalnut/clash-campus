@@ -140,6 +140,11 @@ export function useVerification(
       }
 
       setVerifySuccess(true);
+      try {
+        sessionStorage.setItem('rankings.forceRefresh', '1');
+      } catch {
+        // Ignore storage failures (private mode, blocked access, etc.)
+      }
       router.push('/rankings');
     } catch (err) {
       const message = err instanceof Error ? err.message : 'Failed to verify deck. Please try again.';

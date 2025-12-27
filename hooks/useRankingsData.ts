@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import type { RankedCampus, RankedPlayer } from '@/types/rankings';
 
 /**
@@ -26,6 +26,42 @@ const DEFAULT_CAMPUS_LIMIT = 25;
 
 /** Default number of players to show per page in player rankings */
 const DEFAULT_PAGE_SIZE = 10;
+
+const CACHE_TTL_MS = 10 * 60 * 1000;
+const FORCE_REFRESH_STORAGE_KEY = 'rankings.forceRefresh';
+
+type CampusesCache = {
+  campuses: RankedCampus[];
+  limit: number;
+  timestamp: number;
+};
+
+type PlayersCache = {
+  players: RankedPlayer[];
+  userEntry: RankedPlayer | null;
+  page: number;
+  total: number;
+  timestamp: number;
+};
+
+let campusesCache: CampusesCache | null = null;
+const playersCache = new Map<string, PlayersCache>();
+
+function isCacheFresh(timestamp: number) {
+  return Date.now() - timestamp < CACHE_TTL_MS;
+}
+
+function consumeForceRefreshFlag() {
+  try {
+    const shouldRefresh = sessionStorage.getItem(FORCE_REFRESH_STORAGE_KEY) === '1';
+    if (shouldRefresh) {
+      sessionStorage.removeItem(FORCE_REFRESH_STORAGE_KEY);
+    }
+    return shouldRefresh;
+  } catch {
+    return false;
+  }
+}
 
 /**
  * Generic fetch helper with abort signal support.
@@ -61,6 +97,16 @@ export function useCampusRankings() {
     let isActive = true;
 
     const fetchCampuses = async () => {
+      if (
+        campusesCache
+        && isCacheFresh(campusesCache.timestamp)
+        && campusesCache.limit >= limit
+      ) {
+        setCampuses(campusesCache.campuses.slice(0, limit));
+        setIsLoading(false);
+        return;
+      }
+
       setIsLoading(true);
       setError(null);
 
@@ -72,7 +118,13 @@ export function useCampusRankings() {
         if (!isActive) {
           return;
         }
-        setCampuses(data.campuses ?? []);
+        const nextCampuses = data.campuses ?? [];
+        setCampuses(nextCampuses);
+        campusesCache = {
+          campuses: nextCampuses,
+          limit,
+          timestamp: Date.now(),
+        };
       } catch (err) {
         // Ignore abort errors (component unmounted), but show other errors
         if (
@@ -127,6 +179,7 @@ export function usePlayerRankings(
   const [isLoading, setIsLoading] = useState(false);
   const [page, setPage] = useState(1);
   const [total, setTotal] = useState(0);
+  const forceRefreshRef = useRef(false);
 
   useEffect(() => {
     if (isAuthLoading) {
@@ -140,6 +193,18 @@ export function usePlayerRankings(
       setIsLoading(false);
       setPage(1);
       setTotal(0);
+      return;
+    }
+
+    forceRefreshRef.current = consumeForceRefreshFlag();
+    const cached = playersCache.get(user.id);
+    if (cached && isCacheFresh(cached.timestamp) && !forceRefreshRef.current) {
+      setPlayers(cached.players);
+      setUserEntry(cached.userEntry);
+      setPage(cached.page);
+      setTotal(cached.total);
+      setError(null);
+      setIsLoading(false);
       return;
     }
 
@@ -171,6 +236,22 @@ export function usePlayerRankings(
     }
 
     const fetchPlayers = async () => {
+      if (user) {
+        const cached = playersCache.get(user.id);
+        if (
+          cached
+          && isCacheFresh(cached.timestamp)
+          && cached.page === page
+          && !forceRefreshRef.current
+        ) {
+          setPlayers(cached.players);
+          setUserEntry(cached.userEntry);
+          setTotal(cached.total);
+          setIsLoading(false);
+          return;
+        }
+      }
+
       setIsLoading(true);
       setError(null);
 
@@ -182,12 +263,24 @@ export function usePlayerRankings(
         if (!isActive) {
           return;
         }
-        setPlayers((prev) =>
-          page === 1 ? data.players ?? [] : [...prev, ...(data.players ?? [])]
-        );
+        setPlayers((prev) => {
+          const nextPlayers =
+            page === 1 ? data.players ?? [] : [...prev, ...(data.players ?? [])];
+          if (user) {
+            playersCache.set(user.id, {
+              players: nextPlayers,
+              userEntry: data.user ?? null,
+              page,
+              total: data.total ?? nextPlayers.length,
+              timestamp: Date.now(),
+            });
+          }
+          return nextPlayers;
+        });
         // User entry is provided separately if they're not on the current page
         setUserEntry(data.user ?? null);
         setTotal(data.total ?? (data.players ?? []).length);
+        forceRefreshRef.current = false;
       } catch (err) {
         // Ignore abort errors (component unmounted), but show other errors
         if (

@@ -60,20 +60,16 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const page = parsePage(searchParams.get('page'))
     const pageSize = parsePageSize(searchParams.get('pageSize'))
-    const from = (page - 1) * pageSize
-    const to = from + pageSize - 1
+    const offset = (page - 1) * pageSize
 
-    const { data: rows, error, count } = await supabase
-        .from('player_rankings')
-        .select(
-            'ranking_score, current_trophies, wins, pol_current_league, pol_best_league, clash_accounts!inner(name, player_tag, profile_id), universities (name, short_code)',
-            { count: 'exact' }
-        )
-        .eq('university_id', profile.university_id)
-        .order('ranking_score', { ascending: false })
-        .order('current_trophies', { ascending: false })
-        .order('wins', { ascending: false })
-        .range(from, to)
+    // Use enhanced RPC function that returns players, user entry, and total count
+    // This reduces queries from 7 to 2 (profile query + RPC call)
+    const { data: result, error } = await supabase.rpc('get_ranked_players_complete', {
+        p_university_id: profile.university_id,
+        p_user_id: userId,
+        p_limit: pageSize,
+        p_offset: offset,
+    })
 
     if (error) {
         return NextResponse.json(
@@ -82,65 +78,40 @@ export async function GET(request: Request) {
         )
     }
 
-    const players = (rows ?? []).map((row, index) => ({
-        rank: from + index + 1,
-        name: row.clash_accounts?.name ?? 'Unknown Player',
-        tag: row.clash_accounts?.player_tag ?? '',
-        university: row.universities?.name ?? 'Unknown University',
-        universityShort: row.universities?.short_code ?? 'N/A',
-        score: row.ranking_score,
-        trophies: row.current_trophies,
-        wins: row.wins,
-        polCurrentLeague: row.pol_current_league ?? 0,
-        polBestLeague: row.pol_best_league ?? 0,
-        change: 'same' as const,
-        isUser: row.clash_accounts?.profile_id === userId,
-    }))
-
-    const userInPage = players.some((player) => player.isUser)
-
-    let userEntry: typeof players[number] | null = null
-    if (!userInPage) {
-        // Fetch the user's row so we can show their rank even off-page.
-        const { data: userRow, error: userRowError } = await supabase
-            .from('player_rankings')
-            .select(
-                'ranking_score, current_trophies, wins, pol_current_league, pol_best_league, clash_accounts!inner(name, player_tag, profile_id), universities (name, short_code)'
-            )
-            .eq('clash_accounts.profile_id', userId)
-            .eq('university_id', profile.university_id)
-            .maybeSingle()
-
-        if (!userRowError && userRow) {
-            const { count: higherCount } = await supabase
-                .from('player_rankings')
-                .select('id', { count: 'exact', head: true })
-                .eq('university_id', profile.university_id)
-                .gt('ranking_score', userRow.ranking_score)
-
-            userEntry = {
-                rank: (higherCount ?? 0) + 1,
-                name: userRow.clash_accounts?.name ?? 'Unknown Player',
-                tag: userRow.clash_accounts?.player_tag ?? '',
-                university: userRow.universities?.name ?? 'Unknown University',
-                universityShort: userRow.universities?.short_code ?? 'N/A',
-                score: userRow.ranking_score,
-                trophies: userRow.current_trophies,
-                wins: userRow.wins,
-                polCurrentLeague: userRow.pol_current_league ?? 0,
-                polBestLeague: userRow.pol_best_league ?? 0,
-                change: 'same',
-                isUser: true,
-            }
-        }
+    // Parse JSONB response from RPC
+    // Result structure: { players: [...], user: {...} | null, total: number }
+    type RankedPlayerResponse = {
+        rank: number
+        name: string
+        tag: string
+        university: string
+        universityShort: string
+        score: number
+        trophies: number
+        wins: number
+        polCurrentLeague: number
+        polBestLeague: number
+        change: 'same'
+        isUser: boolean
     }
+
+    type RpcResponse = {
+        players: RankedPlayerResponse[]
+        user: RankedPlayerResponse | null
+        total: number
+    }
+
+    const rpcResult = result as unknown as RpcResponse | null
+    const players = rpcResult?.players ?? []
+    const userEntry = rpcResult?.user ?? null
+    const total = rpcResult?.total ?? 0
 
     const response = NextResponse.json({
         players,
         user: userEntry,
         page,
         pageSize,
-        total: count ?? players.length,
+        total,
     })
 
     response.headers.set(
