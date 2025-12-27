@@ -89,16 +89,21 @@ function PlayerRow({ player }: PlayerRowProps) {
       {/* Rank */}
       <div className="col-span-2 md:col-span-1 flex flex-col items-center justify-center gap-1">
         {isTopThree ? (
-          <Crown
-            size={20}
-            className={
-              player.rank === 1
-                ? 'text-[#FFD700]'
-                : player.rank === 2
-                ? 'text-gray-300'
-                : 'text-amber-700'
-            }
-          />
+          <>
+            <Crown
+              size={20}
+              className={
+                player.rank === 1
+                  ? 'text-[#FFD700]'
+                  : player.rank === 2
+                  ? 'text-gray-300'
+                  : 'text-amber-700'
+              }
+            />
+            <span className="font-mono text-gray-400 font-bold text-xs">
+              {player.rank}
+            </span>
+          </>
         ) : (
           <span className="font-mono text-gray-400 font-bold">
             {player.rank}
