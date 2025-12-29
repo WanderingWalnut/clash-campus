@@ -13,14 +13,6 @@ export function Roadmap() {
       id="roadmap"
       className="py-12 md:py-24 bg-[#0A1628] border-t border-gray-900 relative overflow-hidden"
     >
-      <Image
-        src="/assets/stickers/Clash Royale Sticker Sticker by Clash Stars ES (2).gif"
-        alt=""
-        width={140}
-        height={140}
-        className="pointer-events-none absolute left-4 bottom-6 w-20 md:w-28 opacity-70 hidden md:block"
-        aria-hidden="true"
-      />
       <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 text-center">
         <Reveal>
           <h2 className="text-2xl md:text-4xl font-bold mb-8 md:mb-12">
@@ -39,6 +31,14 @@ export function Roadmap() {
                 LIVE NOW
               </div>
               <div className="bg-[#1A2332] border border-gray-700 p-4 md:p-6 rounded-xl max-w-md mx-auto relative">
+                <Image
+                  src="/assets/stickers/Clash Royale Sticker Sticker by Clash Stars ES (2).gif"
+                  alt=""
+                  width={100}
+                  height={100}
+                  className="pointer-events-none absolute -right-8 md:-right-12 top-1/2 -translate-y-1/2 w-16 md:w-24 h-auto opacity-70 hidden md:block"
+                  aria-hidden="true"
+                />
                 <h3 className="text-lg md:text-xl font-bold text-white">
                   Phase 1: Individual Glory
                 </h3>
@@ -58,7 +58,15 @@ export function Roadmap() {
               <div className="bg-[#FFD700] text-black text-[10px] md:text-xs font-bold px-2.5 py-0.5 md:px-3 md:py-1 rounded-full inline-block mb-3 md:mb-4">
                 COMING SOON
               </div>
-              <div className="glass border border-[#FFD700]/30 p-4 md:p-6 rounded-xl max-w-md mx-auto shadow-[0_0_30px_rgba(255,215,0,0.05)]">
+              <div className="glass border border-[#FFD700]/30 p-4 md:p-6 rounded-xl max-w-md mx-auto shadow-[0_0_30px_rgba(255,215,0,0.05)] relative">
+                <Image
+                  src="/assets/stickers/Clash Royale Sticker Sticker by Clash Stars ES (2).gif"
+                  alt=""
+                  width={100}
+                  height={100}
+                  className="pointer-events-none absolute -left-8 md:-left-12 top-1/2 -translate-y-1/2 w-16 md:w-24 h-auto opacity-70 hidden md:block"
+                  aria-hidden="true"
+                />
                 <h3 className="text-lg md:text-xl font-bold text-[#FFD700]">
                   Phase 2: Campus Showdown
                 </h3>

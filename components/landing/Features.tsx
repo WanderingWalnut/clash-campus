@@ -1,38 +1,37 @@
 'use client';
 
 import Image from 'next/image';
-import { CheckCircle, Share2, Landmark } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 import type { FeatureCard } from '@/types/landing';
 
 /** Feature cards displayed in the Features section */
 const FEATURES: FeatureCard[] = [
   {
-    icon: CheckCircle,
     iconColor: 'text-[#003DA5]',
     iconBackground: 'bg-[#003DA5]/10',
     hoverBorder: 'hover:border-[#003DA5]/50',
     title: 'Verified Skill',
     description:
       'No more fake claims. We link directly to the API to verify trophies, win rates, and tournament standards. Your profile is your receipt.',
+    gif: '/assets/stickers/Clash Royale Win Sticker by Clash Stars ES.gif',
   },
   {
-    icon: Share2,
     iconColor: 'text-[#FFD700]',
     iconBackground: 'bg-[#FFD700]/10',
     hoverBorder: 'hover:border-[#FFD700]/50',
-    title: 'Shareable Player Cards',
+    title: 'Climb the Ranks',
     description:
-      'Think "Spotify Wrapped" but for your battle log. Generate sleek, data-driven cards to flex your season performance on Instagram or Snap.',
+      'Climb the ranks and prove your competitive edge. Track your progress, dominate the leaderboards, and showcase your journey from rookie to legend.',
+    gif: '/assets/stickers/plotting_goblin.gif',
   },
   {
-    icon: Landmark,
     iconColor: 'text-white',
     iconBackground: 'bg-white/10',
     hoverBorder: 'hover:border-white/50',
     title: 'Campus Identity',
     description:
       "Rep your university. Every win contributes to your school's aggregate score. Help your campus climb the national university ladder.",
+    gif: '/assets/stickers/67-meme-clash-royale.gif',
   },
 ];
 
@@ -48,14 +47,6 @@ export function Features() {
     >
       {/* Decorative Background Element */}
       <div className="absolute right-0 top-0 w-1/3 h-full bg-[#003DA5]/5 skew-x-12 pointer-events-none" />
-      <Image
-        src="/assets/stickers/Clash Royale Sticker Sticker by Clash Stars ES (1).gif"
-        alt=""
-        width={120}
-        height={120}
-        className="pointer-events-none absolute top-4 right-4 w-16 md:w-24 opacity-80 hidden sm:block"
-        aria-hidden="true"
-      />
 
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
         <Reveal>
@@ -99,7 +90,6 @@ interface FeatureCardComponentProps {
  * @param index - Index for staggered animation delay (number)
  */
 function FeatureCardComponent({ feature, index }: FeatureCardComponentProps) {
-  const Icon = feature.icon;
   const delayClass = index === 0 ? '' : index === 1 ? 'delay-100' : 'delay-200';
 
   return (
@@ -108,19 +98,30 @@ function FeatureCardComponent({ feature, index }: FeatureCardComponentProps) {
         className={`
           bg-card-gradient border border-gray-800 p-4 md:p-8 rounded-xl md:rounded-2xl
           transition-all duration-300 group ${feature.hoverBorder}
+          relative overflow-hidden
         `}
       >
-        <div
-          className={`
-            w-10 h-10 md:w-12 md:h-12 ${feature.iconBackground} rounded-lg
-            flex items-center justify-center mb-4 md:mb-6
-            group-hover:scale-110 transition-transform
-          `}
-        >
-          <Icon className={`${feature.iconColor} w-5 h-5`} />
-        </div>
-        <h3 className="text-lg md:text-xl font-bold text-white mb-2 md:mb-3">{feature.title}</h3>
-        <p className="text-sm md:text-base text-gray-400 leading-relaxed">{feature.description}</p>
+        {/* GIF Icon */}
+        {feature.gif && (
+          <div
+            className={`
+              w-10 h-10 md:w-12 md:h-12 ${feature.iconBackground} rounded-lg
+              flex items-center justify-center mb-4 md:mb-6
+              group-hover:scale-110 transition-transform relative z-10
+            `}
+          >
+            <Image
+              src={feature.gif}
+              alt=""
+              width={48}
+              height={48}
+              className="w-full h-full object-contain"
+              aria-hidden="true"
+            />
+          </div>
+        )}
+        <h3 className="text-lg md:text-xl font-bold text-white mb-2 md:mb-3 relative z-10">{feature.title}</h3>
+        <p className="text-sm md:text-base text-gray-400 leading-relaxed relative z-10">{feature.description}</p>
       </div>
     </Reveal>
   );

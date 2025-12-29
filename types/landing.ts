@@ -28,8 +28,6 @@ export interface LeaderboardPlayer {
  * Represents a feature card displayed in the Features section.
  */
 export interface FeatureCard {
-    /** Lucide icon component to display */
-    icon: React.ComponentType<{ className?: string; size?: number }>;
     /** Tailwind text color class for the icon */
     iconColor: string;
     /** Tailwind background color class for the icon container */
@@ -40,6 +38,8 @@ export interface FeatureCard {
     title: string;
     /** Feature description */
     description: string;
+    /** GIF sticker path to display in the card */
+    gif: string;
 }
 
 /**

@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import { Crown, Trophy, Medal } from 'lucide-react';
 
 /**
@@ -71,6 +72,17 @@ export function HeroPlayerCard() {
           <div className="text-xs text-gray-400">Win Streak</div>
           <div className="text-sm font-bold text-white">12 Games</div>
         </div>
+      </div>
+
+      {/* Scroll Indicator - Mobile only */}
+      <div className="mt-6 flex justify-center md:hidden">
+        <Image
+          src="/assets/stickers/swipe up.gif"
+          alt="Scroll indicator"
+          width={120}
+          height={120}
+          className="w-20 h-auto opacity-90"
+        />
       </div>
     </div>
   );

@@ -52,14 +52,6 @@ const SAMPLE_PLAYERS: LeaderboardPlayer[] = [
 export function RoyaleRankings() {
   return (
     <section id="rankings" className="py-12 md:py-24 bg-[#1B2637] relative">
-      <Image
-        src="/assets/stickers/Clash Royale Win Sticker by Clash Stars ES.gif"
-        alt=""
-        width={140}
-        height={140}
-        className="pointer-events-none absolute right-4 top-6 w-20 md:w-28 opacity-80 hidden sm:block"
-        aria-hidden="true"
-      />
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <Reveal>
           <div className="text-center mb-8 md:mb-16">

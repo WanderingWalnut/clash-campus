@@ -67,17 +67,16 @@ export function Hero() {
         <HeroPlayerCard />
       </div>
 
-      <Reveal delay="delay-500">
-        <div className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
-          <Image
-            src="/assets/stickers/swipe up.gif"
-            alt="Scroll indicator"
-            width={120}
-            height={120}
-            className="w-16 md:w-20 h-auto opacity-80"
-          />
-        </div>
-      </Reveal>
+      {/* Scroll Indicator - Desktop only, positioned at bottom of Hero section, centered under card */}
+      <div className="hidden md:flex absolute bottom-0 left-1/2 -translate-x-1/2 z-20 pointer-events-none justify-center pb-4 md:pb-8">
+        <Image
+          src="/assets/stickers/swipe up.gif"
+          alt="Scroll indicator"
+          width={120}
+          height={120}
+          className="w-20 md:w-28 h-auto opacity-90"
+        />
+      </div>
     </HeroSectionWrapper>
   );
 }
