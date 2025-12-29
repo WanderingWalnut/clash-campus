@@ -22,9 +22,9 @@ export function Hero() {
       <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex flex-col items-center text-center">
         {/* Launch Badge */}
         <Reveal>
-          <div className="mb-3 md:mb-6 inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-[#003DA5]/30 bg-[#003DA5]/10 backdrop-blur-sm">
-            <span className="w-2 h-2 rounded-full bg-[#003DA5] animate-pulse" />
-            <span className="text-[#003DA5] text-xs font-bold tracking-widest uppercase">
+          <div className="mb-3 md:mb-6 inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-[#FFD700]/40 bg-[#003DA5]/10 backdrop-blur-sm shadow-[0_0_20px_rgba(255,215,0,0.15)]">
+            <span className="w-2 h-2 rounded-full bg-[#FFD700] animate-pulse shadow-[0_0_8px_rgba(255,215,0,0.6)]" />
+            <span className="text-[#FFD700] text-xs font-bold tracking-widest uppercase drop-shadow-[0_0_8px_rgba(255,215,0,0.4)]">
               The Arena Just Moved to Campus
             </span>
           </div>
