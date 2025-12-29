@@ -104,7 +104,7 @@ function CampusRow({ campus }: CampusRowProps) {
             </span>
           </>
         ) : (
-          <span className="font-mono font-bold text-lg text-gray-400">
+          <span className="font-mono font-bold text-sm md:text-lg text-gray-400">
             #{campus.rank}
           </span>
         )}
@@ -114,11 +114,11 @@ function CampusRow({ campus }: CampusRowProps) {
       {/* Campus Info */}
       <div className="col-span-7 md:col-span-4">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-white/5 flex items-center justify-center text-lg">
+          <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-white/5 flex items-center justify-center text-sm md:text-lg">
             🏛️
           </div>
           <div>
-            <div className="font-bold text-white text-sm md:text-base group-hover:text-[#FFD700] transition-colors">
+            <div className="font-bold text-white text-xs md:text-base group-hover:text-[#FFD700] transition-colors">
               {campus.name}
             </div>
             <div className="text-xs text-gray-500">Top 1% Global</div>
@@ -128,11 +128,10 @@ function CampusRow({ campus }: CampusRowProps) {
 
       {/* Avg Power Level */}
       <div className="col-span-3 md:col-span-3 text-right md:text-left">
-        <div className="flex items-center justify-end md:justify-start gap-1 font-bold text-white text-lg">
-          <Image src={XP_ICON_SRC} alt="XP" width={16} height={16} className="w-4 h-4" />
+        <div className="flex items-center justify-end md:justify-start font-bold text-white text-sm md:text-lg">
+          <Image src={XP_ICON_SRC} alt="XP" width={25} height={25} className="w-6 h-6 md:w-10 md:h-10" />
           <span>{campus.avgScore}</span>
         </div>
-        <div className="text-[10px] text-gray-500">Avg Power Level</div>
       </div>
 
       {/* Active Players */}
