@@ -73,11 +73,11 @@
  */
 .button-royale {
   background-image: url("/assets/images/buttons/button.png");
-  background-color: var(--color-royal-blue);
+  background-color: transparent;
   background-repeat: no-repeat;
   background-position: center;
   background-size: 100% 100%;
-  box-shadow: 0 0 22px rgba(0, 61, 165, 0.45);
+  overflow: hidden;
 }
 
 .button-royale:hover {
