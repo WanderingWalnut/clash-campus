@@ -10,7 +10,7 @@ import { Reveal } from '@/components/ui/Reveal';
  */
 export function CallToAction() {
   return (
-    <section className="pt-16 pb-24 md:pt-24 md:pb-24 relative overflow-hidden bg-[#0F1B2E]">
+    <section className="pt-12 pb-28 md:pt-24 md:pb-24 relative overflow-hidden bg-[#0F1B2E]">
       {/* Background Pattern */}
       <div className="absolute inset-0 bg-royale-pattern opacity-20" />
       <div className="absolute inset-0 bg-hero-glow opacity-30" />
@@ -40,7 +40,7 @@ export function CallToAction() {
             >
               Connect Account
             </Link>
-            <p className="mt-4 md:mt-4 text-[10px] md:text-xs text-gray-500 uppercase tracking-wide">
+            <p className="mt-3 md:mt-4 text-[10px] md:text-xs text-gray-500 uppercase tracking-wide">
               Secure ID Verification
             </p>
           </div>

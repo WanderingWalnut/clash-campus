@@ -41,8 +41,7 @@ export function Hero() {
         {/* Subheadline */}
         <Reveal delay="delay-200">
           <p className="max-w-2xl text-base md:text-xl text-gray-400 mb-6 md:mb-10 font-light leading-relaxed mx-auto">
-            Every campus has a king or queen. Link your account, verify your
-            campus, and rise to power. Skill is your new currency.
+            Every campus has a king or queen. Link your account and rise to power.
           </p>
         </Reveal>
 
