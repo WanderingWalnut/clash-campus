@@ -25,7 +25,7 @@ export function CallToAction() {
       />
 
       <Reveal>
-        <div className="max-w-4xl mx-auto pl-6 pr-20 md:pl-4 md:pr-32 text-center relative z-10">
+        <div className="max-w-4xl mx-auto px-6 md:pl-4 md:pr-32 text-center relative z-10">
           <h2 className="text-3xl md:text-6xl font-extrabold mb-6 md:mb-6 tracking-tight">
             Stop Playing in Silence.
           </h2>
