@@ -74,14 +74,14 @@ export function HeroPlayerCard() {
         </div>
       </div>
 
-      {/* Scroll Indicator - Mobile only */}
-      <div className="mt-6 flex justify-center md:hidden">
+      {/* Scroll Indicator */}
+      <div className="mt-6 md:mt-8 flex justify-center">
         <Image
           src="/assets/stickers/swipe up.gif"
           alt="Scroll indicator"
           width={120}
           height={120}
-          className="w-20 h-auto opacity-90"
+          className="w-20 md:w-24 h-auto opacity-90"
         />
       </div>
     </div>
