@@ -14,18 +14,18 @@ export function Footer() {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="bg-black py-6 md:py-12 border-t border-gray-900">
+    <footer className="bg-[#0A1628] py-6 md:py-12 border-t border-[#1A2332]">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4 md:gap-6">
         {/* Logo */}
         <div className="flex items-center gap-1.5 md:gap-2">
-          <Crown className="text-gray-600 w-5 h-5 md:w-6 md:h-6" />
-          <span className="font-bold text-sm md:text-base text-gray-500 tracking-tight">
-            CLASH<span className="text-gray-700">CAMPUS</span>
+          <Crown className="text-slate-500 w-5 h-5 md:w-6 md:h-6" />
+          <span className="font-bold text-sm md:text-base text-slate-400 tracking-tight">
+            CLASH<span className="text-slate-500">CAMPUS</span>
           </span>
         </div>
 
         {/* Navigation Links */}
-        <div className="flex gap-4 md:gap-8 text-xs md:text-sm text-gray-500">
+        <div className="flex gap-4 md:gap-8 text-xs md:text-sm text-slate-500">
           {FOOTER_LINKS.map((link) => (
             <a
               key={link.label}
@@ -38,7 +38,7 @@ export function Footer() {
         </div>
 
         {/* Legal Disclaimer */}
-        <div className="text-[10px] md:text-xs text-gray-700 text-center md:text-left">
+        <div className="text-[10px] md:text-xs text-slate-600 text-center md:text-left">
           <div>© {currentYear} ClashCampus. Not affiliated with Supercell.</div>
           <div className="mt-0.5 md:mt-1">
             This material is unofficial and is not endorsed by Supercell. For
@@ -58,4 +58,3 @@ export function Footer() {
     </footer>
   );
 }
-

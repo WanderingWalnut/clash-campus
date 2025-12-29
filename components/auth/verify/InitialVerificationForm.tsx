@@ -26,11 +26,11 @@ export function InitialVerificationForm({
     <>
       <Reveal delay="delay-100">
         {/* Main Verification Card */}
-        <div className="bg-[#121212] border border-gray-800 rounded-2xl p-5 sm:p-8 shadow-2xl">
+        <div className="bg-[#1A2332] border border-gray-800 rounded-2xl p-5 sm:p-8 shadow-2xl">
           {/* Icon */}
           <div className="flex justify-center mb-3 sm:mb-6 -mt-2 sm:-mt-4">
-            <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-[#4717F6]/20 flex items-center justify-center aspect-square">
-              <Shield className="w-7 h-7 sm:w-10 sm:h-10 text-[#4717F6]" />
+            <div className="w-14 h-14 sm:w-20 sm:h-20 rounded-full bg-[#003DA5]/20 flex items-center justify-center aspect-square">
+              <Shield className="w-7 h-7 sm:w-10 sm:h-10 text-[#003DA5]" />
             </div>
           </div>
 
@@ -58,13 +58,13 @@ export function InitialVerificationForm({
                     value={playerTag}
                     onChange={(e) => setPlayerTag(e.target.value)}
                     placeholder="Enter Your Player Tag"
-                    className="flex-1 w-full sm:max-w-xs px-4 py-3 bg-[#0D0D0D] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#4717F6] focus:ring-1 focus:ring-[#4717F6] transition-colors text-sm sm:text-base"
+                    className="flex-1 w-full sm:max-w-xs px-4 py-3 bg-[#0F1B2E] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#003DA5] focus:ring-1 focus:ring-[#003DA5] transition-colors text-sm sm:text-base"
                   />
                   <button
                     type="button"
                     onClick={onVerify}
                     disabled={loading}
-                    className="w-full sm:w-auto px-6 py-3 bg-[#4717F6] hover:bg-[#5a1fff] disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-colors duration-300 text-sm sm:text-base"
+                    className="button-royale w-full sm:w-auto px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-transform duration-300 hover:-translate-y-0.5 text-sm sm:text-base"
                   >
                     {loading ? 'Verifying...' : 'Verify'}
                   </button>
@@ -118,4 +118,3 @@ export function InitialVerificationForm({
     </>
   );
 }
-

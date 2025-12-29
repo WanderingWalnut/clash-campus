@@ -2,9 +2,13 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { Crown, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 import type { LeaderboardPlayer } from '@/types/landing';
+
+const DEFAULT_AVATAR_SRC = '/assets/images/default_profile/image.png';
+const BLUE_CROWN_SRC = '/assets/images/Blue_Crown/image.png';
+const RED_CROWN_SRC = '/assets/images/Red_crown/image.png';
 
 /** Sample leaderboard data for the landing page preview */
 const SAMPLE_PLAYERS: LeaderboardPlayer[] = [
@@ -47,7 +51,15 @@ const SAMPLE_PLAYERS: LeaderboardPlayer[] = [
  */
 export function RoyaleRankings() {
   return (
-    <section id="rankings" className="py-12 md:py-24 bg-[#141414] relative">
+    <section id="rankings" className="py-12 md:py-24 bg-[#1B2637] relative">
+      <Image
+        src="/assets/stickers/Clash Royale Win Sticker by Clash Stars ES.gif"
+        alt=""
+        width={140}
+        height={140}
+        className="pointer-events-none absolute right-4 top-6 w-20 md:w-28 opacity-80 hidden sm:block"
+        aria-hidden="true"
+      />
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
         <Reveal>
           <div className="text-center mb-8 md:mb-16">
@@ -76,7 +88,7 @@ export function RoyaleRankings() {
         <div className="mt-6 md:mt-8 text-center">
           <Link
             href="/rankings"
-            className="inline-flex items-center gap-2 text-[#4717F6] hover:text-white transition-colors text-xs md:text-sm font-bold uppercase tracking-widest"
+            className="inline-flex items-center gap-2 text-[#003DA5] hover:text-white transition-colors text-xs md:text-sm font-bold uppercase tracking-widest"
           >
             View Full Leaderboard <ArrowRight size={14} className="md:w-4 md:h-4" />
           </Link>
@@ -114,6 +126,11 @@ interface LeaderboardRowProps {
  * @param player - The player data to display (LeaderboardPlayer)
  */
 function LeaderboardRow({ player }: LeaderboardRowProps) {
+  const crownGlowClass =
+    player.rank === 1
+      ? 'drop-shadow-[0_0_8px_rgba(0,61,165,0.5)]'
+      : 'drop-shadow-[0_0_8px_rgba(239,68,68,0.45)]';
+
   return (
     <Link
       href="/rankings"
@@ -121,11 +138,19 @@ function LeaderboardRow({ player }: LeaderboardRowProps) {
     >
       {/* Rank */}
       <div className="col-span-2 md:col-span-1 flex justify-center">
-        {player.isHighlighted ? (
-          <Crown
-            size={20}
-            className="text-[#FFD700] drop-shadow-[0_0_8px_rgba(255,215,0,0.5)] md:w-6 md:h-6"
-          />
+        {player.rank <= 3 ? (
+          <div className="flex flex-col items-center gap-1">
+            <Image
+              src={player.rank === 1 ? BLUE_CROWN_SRC : RED_CROWN_SRC}
+              alt={player.rank === 1 ? 'Rank 1 crown' : 'Top 3 crown'}
+              width={24}
+              height={24}
+              className={`w-5 h-5 md:w-6 md:h-6 ${crownGlowClass}`}
+            />
+            <span className="font-mono text-gray-400 font-bold text-[10px]">
+              {player.rank}
+            </span>
+          </div>
         ) : (
           <span
             className={`font-bold text-base md:text-xl ${
@@ -140,11 +165,11 @@ function LeaderboardRow({ player }: LeaderboardRowProps) {
       {/* Player Info */}
       <div className="col-span-6 md:col-span-4 flex items-center gap-2 md:gap-3">
         <Image
-          src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${player.avatarSeed}`}
+          src={DEFAULT_AVATAR_SRC}
           alt={`${player.name}'s avatar`}
           width={40}
           height={40}
-          className={`w-8 h-8 md:w-10 md:h-10 rounded-full border bg-gray-800 ${
+          className={`w-8 h-8 md:w-10 md:h-10 rounded-full border bg-[#0F1B2E] ${
             player.isHighlighted ? 'border-[#FFD700]' : 'border-gray-600'
           }`}
         />

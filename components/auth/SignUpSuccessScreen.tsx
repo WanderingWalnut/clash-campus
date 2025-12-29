@@ -14,7 +14,7 @@ interface SignUpSuccessScreenProps {
 export function SignUpSuccessScreen({ message }: SignUpSuccessScreenProps) {
   return (
     <Reveal delay="delay-100">
-      <div className="bg-[#121212] border border-gray-800 rounded-2xl p-8 shadow-2xl text-center">
+      <div className="bg-[#1A2332] border border-gray-800 rounded-2xl p-8 shadow-2xl text-center">
         <div className="mb-4">
           <div className="mx-auto w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mb-4">
             <svg

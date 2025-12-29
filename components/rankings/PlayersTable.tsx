@@ -1,9 +1,14 @@
 'use client';
 
 import Image from 'next/image';
-import { Crown, Trophy } from 'lucide-react';
+import { Trophy } from 'lucide-react';
 import { RankChange } from './RankChange';
 import type { RankedPlayer } from '@/types/rankings';
+
+const DEFAULT_AVATAR_SRC = '/assets/images/default_profile/image.png';
+const BLUE_CROWN_SRC = '/assets/images/Blue_Crown/image.png';
+const RED_CROWN_SRC = '/assets/images/Red_crown/image.png';
+const XP_ICON_SRC = '/assets/images/XP/image.png';
 
 interface PlayersTableProps {
   /** Array of player data to display */
@@ -28,7 +33,7 @@ export function PlayersTable({
   isLoadingMore = false,
 }: PlayersTableProps) {
   return (
-    <div className="bg-[#141414] border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
+    <div className="bg-[#1B2637] border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
       {/* Table Header */}
       <div className="grid grid-cols-12 gap-4 p-4 border-b border-gray-800 bg-gray-900/50 text-xs font-bold text-gray-500 uppercase tracking-wider">
         <div className="col-span-2 md:col-span-1 text-center">Rank</div>
@@ -75,13 +80,18 @@ interface PlayerRowProps {
  */
 function PlayerRow({ player }: PlayerRowProps) {
   const isTopThree = player.rank <= 3;
+  const crownSrc = player.rank === 1 ? BLUE_CROWN_SRC : RED_CROWN_SRC;
+  const crownGlowClass =
+    player.rank === 1
+      ? 'drop-shadow-[0_0_8px_rgba(0,61,165,0.45)]'
+      : 'drop-shadow-[0_0_8px_rgba(239,68,68,0.45)]';
 
   return (
     <div
       className={`
         grid grid-cols-12 gap-4 p-4 items-center transition-colors group
         ${player.isUser
-          ? 'bg-[#4717F6]/10 border-l-4 border-l-[#4717F6]'
+          ? 'bg-[#003DA5]/10 border-l-4 border-l-[#003DA5]'
           : 'hover:bg-white/5 border-l-4 border-l-transparent'
         }
       `}
@@ -90,15 +100,12 @@ function PlayerRow({ player }: PlayerRowProps) {
       <div className="col-span-2 md:col-span-1 flex flex-col items-center justify-center gap-1">
         {isTopThree ? (
           <>
-            <Crown
-              size={20}
-              className={
-                player.rank === 1
-                  ? 'text-[#FFD700]'
-                  : player.rank === 2
-                  ? 'text-gray-300'
-                  : 'text-amber-700'
-              }
+            <Image
+              src={crownSrc}
+              alt={player.rank === 1 ? 'Rank 1 crown' : 'Top 3 crown'}
+              width={24}
+              height={24}
+              className={`w-5 h-5 md:w-6 md:h-6 ${crownGlowClass}`}
             />
             <span className="font-mono text-gray-400 font-bold text-xs">
               {player.rank}
@@ -117,27 +124,27 @@ function PlayerRow({ player }: PlayerRowProps) {
         <div className="flex items-center gap-3">
           <div className="relative">
             <Image
-              src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${player.name}`}
+              src={DEFAULT_AVATAR_SRC}
               alt={`${player.name}'s avatar`}
               width={40}
               height={40}
-              className={`w-10 h-10 rounded-full bg-gray-800 border ${
-                player.isUser ? 'border-[#4717F6]' : 'border-gray-700'
+              className={`w-10 h-10 rounded-full bg-[#0F1B2E] border ${
+                player.isUser ? 'border-[#003DA5]' : 'border-gray-700'
               }`}
             />
             {player.isUser && (
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#4717F6] rounded-full border border-black" />
+              <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#003DA5] rounded-full border border-black" />
             )}
           </div>
           <div>
             <div
               className={`font-bold text-sm md:text-base flex items-center gap-2 ${
-                player.isUser ? 'text-[#4717F6]' : 'text-white'
+                player.isUser ? 'text-[#003DA5]' : 'text-white'
               }`}
             >
               {player.name}
               {player.isUser && (
-                <span className="text-[10px] bg-[#4717F6] text-white px-1.5 py-0.5 rounded uppercase">
+                <span className="text-[10px] bg-[#003DA5] text-white px-1.5 py-0.5 rounded uppercase">
                   You
                 </span>
               )}
@@ -152,7 +159,10 @@ function PlayerRow({ player }: PlayerRowProps) {
 
       {/* POWER LEVEL */}
       <div className="col-span-3 md:col-span-3 text-right md:text-left">
-        <div className="font-bold text-[#FFD700] text-lg">{player.score}</div>
+        <div className="flex items-center justify-end md:justify-start gap-1 font-bold text-[#FFD700] text-lg">
+          <Image src={XP_ICON_SRC} alt="XP" width={16} height={16} className="w-4 h-4" />
+          <span>{player.score}</span>
+        </div>
         <div className="text-[10px] text-gray-500 md:hidden">Power Level</div>
       </div>
 

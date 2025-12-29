@@ -28,7 +28,7 @@ export function RankingsControls({
   onSearchChange,
 }: RankingsControlsProps) {
   return (
-    <div className="sticky top-20 z-40 bg-[#0D0D0D]/95 backdrop-blur-md border-b border-gray-800 pb-4 pt-2">
+    <div className="sticky top-20 z-40 bg-[#0F1B2E]/95 backdrop-blur-md border-b border-gray-800 pb-4 pt-2">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Mode Toggle & Search Row */}
         <div className="flex flex-col md:flex-row justify-between items-center gap-4 mb-6">
@@ -67,7 +67,7 @@ function ModeToggle({ mode, onModeChange }: ModeToggleProps) {
           px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 
           flex items-center gap-2
           ${mode === 'players' 
-            ? 'bg-[#4717F6] text-white shadow-lg' 
+            ? 'bg-[#003DA5] text-white shadow-lg' 
             : 'text-gray-400 hover:text-white'
           }
         `}
@@ -80,7 +80,7 @@ function ModeToggle({ mode, onModeChange }: ModeToggleProps) {
           px-6 py-2 rounded-md text-sm font-bold transition-all duration-300 
           flex items-center gap-2
           ${mode === 'campuses' 
-            ? 'bg-[#4717F6] text-white shadow-lg' 
+            ? 'bg-[#003DA5] text-white shadow-lg' 
             : 'text-gray-400 hover:text-white'
           }
         `}
@@ -117,7 +117,7 @@ function SearchInput({ mode, value, onChange }: SearchInputProps) {
         placeholder={placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
-        className="w-full bg-[#141414] border border-gray-800 text-white pl-10 pr-4 py-2.5 rounded-lg focus:outline-none focus:border-[#4717F6] transition-colors"
+        className="w-full bg-[#1B2637] border border-gray-800 text-white pl-10 pr-4 py-2.5 rounded-lg focus:outline-none focus:border-[#003DA5] transition-colors"
       />
     </div>
   );
@@ -133,12 +133,12 @@ interface FiltersRowProps {
 // function FiltersRow({ mode }: FiltersRowProps) {
 //   return (
 //     <div className="flex flex-wrap gap-3 items-center">
-//       <button className="flex items-center gap-2 bg-[#141414] border border-gray-800 px-4 py-2 rounded-lg text-sm text-gray-300 hover:border-gray-600 transition-colors">
+//       <button className="flex items-center gap-2 bg-[#1B2637] border border-gray-800 px-4 py-2 rounded-lg text-sm text-gray-300 hover:border-gray-600 transition-colors">
 //         <Filter size={14} />
 //         {mode === 'players' ? 'University: All' : 'Region: Global'}
 //         <ChevronDown size={14} />
 //       </button>
-//       <button className="flex items-center gap-2 bg-[#141414] border border-gray-800 px-4 py-2 rounded-lg text-sm text-gray-300 hover:border-gray-600 transition-colors">
+//       <button className="flex items-center gap-2 bg-[#1B2637] border border-gray-800 px-4 py-2 rounded-lg text-sm text-gray-300 hover:border-gray-600 transition-colors">
 //         Season: Nov 2025 (Current) <ChevronDown size={14} />
 //       </button>
 //       <div className="flex-grow" />

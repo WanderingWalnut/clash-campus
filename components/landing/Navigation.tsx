@@ -120,7 +120,7 @@ export function Navigation() {
           >
             <Crown className="text-[#FFD700] w-6 h-6 md:w-7 md:h-7" />
             <span className="font-bold text-base md:text-xl tracking-tight">
-              CLASH<span className="text-[#4717F6]">CAMPUS</span>
+              CLASH<span className="text-[#003DA5]">CAMPUS</span>
             </span>
           </Link>
 
@@ -164,7 +164,7 @@ export function Navigation() {
                   <ChevronDown className="w-4 h-4 text-gray-400" />
                 </button>
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 rounded-xl border border-gray-800 bg-[#121212] shadow-2xl overflow-hidden">
+                  <div className="absolute right-0 mt-2 w-48 rounded-xl border border-gray-800 bg-[#1A2332] shadow-2xl overflow-hidden">
                     <Link
                       href="/profile"
                       onClick={() => setIsUserMenuOpen(false)}
@@ -188,7 +188,7 @@ export function Navigation() {
               // Not authenticated: Show signup CTA
               <Link
                 href="/login"
-                className="bg-white text-[#0D0D0D] hover:bg-[#FFD700] hover:text-black px-4 py-2 md:px-5 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition-all duration-300 transform hover:scale-105 inline-block"
+                className="bg-white text-[#0F1B2E] hover:bg-[#FFD700] hover:text-black px-4 py-2 md:px-5 md:py-2.5 rounded-full text-xs md:text-sm font-bold transition-all duration-300 transform hover:scale-105 inline-block"
               >
                 Log In
               </Link>
@@ -210,7 +210,7 @@ export function Navigation() {
 
       {/* Mobile Menu */}
       {isMobileMenuOpen && (
-        <div className="md:hidden bg-[#0D0D0D] border-b border-gray-800 absolute w-full">
+        <div className="md:hidden bg-[#0F1B2E] border-b border-gray-800 absolute w-full">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
             {NAV_ITEMS.map((item) => (
               <Link

@@ -25,7 +25,7 @@ interface NoticeCardProps {
 
 function NoticeCard({ title, description, action }: NoticeCardProps) {
   return (
-    <div className="mt-6 bg-[#141414] border border-gray-800 rounded-2xl p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+    <div className="mt-6 bg-[#1B2637] border border-gray-800 rounded-2xl p-6 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
       <div>
         <div className="text-xs uppercase tracking-widest text-gray-500">Status</div>
         <div className="text-xl font-bold text-white mt-1">{title}</div>
@@ -38,7 +38,7 @@ function NoticeCard({ title, description, action }: NoticeCardProps) {
 
 function EmptyState({ title, description, action }: NoticeCardProps) {
   return (
-    <div className="bg-[#141414] border border-gray-800 rounded-2xl p-10 text-center">
+    <div className="bg-[#1B2637] border border-gray-800 rounded-2xl p-10 text-center">
       <div className="text-xs uppercase tracking-widest text-gray-500">Profile</div>
       <div className="text-2xl md:text-3xl font-bold text-white mt-2">
         {title}
@@ -63,7 +63,7 @@ export default async function ProfilePage() {
         action={
           <Link
             href="/"
-            className="bg-[#4717F6] hover:bg-[#350ec9] text-white px-6 py-3 rounded-lg font-bold transition-all"
+            className="button-royale text-white px-6 py-3 rounded-lg font-bold transition-transform duration-300 hover:-translate-y-0.5"
           >
             Return Home
           </Link>
@@ -104,7 +104,7 @@ export default async function ProfilePage() {
           action={
             <Link
               href="/verify"
-              className="bg-[#4717F6] hover:bg-[#350ec9] text-white px-6 py-3 rounded-lg font-bold transition-all"
+              className="button-royale text-white px-6 py-3 rounded-lg font-bold transition-transform duration-300 hover:-translate-y-0.5"
             >
               Start Verification
             </Link>
@@ -144,10 +144,11 @@ export default async function ProfilePage() {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-[#0D0D0D] pt-28">
+    <div className="flex flex-col min-h-screen bg-[#0F1B2E] pt-28">
       <div className="flex-1">
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-hero-glow opacity-20" />
+          <div className="absolute inset-0 bg-royale-pattern opacity-15" />
           <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
             <div className="mb-10">
               <span className="text-xs uppercase tracking-widest text-[#FFD700] font-bold">

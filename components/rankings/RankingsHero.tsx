@@ -7,6 +7,7 @@ export function RankingsHero() {
     <div className="relative py-4 md:py-24 overflow-hidden">
       {/* Background Glow */}
       <div className="absolute inset-0 bg-hero-glow z-0" />
+      <div className="absolute inset-0 bg-royale-pattern opacity-20 z-0" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-3 md:px-4 text-center">
         <h1 className="text-2xl md:text-6xl font-extrabold tracking-tight mb-2 md:mb-4">
@@ -24,4 +25,3 @@ export function RankingsHero() {
     </div>
   );
 }
-

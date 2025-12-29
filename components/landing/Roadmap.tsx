@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { Reveal } from '@/components/ui/Reveal';
 
 /**
@@ -10,8 +11,16 @@ export function Roadmap() {
   return (
     <section
       id="roadmap"
-      className="py-12 md:py-24 bg-[#0A0A0A] border-t border-gray-900"
+      className="py-12 md:py-24 bg-[#0A1628] border-t border-gray-900 relative overflow-hidden"
     >
+      <Image
+        src="/assets/stickers/Clash Royale Sticker Sticker by Clash Stars ES (2).gif"
+        alt=""
+        width={140}
+        height={140}
+        className="pointer-events-none absolute left-4 bottom-6 w-20 md:w-28 opacity-70 hidden md:block"
+        aria-hidden="true"
+      />
       <div className="max-w-4xl mx-auto px-3 sm:px-6 lg:px-8 text-center">
         <Reveal>
           <h2 className="text-2xl md:text-4xl font-bold mb-8 md:mb-12">
@@ -26,10 +35,10 @@ export function Roadmap() {
           {/* Phase 1 - Live */}
           <Reveal>
             <div className="relative z-10 mb-8 md:mb-12">
-              <div className="bg-[#4717F6] text-white text-[10px] md:text-xs font-bold px-2.5 py-0.5 md:px-3 md:py-1 rounded-full inline-block mb-3 md:mb-4">
+              <div className="bg-[#003DA5] text-white text-[10px] md:text-xs font-bold px-2.5 py-0.5 md:px-3 md:py-1 rounded-full inline-block mb-3 md:mb-4">
                 LIVE NOW
               </div>
-              <div className="bg-gray-900 border border-gray-700 p-4 md:p-6 rounded-xl max-w-md mx-auto relative">
+              <div className="bg-[#1A2332] border border-gray-700 p-4 md:p-6 rounded-xl max-w-md mx-auto relative">
                 <h3 className="text-lg md:text-xl font-bold text-white">
                   Phase 1: Individual Glory
                 </h3>
@@ -38,7 +47,7 @@ export function Roadmap() {
                   status profiles.
                 </p>
                 {/* Arrow Pointer */}
-                <div className="absolute left-1/2 -bottom-3 w-4 h-4 bg-gray-900 border-b border-r border-gray-700 transform rotate-45 -translate-x-1/2" />
+                <div className="absolute left-1/2 -bottom-3 w-4 h-4 bg-[#1A2332] border-b border-r border-gray-700 transform rotate-45 -translate-x-1/2" />
               </div>
             </div>
           </Reveal>
@@ -66,4 +75,3 @@ export function Roadmap() {
     </section>
   );
 }
-

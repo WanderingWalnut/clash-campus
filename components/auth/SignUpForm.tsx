@@ -68,7 +68,7 @@ export function SignUpForm() {
     <>
       <Reveal delay="delay-100">
         {/* Sign Up Card */}
-        <div className="bg-[#121212] border border-gray-800 rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl">
+        <div className="bg-[#1A2332] border border-gray-800 rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl">
           <form className="space-y-3 sm:space-y-4 md:space-y-5" onSubmit={handleSubmit}>
             {/* Error Message */}
             {error && (
@@ -94,7 +94,7 @@ export function SignUpForm() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 onBlur={handleBlur}
-                className="w-full px-4 py-2.5 sm:py-3 bg-[#0D0D0D] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#4717F6] focus:ring-1 focus:ring-[#4717F6] transition-colors"
+                className="w-full px-4 py-2.5 sm:py-3 bg-[#0F1B2E] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#003DA5] focus:ring-1 focus:ring-[#003DA5] transition-colors"
               />
               <p className="mt-1 text-xs text-gray-500">
                 Use your .edu email to verify your student status.
@@ -127,7 +127,7 @@ export function SignUpForm() {
                 required
                 minLength={8}
                 placeholder="Create a strong password"
-                className="w-full px-4 py-2.5 sm:py-3 bg-[#0D0D0D] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#4717F6] focus:ring-1 focus:ring-[#4717F6] transition-colors"
+                className="w-full px-4 py-2.5 sm:py-3 bg-[#0F1B2E] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#003DA5] focus:ring-1 focus:ring-[#003DA5] transition-colors"
               />
             </div>
 
@@ -146,7 +146,7 @@ export function SignUpForm() {
                 required
                 minLength={8}
                 placeholder="Confirm your password"
-                className="w-full px-4 py-2.5 sm:py-3 bg-[#0D0D0D] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#4717F6] focus:ring-1 focus:ring-[#4717F6] transition-colors"
+                className="w-full px-4 py-2.5 sm:py-3 bg-[#0F1B2E] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#003DA5] focus:ring-1 focus:ring-[#003DA5] transition-colors"
               />
             </div>
 
@@ -154,7 +154,7 @@ export function SignUpForm() {
             <button
               type="submit"
               disabled={loading || validation.isLoading}
-              className="w-full bg-[#4717F6] hover:bg-[#350ec9] disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-3 sm:px-6 sm:py-4 rounded-lg font-bold text-base sm:text-lg transition-all duration-300 shadow-[0_0_20px_rgba(71,23,246,0.5)] hover:shadow-[0_0_30px_rgba(71,23,246,0.7)] flex items-center justify-center gap-2 mt-4 sm:mt-6"
+              className="button-royale w-full disabled:opacity-50 disabled:cursor-not-allowed text-white px-4 py-3 sm:px-6 sm:py-4 rounded-lg font-bold text-base sm:text-lg transition-transform duration-300 hover:-translate-y-0.5 flex items-center justify-center gap-2 mt-4 sm:mt-6"
             >
               <UserPlus className="w-4 h-4 sm:w-5 sm:h-5" />
               {loading ? 'Creating Account...' : 'Create Account'}

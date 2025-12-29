@@ -18,12 +18,12 @@ globs:
 - Use Tailwind utilities consistently; prefer existing tokens/utility classes from `app/globals.css`.
 
 ### Color + accents
-- **Primary purple**: `#4717F6` (hover `#350ec9`)
+- **Primary royal blue**: `#003DA5` (hover `#2D85F3`)
 - **Gold accent**: `#FFD700`
-- Backgrounds: `#0D0D0D` (main), `#121212` (cards)
+- Backgrounds: `#0F1B2E` (main), `#1A2332` (cards)
 
 ### Typography
-- Font: **Plus Jakarta Sans** (configured in `app/layout.tsx`).
+- Font: **Clash** (configured via `@font-face` in `app/globals.css`).
 - Headlines: bold, elite; body stays clean and readable.
 
 ## Component design principles
@@ -35,13 +35,13 @@ globs:
 - **Primary CTA**:
 
 ```tsx
-className="bg-[#4717F6] hover:bg-[#350ec9] text-white px-8 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-[0_0_20px_rgba(71,23,246,0.5)] hover:shadow-[0_0_30px_rgba(71,23,246,0.7)]"
+className="button-royale text-white px-8 py-4 rounded-lg font-bold text-lg transition-transform duration-300 hover:-translate-y-0.5"
 ```
 
 - **Secondary CTA**:
 
 ```tsx
-className="bg-white text-[#0D0D0D] hover:bg-[#FFD700] hover:text-black px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 transform hover:scale-105"
+className="bg-white text-[#0F1B2E] hover:bg-[#FFD700] hover:text-black px-5 py-2.5 rounded-full text-sm font-bold transition-all duration-300 transform hover:scale-105"
 ```
 
 - **Glass button**:

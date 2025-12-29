@@ -17,7 +17,7 @@ export const metadata: Metadata = {
  */
 export default function PrivacyPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-[#0D0D0D] pt-28">
+    <div className="flex flex-col min-h-screen bg-[#0F1B2E] pt-28">
       <div className="flex-1">
         <div className="relative overflow-hidden">
           <div className="absolute inset-0 bg-hero-glow opacity-20" />

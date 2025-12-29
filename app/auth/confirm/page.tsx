@@ -37,7 +37,7 @@ export default async function ConfirmEmailPage({ searchParams }: ConfirmEmailPag
             title="Confirm your email"
             subtitle="Click continue to finish setting up your account."
         >
-            <div className="bg-[#121212] border border-gray-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
+            <div className="bg-[#1A2332] border border-gray-800 rounded-2xl p-6 sm:p-8 shadow-2xl">
                 <p className="text-gray-300 text-sm sm:text-base mb-6">
                     For security, we only verify your email when you press the button below.
                 </p>
@@ -48,7 +48,7 @@ export default async function ConfirmEmailPage({ searchParams }: ConfirmEmailPag
 
                     <button
                         type="submit"
-                        className="w-full bg-[#4717F6] hover:bg-[#350ec9] text-white px-6 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-[0_0_20px_rgba(71,23,246,0.5)] hover:shadow-[0_0_30px_rgba(71,23,246,0.7)]"
+                        className="button-royale w-full text-white px-6 py-4 rounded-lg font-bold text-lg transition-transform duration-300 hover:-translate-y-0.5"
                     >
                         Continue
                     </button>

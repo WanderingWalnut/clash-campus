@@ -8,7 +8,7 @@ import Link from 'next/link';
 export function RankingsCTA() {
   return (
     <div className="max-w-4xl mx-auto px-4 py-16 text-center">
-      <div className="bg-gradient-to-r from-[#1A1A1A] to-[#0D0D0D] border border-gray-800 rounded-2xl p-8 relative overflow-hidden">
+      <div className="bg-gradient-to-r from-[#1B2637] to-[#0F1B2E] border border-gray-800 rounded-2xl p-8 relative overflow-hidden">
         {/* Decorative Glow */}
         <div className="absolute right-0 top-0 w-32 h-32 bg-[#FFD700] opacity-5 rounded-full blur-3xl transform translate-x-10 -translate-y-10" />
 
@@ -22,7 +22,7 @@ export function RankingsCTA() {
           </p>
           <Link
             href="/signup"
-            className="inline-block bg-white text-black hover:bg-[#FFD700] px-8 py-3 rounded-full font-bold transition-all shadow-lg transform hover:scale-105"
+            className="button-royale inline-block text-white px-8 py-3 rounded-lg font-bold transition-transform duration-300 hover:-translate-y-0.5"
           >
             Claim Your Spot
           </Link>
@@ -31,4 +31,3 @@ export function RankingsCTA() {
     </div>
   );
 }
-

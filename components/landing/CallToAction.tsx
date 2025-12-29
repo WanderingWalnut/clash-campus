@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { Reveal } from '@/components/ui/Reveal';
 
@@ -9,9 +10,19 @@ import { Reveal } from '@/components/ui/Reveal';
  */
 export function CallToAction() {
   return (
-    <section className="py-12 md:py-24 relative overflow-hidden">
-      {/* Background Glow */}
-      <div className="absolute inset-0 bg-[#4717F6] opacity-10" />
+    <section className="py-12 md:py-24 relative overflow-hidden bg-[#0F1B2E]">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-royale-pattern opacity-20" />
+      <div className="absolute inset-0 bg-hero-glow opacity-30" />
+
+      <Image
+        src="/assets/images/hog_rider_think/image.png"
+        alt=""
+        width={360}
+        height={360}
+        className="pointer-events-none absolute -right-16 bottom-0 w-40 md:w-56 opacity-80 hidden md:block"
+        aria-hidden="true"
+      />
 
       <Reveal>
         <div className="max-w-4xl mx-auto px-3 md:px-4 text-center relative z-10">
@@ -25,7 +36,7 @@ export function CallToAction() {
           <div className="flex flex-col items-center">
             <Link
               href="/signup"
-              className="bg-white text-black hover:bg-[#FFD700] px-6 py-3 md:px-10 md:py-5 rounded-full font-bold text-base md:text-xl transition-all duration-300 transform hover:scale-105 shadow-2xl inline-block"
+              className="button-royale text-white px-6 py-3 md:px-10 md:py-5 rounded-lg font-bold text-base md:text-xl transition-transform duration-300 hover:-translate-y-0.5 inline-block"
             >
               Connect Account
             </Link>
@@ -38,4 +49,3 @@ export function CallToAction() {
     </section>
   );
 }
-

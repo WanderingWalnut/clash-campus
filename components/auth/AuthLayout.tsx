@@ -24,14 +24,7 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
     <div className={`min-h-screen ${hasHeader ? 'pt-32' : 'pt-32'} pb-16 relative overflow-hidden`}>
       {/* Background Effects */}
       <div className="absolute inset-0 bg-hero-glow z-0" />
-      <div
-        className="absolute inset-0 z-0 opacity-10"
-        style={{
-          backgroundImage:
-            'linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)',
-          backgroundSize: '50px 50px',
-        }}
-      />
+      <div className="absolute inset-0 z-0 bg-royale-pattern opacity-20" />
 
       <div className="relative z-10 max-w-md mx-auto px-4">
         {hasHeader && (
@@ -41,7 +34,7 @@ export function AuthLayout({ title, subtitle, children }: AuthLayoutProps) {
               <div className="hidden md:inline-flex items-center gap-2 mb-4">
                 <Crown className="text-[#FFD700]" size={32} />
                 <span className="font-bold text-2xl tracking-tight">
-                  CLASH<span className="text-[#4717F6]">CAMPUS</span>
+                  CLASH<span className="text-[#003DA5]">CAMPUS</span>
                 </span>
               </div>
               <h1 className="text-3xl md:text-4xl font-extrabold tracking-tight mb-2">

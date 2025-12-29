@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import { CheckCircle, Share2, Landmark } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
 import type { FeatureCard } from '@/types/landing';
@@ -8,9 +9,9 @@ import type { FeatureCard } from '@/types/landing';
 const FEATURES: FeatureCard[] = [
   {
     icon: CheckCircle,
-    iconColor: 'text-[#4717F6]',
-    iconBackground: 'bg-[#4717F6]/10',
-    hoverBorder: 'hover:border-[#4717F6]/50',
+    iconColor: 'text-[#003DA5]',
+    iconBackground: 'bg-[#003DA5]/10',
+    hoverBorder: 'hover:border-[#003DA5]/50',
     title: 'Verified Skill',
     description:
       'No more fake claims. We link directly to the API to verify trophies, win rates, and tournament standards. Your profile is your receipt.',
@@ -43,21 +44,29 @@ export function Features() {
   return (
     <section
       id="features"
-      className="py-12 md:py-24 bg-[#0D0D0D] relative overflow-hidden"
+      className="py-12 md:py-24 bg-[#0F1B2E] relative overflow-hidden"
     >
       {/* Decorative Background Element */}
-      <div className="absolute right-0 top-0 w-1/3 h-full bg-[#4717F6]/5 skew-x-12 pointer-events-none" />
+      <div className="absolute right-0 top-0 w-1/3 h-full bg-[#003DA5]/5 skew-x-12 pointer-events-none" />
+      <Image
+        src="/assets/stickers/Clash Royale Sticker Sticker by Clash Stars ES (1).gif"
+        alt=""
+        width={120}
+        height={120}
+        className="pointer-events-none absolute top-4 right-4 w-16 md:w-24 opacity-80 hidden sm:block"
+        aria-hidden="true"
+      />
 
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 relative z-10">
         <Reveal>
           <div className="mb-8 md:mb-16">
-            <span className="text-[#4717F6] font-bold tracking-widest uppercase text-xs md:text-sm">
+            <span className="text-[#003DA5] font-bold tracking-widest uppercase text-xs md:text-sm">
               Features
             </span>
             <h2 className="text-2xl md:text-5xl font-bold mt-1 md:mt-2">
               More Than A Game. <br />
               This Is{' '}
-              <span className="text-white border-b-2 md:border-b-4 border-[#4717F6]">
+              <span className="text-white border-b-2 md:border-b-4 border-[#003DA5]">
                 Status.
               </span>
             </h2>
@@ -116,4 +125,3 @@ function FeatureCardComponent({ feature, index }: FeatureCardComponentProps) {
     </Reveal>
   );
 }
-

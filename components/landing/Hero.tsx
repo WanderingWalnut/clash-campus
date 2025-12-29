@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { Zap, Search } from 'lucide-react';
 import { Reveal } from '@/components/ui/Reveal';
@@ -17,21 +18,14 @@ export function Hero() {
     <HeroSectionWrapper>
       {/* Background Effects */}
       <div className="absolute inset-0 bg-hero-glow z-0" />
-      <div
-        className="absolute inset-0 z-0 opacity-10"
-        style={{
-          backgroundImage:
-            'linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)',
-          backgroundSize: '50px 50px',
-        }}
-      />
+      <div className="absolute inset-0 z-0 bg-royale-pattern opacity-25" />
 
       <div className="relative z-10 max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 flex flex-col items-center text-center">
         {/* Launch Badge */}
         <Reveal>
-          <div className="mb-3 md:mb-6 inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-[#4717F6]/30 bg-[#4717F6]/10 backdrop-blur-sm">
-            <span className="w-2 h-2 rounded-full bg-[#4717F6] animate-pulse" />
-            <span className="text-[#4717F6] text-xs font-bold tracking-widest uppercase">
+          <div className="mb-3 md:mb-6 inline-flex items-center gap-2 px-3 py-1.5 md:px-4 md:py-2 rounded-full border border-[#003DA5]/30 bg-[#003DA5]/10 backdrop-blur-sm">
+            <span className="w-2 h-2 rounded-full bg-[#003DA5] animate-pulse" />
+            <span className="text-[#003DA5] text-xs font-bold tracking-widest uppercase">
               The Arena Just Moved to Campus
             </span>
           </div>
@@ -58,7 +52,7 @@ export function Hero() {
           <div className="flex flex-col sm:flex-row gap-3 md:gap-4 w-full justify-center">
             <Link
               href="/signup"
-              className="bg-[#4717F6] hover:bg-[#350ec9] text-white px-6 py-3 md:px-8 md:py-4 rounded-lg font-bold text-base md:text-lg transition-all duration-300 shadow-[0_0_20px_rgba(71,23,246,0.5)] hover:shadow-[0_0_30px_rgba(71,23,246,0.7)] flex items-center justify-center gap-2"
+              className="button-royale text-white px-6 py-3 md:px-8 md:py-4 rounded-lg font-bold text-base md:text-lg transition-transform duration-300 hover:-translate-y-0.5 flex items-center justify-center gap-2"
             >
               <Zap size={20} /> Claim Your Rank
             </Link>
@@ -72,6 +66,18 @@ export function Hero() {
         {/* Floating Player Card Preview */}
         <HeroPlayerCard />
       </div>
+
+      <Reveal delay="delay-500">
+        <div className="absolute bottom-4 md:bottom-8 left-1/2 -translate-x-1/2 z-20 pointer-events-none">
+          <Image
+            src="/assets/stickers/swipe up.gif"
+            alt="Scroll indicator"
+            width={120}
+            height={120}
+            className="w-16 md:w-20 h-auto opacity-80"
+          />
+        </div>
+      </Reveal>
     </HeroSectionWrapper>
   );
 }

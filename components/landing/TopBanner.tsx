@@ -14,7 +14,7 @@ export function TopBanner() {
     <div
       className={`
         fixed top-0 left-0 right-0 z-50
-        bg-[#4717F6] text-white text-[10px] md:text-xs font-bold py-1.5 md:py-2 text-center tracking-wider uppercase
+        bg-[#003DA5] text-white text-[10px] md:text-xs font-bold py-1.5 md:py-2 text-center tracking-wider uppercase
         transition-all duration-300
         ${scrolled ? '-translate-y-full opacity-0' : 'translate-y-0 opacity-100'}
       `}

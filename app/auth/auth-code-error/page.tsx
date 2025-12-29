@@ -21,14 +21,7 @@ export default function AuthCodeErrorPage() {
         <div className="min-h-screen pt-32 pb-16 relative overflow-hidden">
             {/* Background Effects */}
             <div className="absolute inset-0 bg-hero-glow z-0" />
-            <div
-                className="absolute inset-0 z-0 opacity-10"
-                style={{
-                    backgroundImage:
-                        'linear-gradient(#333 1px, transparent 1px), linear-gradient(90deg, #333 1px, transparent 1px)',
-                    backgroundSize: '50px 50px',
-                }}
-            />
+            <div className="absolute inset-0 z-0 bg-royale-pattern opacity-20" />
 
             <div className="relative z-10 max-w-md mx-auto px-4">
                 <div className="text-center mb-8">
@@ -43,7 +36,7 @@ export default function AuthCodeErrorPage() {
                     </p>
                 </div>
 
-                <div className="bg-[#121212] border border-gray-800 rounded-2xl p-8 shadow-2xl">
+                <div className="bg-[#1A2332] border border-gray-800 rounded-2xl p-8 shadow-2xl">
                     <div className="space-y-4 text-gray-300">
                         <p>This could happen for a few reasons:</p>
                         <ul className="list-disc list-inside space-y-2 text-sm text-gray-400">
@@ -57,7 +50,7 @@ export default function AuthCodeErrorPage() {
                     <div className="mt-8 space-y-4">
                         <Link
                             href="/signup"
-                            className="w-full bg-[#4717F6] hover:bg-[#350ec9] text-white px-6 py-4 rounded-lg font-bold text-lg transition-all duration-300 shadow-[0_0_20px_rgba(71,23,246,0.5)] hover:shadow-[0_0_30px_rgba(71,23,246,0.7)] flex items-center justify-center gap-2"
+                            className="button-royale w-full text-white px-6 py-4 rounded-lg font-bold text-lg transition-transform duration-300 hover:-translate-y-0.5 flex items-center justify-center gap-2"
                         >
                             Try Signing Up Again
                         </Link>
@@ -79,4 +72,3 @@ export default function AuthCodeErrorPage() {
         </div>
     );
 }
-

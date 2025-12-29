@@ -1,8 +1,13 @@
 'use client';
 
+import Image from 'next/image';
 import { Users } from 'lucide-react';
 import { RankChange } from './RankChange';
 import type { RankedCampus } from '@/types/rankings';
+
+const BLUE_CROWN_SRC = '/assets/images/Blue_Crown/image.png';
+const RED_CROWN_SRC = '/assets/images/Red_crown/image.png';
+const XP_ICON_SRC = '/assets/images/XP/image.png';
 
 interface CampusesTableProps {
   /** Array of campus data to display */
@@ -27,7 +32,7 @@ export function CampusesTable({
   isLoadingMore = false,
 }: CampusesTableProps) {
   return (
-    <div className="bg-[#141414] border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
+    <div className="bg-[#1B2637] border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
       {/* Table Header */}
       <div className="grid grid-cols-12 gap-4 p-4 border-b border-gray-800 bg-gray-900/50 text-xs font-bold text-gray-500 uppercase tracking-wider">
         <div className="col-span-2 md:col-span-1 text-center">Rank</div>
@@ -74,17 +79,35 @@ interface CampusRowProps {
  * @param campus - The campus data to display (RankedCampus)
  */
 function CampusRow({ campus }: CampusRowProps) {
+  const isTopThree = campus.rank <= 3;
+  const crownSrc = campus.rank === 1 ? BLUE_CROWN_SRC : RED_CROWN_SRC;
+  const crownGlowClass =
+    campus.rank === 1
+      ? 'drop-shadow-[0_0_8px_rgba(0,61,165,0.45)]'
+      : 'drop-shadow-[0_0_8px_rgba(239,68,68,0.45)]';
+
   return (
     <div className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-white/5 transition-colors group cursor-pointer border-l-4 border-l-transparent hover:border-l-[#FFD700]">
       {/* Rank */}
       <div className="col-span-2 md:col-span-1 flex flex-col items-center justify-center gap-1">
-        <span
-          className={`font-mono font-bold text-lg ${
-            campus.rank === 1 ? 'text-[#FFD700]' : 'text-gray-400'
-          }`}
-        >
-          #{campus.rank}
-        </span>
+        {isTopThree ? (
+          <>
+            <Image
+              src={crownSrc}
+              alt={campus.rank === 1 ? 'Rank 1 crown' : 'Top 3 crown'}
+              width={24}
+              height={24}
+              className={`w-5 h-5 md:w-6 md:h-6 ${crownGlowClass}`}
+            />
+            <span className="font-mono text-gray-400 font-bold text-xs">
+              {campus.rank}
+            </span>
+          </>
+        ) : (
+          <span className="font-mono font-bold text-lg text-gray-400">
+            #{campus.rank}
+          </span>
+        )}
         <RankChange type={campus.change} />
       </div>
 
@@ -105,7 +128,10 @@ function CampusRow({ campus }: CampusRowProps) {
 
       {/* Avg Power Level */}
       <div className="col-span-3 md:col-span-3 text-right md:text-left">
-        <div className="font-bold text-white text-lg">{campus.avgScore}</div>
+        <div className="flex items-center justify-end md:justify-start gap-1 font-bold text-white text-lg">
+          <Image src={XP_ICON_SRC} alt="XP" width={16} height={16} className="w-4 h-4" />
+          <span>{campus.avgScore}</span>
+        </div>
         <div className="text-[10px] text-gray-500">Avg Power Level</div>
       </div>
 
@@ -119,7 +145,7 @@ function CampusRow({ campus }: CampusRowProps) {
 
       {/* Top Player */}
       <div className="hidden md:block col-span-2 text-right">
-        <div className="text-[#4717F6] text-sm font-medium">
+        <div className="text-[#003DA5] text-sm font-medium">
           {campus.topPlayer}
         </div>
         <div className="text-[10px] text-gray-500">Campus Captain</div>

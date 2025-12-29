@@ -31,7 +31,17 @@ export function DeckVerificationView({
   return (
     <>
       <Reveal delay="delay-100">
-        <div className="bg-[#121212] border border-gray-800 rounded-2xl p-3 md:p-8 shadow-2xl">
+        <div className="bg-[#1A2332] border border-gray-800 rounded-2xl p-3 md:p-8 shadow-2xl relative">
+          {success && (
+            <Image
+              src="/assets/stickers/Clash Royale Sticker Sticker by Clash Stars ES (4).gif"
+              alt=""
+              width={140}
+              height={140}
+              className="pointer-events-none absolute -right-6 -top-6 w-20 md:w-28 opacity-90 hidden sm:block"
+              aria-hidden="true"
+            />
+          )}
           {/* Success Icon */}
           <div className="flex justify-center mb-2 md:mb-6">
             <div className="w-10 h-10 md:w-20 md:h-20 rounded-full bg-green-500/20 flex items-center justify-center">
@@ -57,7 +67,7 @@ export function DeckVerificationView({
           </div>
 
           {/* Required Deck Grid */}
-          <div className="bg-[#0D0D0D] rounded-xl p-2 md:p-4 mb-3 md:mb-6">
+          <div className="bg-[#0F1B2E] rounded-xl p-2 md:p-4 mb-3 md:mb-6">
             <div className="flex items-center justify-between mb-1.5 md:mb-3">
               <p className="text-gray-400 text-[10px] md:text-xs uppercase tracking-wide">
                 Required Deck
@@ -70,7 +80,7 @@ export function DeckVerificationView({
                     window.open(deckLink, '_blank', 'noopener,noreferrer');
                   }
                 }}
-                className="flex items-center gap-1 text-[#4717F6] hover:text-[#5a1fff] text-[10px] md:text-xs font-medium transition-colors"
+                className="flex items-center gap-1 text-[#003DA5] hover:text-[#2D85F3] text-[10px] md:text-xs font-medium transition-colors"
                 title="Open deck in Clash Royale"
               >
                 <ExternalLink className="w-3 h-3 md:w-3.5 md:h-3.5" />
@@ -88,7 +98,7 @@ export function DeckVerificationView({
                 return (
                   <div
                     key={`${card.id}-${index}`}
-                    className="bg-[#1a1a1a] rounded-lg p-1 md:p-2 flex flex-col items-center"
+                    className="bg-[#1B2637] rounded-lg p-1 md:p-2 flex flex-col items-center"
                   >
                     {imageUrl ? (
                       <Image
@@ -124,8 +134,8 @@ export function DeckVerificationView({
           </div>
 
           {/* Instructions */}
-          <div className="bg-[#4717F6]/10 border border-[#4717F6]/30 rounded-lg p-2 md:p-4 mb-3 md:mb-6">
-            <p className="text-[#4717F6] text-xs md:text-sm font-medium mb-1 md:mb-2">How to verify:</p>
+          <div className="bg-[#003DA5]/10 border border-[#003DA5]/30 rounded-lg p-2 md:p-4 mb-3 md:mb-6">
+            <p className="text-[#003DA5] text-xs md:text-sm font-medium mb-1 md:mb-2">How to verify:</p>
             <ol className="text-gray-400 text-xs md:text-sm space-y-0.5 md:space-y-1 list-decimal list-inside">
               <li>Open Clash Royale and create a new deck with these exact 8 cards</li>
               <li>Save the deck and play a game (friendly battle recommended to avoid trophy loss)</li>
@@ -139,7 +149,7 @@ export function DeckVerificationView({
             type="button"
             onClick={onVerifyDeck}
             disabled={loading || success}
-            className="w-full py-2 md:py-3 bg-[#4717F6] hover:bg-[#5a1fff] disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm md:text-base font-medium rounded-lg transition-colors duration-300"
+            className="button-royale w-full py-2 md:py-3 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm md:text-base font-medium rounded-lg transition-transform duration-300 hover:-translate-y-0.5"
           >
             {loading ? 'Verifying...' : success ? 'Verified!' : 'Verify My Deck'}
           </button>

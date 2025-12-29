@@ -1,19 +1,7 @@
 import type { Metadata } from 'next';
-import { Plus_Jakarta_Sans } from 'next/font/google';
 import { TopBanner, Navigation } from '@/components/landing';
 import { AuthProvider } from '@/components/providers';
 import './globals.css';
-
-/**
- * Plus Jakarta Sans - Primary font for ClashCampus
- * Modern, clean, and highly legible for UI elements
- */
-const plusJakartaSans = Plus_Jakarta_Sans({
-  variable: '--font-plus-jakarta',
-  subsets: ['latin'],
-  weight: ['300', '400', '500', '600', '700', '800'],
-  display: 'swap',
-});
 
 /**
  * Site-wide metadata for SEO and social sharing
@@ -67,13 +55,19 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${plusJakartaSans.variable} font-sans antialiased bg-[#0D0D0D] text-white`}
+        className="font-clash antialiased bg-[#0F1B2E] text-white"
       >
-        <AuthProvider>
-          <TopBanner />
-          <Navigation />
-          {children}
-        </AuthProvider>
+        <div
+          className="fixed inset-0 bg-royale-pattern opacity-5 pointer-events-none z-0"
+          aria-hidden="true"
+        />
+        <div className="relative z-10">
+          <AuthProvider>
+            <TopBanner />
+            <Navigation />
+            {children}
+          </AuthProvider>
+        </div>
       </body>
     </html>
   );
