@@ -21,6 +21,11 @@ type PlayersResponse = {
   total: number;
 };
 
+type CampusRankingsOptions = {
+  initialLimit?: number;
+  pageSize?: number;
+};
+
 /** Default number of universities to fetch for campus rankings */
 const DEFAULT_CAMPUS_LIMIT = 25;
 
@@ -86,25 +91,32 @@ async function fetchJson<T>(url: string, signal: AbortSignal): Promise<T> {
  *
  * @returns Object containing campuses data, loading state, and error state
  */
-export function useCampusRankings() {
+export function useCampusRankings(options: CampusRankingsOptions = {}) {
+  const { initialLimit = DEFAULT_CAMPUS_LIMIT, pageSize = DEFAULT_CAMPUS_LIMIT } =
+    options;
   const [campuses, setCampuses] = useState<RankedCampus[]>([]);
-  const [limit, setLimit] = useState(DEFAULT_CAMPUS_LIMIT);
+  const [limit, setLimit] = useState(initialLimit);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    setLimit(initialLimit);
+  }, [initialLimit]);
 
   useEffect(() => {
     const controller = new AbortController();
     let isActive = true;
 
     const fetchCampuses = async () => {
-      if (
-        campusesCache
-        && isCacheFresh(campusesCache.timestamp)
-        && campusesCache.limit >= limit
-      ) {
-        setCampuses(campusesCache.campuses.slice(0, limit));
-        setIsLoading(false);
-        return;
+      if (campusesCache && isCacheFresh(campusesCache.timestamp)) {
+        if (campusesCache.limit >= limit) {
+          setCampuses(campusesCache.campuses.slice(0, limit));
+          setError(null);
+          setIsLoading(false);
+          return;
+        }
+
+        setCampuses(campusesCache.campuses);
       }
 
       setIsLoading(true);
@@ -155,7 +167,7 @@ export function useCampusRankings() {
     if (isLoading || !hasMore) {
       return;
     }
-    setLimit((prev) => prev + DEFAULT_CAMPUS_LIMIT);
+    setLimit((prev) => prev + pageSize);
   };
 
   return { campuses, error, isLoading, hasMore, loadMore };

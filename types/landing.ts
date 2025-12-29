@@ -3,28 +3,6 @@
  */
 
 /**
- * Represents a player entry displayed on the leaderboard preview.
- */
-export interface LeaderboardPlayer {
-    /** Position on the leaderboard */
-    rank: number;
-    /** Player's display name */
-    name: string;
-    /** Full university name */
-    university: string;
-    /** Abbreviated university name for mobile displays */
-    universityShort: string;
-    /** Player's favorite Clash Royale card */
-    favoriteCard: string;
-    /** Formatted trophy count string */
-    trophies: string;
-    /** Seed for generating avatar image */
-    avatarSeed: string;
-    /** Whether this player should be visually highlighted (e.g., rank 1) */
-    isHighlighted: boolean;
-}
-
-/**
  * Represents a feature card displayed in the Features section.
  */
 export interface FeatureCard {
@@ -65,4 +43,3 @@ export interface NavItem {
     /** Target href (anchor or route) */
     href: string;
 }
-
