@@ -1,7 +1,24 @@
 import type { Metadata } from 'next';
+import localFont from 'next/font/local';
 import { TopBanner, Navigation } from '@/components/landing';
 import { AuthProvider } from '@/components/providers';
 import './globals.css';
+
+const clashFont = localFont({
+  src: [
+    {
+      path: '../public/assets/fonts/Clash_Regular.otf',
+      weight: '400',
+      style: 'normal',
+    },
+    {
+      path: '../public/assets/fonts/Clash_Bold.otf',
+      weight: '700',
+      style: 'normal',
+    },
+  ],
+  display: 'swap',
+});
 
 /**
  * Site-wide metadata for SEO and social sharing
@@ -55,7 +72,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className="font-clash antialiased bg-[#0F1B2E] text-white"
+        className={`${clashFont.className} antialiased bg-[#0F1B2E] text-white`}
       >
         <div
           className="fixed inset-0 bg-royale-pattern opacity-5 pointer-events-none z-0"

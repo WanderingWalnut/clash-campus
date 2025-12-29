@@ -23,7 +23,7 @@ globs:
 - Backgrounds: `#0F1B2E` (main), `#1A2332` (cards)
 
 ### Typography
-- Font: **Clash** (configured via `@font-face` in `app/globals.css`).
+- Font: **Clash** (configured via `next/font/local` in `app/layout.tsx`).
 - Headlines: bold, elite; body stays clean and readable.
 
 ## Component design principles

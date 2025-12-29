@@ -11,33 +11,12 @@
    Text Effects
    ============================================ */
 
-@font-face {
-  font-family: "Clash";
-  src: url("/assets/fonts/Clash_Regular.otf") format("opentype");
-  font-weight: 400;
-  font-style: normal;
-  font-display: swap;
-}
-
-@font-face {
-  font-family: "Clash";
-  src: url("/assets/fonts/Clash_Bold.otf") format("opentype");
-  font-weight: 700;
-  font-style: normal;
-  font-display: swap;
-}
-
 :root {
-  --font-clash: "Clash", "Trebuchet MS", Arial, sans-serif;
   --color-royal-blue: #003da5;
   --color-supercell-blue: #2d85f3;
   --color-bg-dark: #0f1b2e;
   --color-bg-deep: #0a1628;
   --color-bg-card: #1a2332;
-}
-
-.font-clash {
-  font-family: var(--font-clash);
 }
 
 /* ============================================
