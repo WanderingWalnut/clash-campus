@@ -206,6 +206,7 @@ export type Database = {
           last_calculated: string | null
           player_count: number
           rank: number | null
+          top_player: string | null
           total_ranking_score: number
           university_id: string
           updated_at: string
@@ -217,6 +218,7 @@ export type Database = {
           last_calculated?: string | null
           player_count?: number
           rank?: number | null
+          top_player?: string | null
           total_ranking_score?: number
           university_id: string
           updated_at?: string
@@ -228,6 +230,7 @@ export type Database = {
           last_calculated?: string | null
           player_count?: number
           rank?: number | null
+          top_player?: string | null
           total_ranking_score?: number
           university_id?: string
           updated_at?: string

@@ -29,7 +29,7 @@ export async function GET(request: Request) {
 
     const { data: rankings, error } = await supabase
         .from('university_rankings')
-        .select('average_ranking_score, player_count, rank, universities (name, short_code)')
+        .select('average_ranking_score, player_count, rank, top_player, universities (name, short_code)')
         .order('average_ranking_score', { ascending: false })
         .limit(limit)
 
@@ -46,7 +46,7 @@ export async function GET(request: Request) {
         short: row.universities?.short_code ?? 'N/A',
         avgScore: row.average_ranking_score,
         activePlayers: row.player_count,
-        topPlayer: 'N/A',
+        topPlayer: row.top_player ?? 'N/A',
         change: 'same' as const,
     }))
 
