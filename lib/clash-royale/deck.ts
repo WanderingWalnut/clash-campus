@@ -2,14 +2,17 @@ import type { ClashRoyaleCard } from '@/types/clash-royale';
 
 /**
  * Creates a verification deck from a list of cards.
- * @param cards - The list of cards to create the deck from.
- * @returns The verification deck.
+ * Ensures at most 1 champion card, placed in one of the first 3 slots.
+ * @param availableCards - The list of cards to create the deck from.
+ * @param maxCards - Maximum number of cards in the deck (default: 8).
+ * @returns The verification deck with cards and maxCards count.
+ * @throws Error if there are not enough cards to fill the deck.
  */
-
 export function generateRandomDeck(
     availableCards: ClashRoyaleCard[],
     maxCards: number = 8,
 ): { cards: ClashRoyaleCard[], maxCards: number } {
+    
     // Separate cards into champions and non-champions
     const champions = availableCards.filter(card => card.rarity === 'champion');
     const nonChampions = availableCards.filter(card => card.rarity !== 'champion');
@@ -27,28 +30,36 @@ export function generateRandomDeck(
     const shuffledChampions = shuffle(champions);
     const shuffledNonChampions = shuffle(nonChampions);
 
-    // Select at most 1 champion (randomly decide whether to include one if available)
-    const selectedChampion = shuffledChampions.length > 0 && Math.random() < 0.5 
-        ? shuffledChampions[0] 
+    // Select at most 1 champion (20% chance if available)
+    const selectedChampion = shuffledChampions.length > 0 && Math.random() < 0.2
+        ? shuffledChampions[0]
         : null;
 
     // Calculate how many non-champion cards we need
     const remainingSlots = maxCards - (selectedChampion ? 1 : 0);
-    const selectedNonChampions = shuffledNonChampions.slice(0, remainingSlots);
     
+    // Validate we have enough non-champions
+    if (nonChampions.length < remainingSlots) {
+        throw new Error(
+            `Not enough non-champion cards. Required: ${remainingSlots}, Available: ${nonChampions.length}`
+        );
+    }
+    
+    const selectedNonChampions = shuffledNonChampions.slice(0, remainingSlots);
+
     // Shuffle non-champions to randomize their order
     const shuffledNonChampionsFinal = shuffle(selectedNonChampions);
 
     // Build the deck: if champion exists, place it in one of the first 3 slots
     const deck: ClashRoyaleCard[] = new Array(maxCards);
-    
+
     if (selectedChampion) {
         // Randomly choose a position from 0, 1, or 2 (first 3 slots)
         const championPosition = Math.floor(Math.random() * 3);
-        
+
         // Place champion in the chosen position
         deck[championPosition] = selectedChampion;
-        
+
         // Fill remaining positions with non-champions
         let nonChampionIndex = 0;
         for (let i = 0; i < maxCards; i++) {
