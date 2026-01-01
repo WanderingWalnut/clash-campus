@@ -159,8 +159,8 @@ function PlayerRow({ player }: PlayerRowProps) {
 
       {/* POWER LEVEL */}
       <div className="col-span-3 md:col-span-3 text-right md:text-left">
-        <div className="flex items-center justify-end md:justify-start gap-0 md:gap-1 font-bold text-[#FFD700] text-base md:text-lg">
-          <Image src={XP_ICON_SRC} alt="XP" width={16} height={16} className="hidden md:block w-4 h-4" />
+        <div className="flex items-center justify-end md:justify-start gap-0.5 md:gap-1 font-bold text-[#FFD700] text-base md:text-lg md:-ml-4">
+          <Image src={XP_ICON_SRC} alt="XP" width={16} height={16} className="w-6 h-6 md:w-10 md:h-10" />
           <span>{player.score}</span>
         </div>
       </div>

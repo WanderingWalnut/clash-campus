@@ -121,14 +121,13 @@ function CampusRow({ campus }: CampusRowProps) {
             <div className="font-bold text-white text-xs md:text-base group-hover:text-[#FFD700] transition-colors">
               {campus.name}
             </div>
-            <div className="text-xs text-gray-500">Top 1% Global</div>
           </div>
         </div>
       </div>
 
       {/* Avg Power Level */}
       <div className="col-span-3 md:col-span-3 text-right md:text-left">
-        <div className="flex items-center justify-end md:justify-start font-bold text-white text-sm md:text-lg">
+        <div className="flex items-center justify-end md:justify-start font-bold text-[#FFD700] text-sm md:text-lg">
           <Image src={XP_ICON_SRC} alt="XP" width={25} height={25} className="w-6 h-6 md:w-10 md:h-10" />
           <span>{campus.avgScore}</span>
         </div>
