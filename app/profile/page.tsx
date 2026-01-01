@@ -145,19 +145,19 @@ export default async function ProfilePage() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[#0F1B2E] pt-28">
-      <div className="flex-1">
-        <div className="relative overflow-hidden">
+      <div className="flex-1 flex flex-col">
+        <div className="relative overflow-hidden flex-1">
           <div className="absolute inset-0 bg-hero-glow opacity-20" />
           <div className="absolute inset-0 bg-royale-pattern opacity-15" />
-          <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pb-16">
+          <div className="relative z-10 max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 pb-16">
             <div className="mb-10">
               <span className="text-xs uppercase tracking-widest text-[#FFD700] font-bold">
                 Profile
               </span>
-              <h1 className="text-4xl md:text-5xl font-extrabold text-white mt-3">
+              <h1 className="text-2xl md:text-5xl font-extrabold text-white mt-3">
                 Your Campus Identity
               </h1>
-              <p className="text-gray-400 mt-3 max-w-2xl">
+              <p className="text-sm text-gray-400 mt-3 max-w-2xl">
                 Track your Clash Royale performance, trophies, and campus rank in one place.
               </p>
             </div>

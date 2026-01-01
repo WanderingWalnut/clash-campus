@@ -35,7 +35,7 @@ export function PlayersTable({
   return (
     <div className="bg-[#1B2637] border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
       {/* Table Header */}
-      <div className="grid grid-cols-12 gap-4 p-4 border-b border-gray-800 bg-gray-900/50 text-xs font-bold text-gray-500 uppercase tracking-wider">
+      <div className="grid grid-cols-12 gap-1.5 md:gap-4 p-2.5 md:p-4 border-b border-gray-800 bg-gray-900/50 text-[10px] md:text-xs font-bold text-gray-500 uppercase tracking-wider">
         <div className="col-span-2 md:col-span-1 text-center">Rank</div>
         <div className="col-span-7 md:col-span-4">Player</div>
         <div className="col-span-3 md:col-span-3 text-right md:text-left">
@@ -89,7 +89,7 @@ function PlayerRow({ player }: PlayerRowProps) {
   return (
     <div
       className={`
-        grid grid-cols-12 gap-4 p-4 items-center transition-colors group
+        grid grid-cols-12 gap-1.5 md:gap-4 p-2.5 md:p-4 items-center transition-colors group
         ${player.isUser
           ? 'bg-[#003DA5]/10 border-l-4 border-l-[#003DA5]'
           : 'hover:bg-white/5 border-l-4 border-l-transparent'
@@ -121,35 +121,35 @@ function PlayerRow({ player }: PlayerRowProps) {
 
       {/* Player Info */}
       <div className="col-span-7 md:col-span-4">
-        <div className="flex items-center gap-3">
+        <div className="flex items-center gap-1.5 md:gap-3">
           <div className="relative">
             <Image
               src={DEFAULT_AVATAR_SRC}
               alt={`${player.name}'s avatar`}
               width={40}
               height={40}
-              className={`w-10 h-10 rounded-full bg-[#0F1B2E] border ${
+              className={`w-7 h-7 md:w-10 md:h-10 rounded-full bg-[#0F1B2E] border ${
                 player.isUser ? 'border-[#003DA5]' : 'border-gray-700'
               }`}
             />
             {player.isUser && (
-              <div className="absolute -top-1 -right-1 w-3 h-3 bg-[#003DA5] rounded-full border border-black" />
+              <div className="absolute -top-1 -right-1 w-2 h-2 md:w-3 md:h-3 bg-[#003DA5] rounded-full border border-black" />
             )}
           </div>
-          <div>
+          <div className="min-w-0">
             <div
-              className={`font-bold text-sm md:text-base flex items-center gap-2 ${
+              className={`font-bold text-[12px] md:text-base leading-tight flex items-center gap-2 ${
                 player.isUser ? 'text-[#003DA5]' : 'text-white'
               }`}
             >
               {player.name}
               {player.isUser && (
-                <span className="text-[10px] bg-[#003DA5] text-white px-1.5 py-0.5 rounded uppercase">
+                <span className="hidden md:inline text-[10px] bg-[#003DA5] text-white px-1 py-0.5 rounded uppercase">
                   You
                 </span>
               )}
             </div>
-            <div className="flex items-center gap-1 text-xs text-gray-500">
+            <div className="flex items-center gap-0.5 text-[10px] md:text-xs text-gray-500">
               <span className="font-mono">{player.tag}</span> •{' '}
               <span className="text-gray-400">{player.universityShort}</span>
             </div>
@@ -159,11 +159,10 @@ function PlayerRow({ player }: PlayerRowProps) {
 
       {/* POWER LEVEL */}
       <div className="col-span-3 md:col-span-3 text-right md:text-left">
-        <div className="flex items-center justify-end md:justify-start gap-1 font-bold text-[#FFD700] text-lg">
-          <Image src={XP_ICON_SRC} alt="XP" width={16} height={16} className="w-4 h-4" />
+        <div className="flex items-center justify-end md:justify-start gap-0 md:gap-1 font-bold text-[#FFD700] text-base md:text-lg">
+          <Image src={XP_ICON_SRC} alt="XP" width={16} height={16} className="hidden md:block w-4 h-4" />
           <span>{player.score}</span>
         </div>
-        <div className="text-[10px] text-gray-500 md:hidden">Power Level</div>
       </div>
 
 

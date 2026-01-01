@@ -86,23 +86,23 @@ export function ProfileCard({ profile }: ProfileCardProps) {
       <div className="relative z-20 bg-[#1A2332] border border-gray-800 rounded-2xl p-6 shadow-2xl mx-auto max-w-md overflow-hidden">
         <div className="absolute inset-0 bg-royale-pattern opacity-10" />
         <div className="relative z-10">
-          <div className="flex items-center justify-between mb-4">
-            <div className="flex items-center gap-3">
+          <div className="flex items-center justify-between mb-4 gap-4">
+            <div className="flex items-center gap-3 flex-1 min-w-0">
               <Image
                 src={safeAvatarUrl}
                 alt={`${displayName} avatar`}
                 width={40}
                 height={40}
-                className="w-10 h-10 rounded-full object-cover border border-gray-700 bg-[#0F1B2E]"
+                className="w-10 h-10 rounded-full object-cover border border-gray-700 bg-[#0F1B2E] flex-shrink-0"
               />
-              <div className="text-left">
-                <div className="flex items-center gap-2">
+              <div className="text-left min-w-0 flex-1">
+                <div className="flex items-center gap-1 flex-wrap">
                   <div className="text-sm font-bold text-white">
                     {displayName}
                   </div>
                   {profile.clashAccount ? (
                     <span
-                      className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold ${
+                      className={`text-[10px] px-1.5 py-0.5 rounded uppercase font-bold flex-shrink-0 scale-75 md:scale-100 origin-left mb-1  ${
                         isVerified
                           ? 'bg-[#FFD700] text-black'
                           : 'bg-gray-700 text-gray-200'
@@ -118,7 +118,7 @@ export function ProfileCard({ profile }: ProfileCardProps) {
                 </div>
               </div>
             </div>
-            <div className="flex items-center gap-1 text-[#FFD700]">
+            <div className="flex items-center gap-1 text-[#FFD700] flex-shrink-0">
               <Trophy size={16} />
               <span className="font-bold">{trophiesLabel}</span>
             </div>
