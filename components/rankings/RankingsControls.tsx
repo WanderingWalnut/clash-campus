@@ -1,6 +1,6 @@
 'use client';
 
-import { Zap, Landmark, Search, Filter, ChevronDown } from 'lucide-react';
+import { Zap, Landmark, Search } from 'lucide-react';
 import type { RankingsMode } from '@/types/rankings';
 
 interface RankingsControlsProps {
@@ -123,14 +123,10 @@ function SearchInput({ mode, value, onChange }: SearchInputProps) {
   );
 }
 
-interface FiltersRowProps {
-  mode: RankingsMode;
-}
-
 /**
  * Row of filter buttons and update timer.
  */
-// function FiltersRow({ mode }: FiltersRowProps) {
+// function FiltersRow({ mode }: { mode: RankingsMode }) {
 //   return (
 //     <div className="flex flex-wrap gap-3 items-center">
 //       <button className="flex items-center gap-2 bg-[#1B2637] border border-gray-800 px-4 py-2 rounded-lg text-sm text-gray-300 hover:border-gray-600 transition-colors">

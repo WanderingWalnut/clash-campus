@@ -27,7 +27,7 @@ export default async function VerifyPage() {
   
   return (
     <AuthLayout>
-      <VerifyForm initialSession={pendingSession} />
+      <VerifyForm initialSession={pendingSession} hasAccount={verificationStatus.hasAccount} />
     </AuthLayout>
   );
 }

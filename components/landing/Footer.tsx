@@ -49,7 +49,7 @@ export function Footer() {
               rel="noopener noreferrer"
               className="underline hover:text-gray-500"
             >
-              Supercell's Fan Content Policy
+              Supercell&apos;s Fan Content Policy
             </a>
             .
           </div>

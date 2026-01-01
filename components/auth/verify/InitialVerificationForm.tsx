@@ -9,6 +9,9 @@ interface InitialVerificationFormProps {
   loading: boolean;
   error: string | null;
   onVerify: () => void;
+  hasAccount?: boolean;
+  refreshLoading?: boolean;
+  onRefreshSession?: () => void;
 }
 
 /**
@@ -21,6 +24,9 @@ export function InitialVerificationForm({
   loading,
   error,
   onVerify,
+  hasAccount,
+  refreshLoading,
+  onRefreshSession,
 }: InitialVerificationFormProps) {
   return (
     <>
@@ -104,6 +110,22 @@ export function InitialVerificationForm({
           {error && (
             <div className="bg-red-900/20 border border-red-700 rounded-lg p-3 text-red-300 text-sm mb-4">
               {error}
+            </div>
+          )}
+
+          {hasAccount && onRefreshSession && (
+            <div className="border-t border-gray-800 pt-4">
+              <p className="text-gray-400 text-center text-xs sm:text-sm mb-2">
+                Already linked a Clash account?
+              </p>
+              <button
+                type="button"
+                onClick={onRefreshSession}
+                disabled={refreshLoading}
+                className="button-royale w-full px-6 py-3 disabled:opacity-50 disabled:cursor-not-allowed text-white font-medium rounded-lg transition-transform duration-300 hover:-translate-y-0.5 text-sm sm:text-base"
+              >
+                {refreshLoading ? 'Starting...' : 'Start New Verification'}
+              </button>
             </div>
           )}
         </div>

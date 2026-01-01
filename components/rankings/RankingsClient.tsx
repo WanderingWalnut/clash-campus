@@ -12,7 +12,7 @@
  * - Ensuring the current user's rank is always visible in player rankings
  */
 
-import { useEffect, useMemo, useState } from 'react';
+import { useMemo, useState } from 'react';
 import { RankingsControls } from './RankingsControls';
 import { PlayersTable } from './PlayersTable';
 import { CampusesTable } from './CampusesTable';
@@ -57,21 +57,8 @@ export function RankingsClient() {
     loadMore: loadMorePlayers,
   } = usePlayerRankings(user, isAuthLoading);
 
-  /**
-   * Auto-switch mode based on authentication state.
-   * - If user is logged in, default to 'players' view
-   * - If user is not logged in, default to 'campuses' view
-   * - Only auto-switches if user hasn't manually changed the mode
-   */
-  useEffect(() => {
-    // Don't auto-switch while auth is loading or if user manually changed mode
-    if (isAuthLoading || hasManualMode) {
-      return;
-    }
-
-    // Auto-switch: authenticated users see players, unauthenticated see campuses
-    setMode(user ? 'players' : 'campuses');
-  }, [user, isAuthLoading, hasManualMode]);
+  const autoMode: RankingsMode = !isAuthLoading && user ? 'players' : 'campuses';
+  const effectiveMode = hasManualMode ? mode : autoMode;
 
 
   /**
@@ -132,7 +119,7 @@ export function RankingsClient() {
     <>
       {/* Mode switcher - allows manual toggle between players and campuses view */}
       <RankingsControls
-        mode={mode}
+        mode={effectiveMode}
         onModeChange={(nextMode) => {
           // Mark that user manually changed mode to prevent auto-switching
           setHasManualMode(true);
@@ -143,7 +130,7 @@ export function RankingsClient() {
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {mode === 'players' ? (
+        {effectiveMode === 'players' ? (
           <>
             {/* Player rankings view - requires authentication */}
             {isPlayerInitialLoading ? (
@@ -206,7 +193,7 @@ export function RankingsClient() {
       </div>
 
       {/* CTA - Only show when logged out and viewing campuses */}
-      {!user && mode === 'campuses' && <RankingsCTA />}
+      {!user && effectiveMode === 'campuses' && <RankingsCTA />}
     </>
   );
 }

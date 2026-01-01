@@ -11,9 +11,12 @@ interface DeckVerificationViewProps {
   session: VerificationSession;
   playerName: string | null;
   loading: boolean;
+  refreshLoading: boolean;
   error: string | null;
   success: boolean;
   onVerifyDeck: () => void;
+  onRefreshSession: () => void;
+  isExpired: boolean;
 }
 
 /**
@@ -24,10 +27,16 @@ export function DeckVerificationView({
   session,
   playerName,
   loading,
+  refreshLoading,
   error,
   success,
   onVerifyDeck,
+  onRefreshSession,
+  isExpired,
 }: DeckVerificationViewProps) {
+  const timeRemaining = formatTimeRemaining(session.expiresAt);
+  const sessionExpired = isExpired || timeRemaining === 'Expired';
+
   return (
     <>
       <Reveal delay="delay-100">
@@ -62,7 +71,7 @@ export function DeckVerificationView({
           <div className="flex items-center justify-center gap-2 mb-3 md:mb-6">
             <Clock className="w-3 h-3 md:w-4 md:h-4 text-gray-500" />
             <span className="text-gray-500 text-xs md:text-sm">
-              Expires in {formatTimeRemaining(session.expiresAt)}
+              {sessionExpired ? 'Expired' : `Expires in ${timeRemaining}`}
             </span>
           </div>
 
@@ -145,14 +154,25 @@ export function DeckVerificationView({
           </div>
 
           {/* Verify Button */}
-          <button
-            type="button"
-            onClick={onVerifyDeck}
-            disabled={loading || success}
-            className="button-royale w-full py-2 md:py-3 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm md:text-base font-medium rounded-lg transition-transform duration-300 hover:-translate-y-0.5"
-          >
-            {loading ? 'Verifying...' : success ? 'Verified!' : 'Verify My Deck'}
-          </button>
+          {sessionExpired ? (
+            <button
+              type="button"
+              onClick={onRefreshSession}
+              disabled={refreshLoading}
+              className="button-royale w-full py-2 md:py-3 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm md:text-base font-medium rounded-lg transition-transform duration-300 hover:-translate-y-0.5"
+            >
+              {refreshLoading ? 'Starting...' : 'Start New Verification'}
+            </button>
+          ) : (
+            <button
+              type="button"
+              onClick={onVerifyDeck}
+              disabled={loading || success}
+              className="button-royale w-full py-2 md:py-3 disabled:opacity-50 disabled:cursor-not-allowed text-white text-sm md:text-base font-medium rounded-lg transition-transform duration-300 hover:-translate-y-0.5"
+            >
+              {loading ? 'Verifying...' : success ? 'Verified!' : 'Verify My Deck'}
+            </button>
+          )}
 
           {error && (
             <div className="bg-red-900/20 border border-red-700 rounded-lg p-2 md:p-3 text-red-300 text-xs md:text-sm mt-2 md:mt-4">

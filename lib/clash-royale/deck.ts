@@ -30,8 +30,8 @@ export function generateRandomDeck(
     const shuffledChampions = shuffle(champions);
     const shuffledNonChampions = shuffle(nonChampions);
 
-    // Select at most 1 champion (20% chance if available)
-    const selectedChampion = shuffledChampions.length > 0 && Math.random() < 0.2
+    // Select at most 1 champion (5% chance if available)
+    const selectedChampion = shuffledChampions.length > 0 && Math.random() < 0.05
         ? shuffledChampions[0]
         : null;
 

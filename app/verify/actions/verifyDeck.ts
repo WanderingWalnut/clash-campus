@@ -55,7 +55,7 @@ export async function verifyDeck(sessionId?: string): Promise<VerifyDeckResult> 
         // Find the latest pending verification session (optionally filtered by ID)
         let sessionQuery = supabase
             .from('verification_sessions')
-            .select('id, required_deck, expires_at, status, last_checked_at')
+            .select('id, required_deck, expires_at, last_checked_at')
             .eq('clash_account_id', clashAccount.id)
             .eq('status', 'pending')
             .order('created_at', { ascending: false })
@@ -76,23 +76,8 @@ export async function verifyDeck(sessionId?: string): Promise<VerifyDeckResult> 
             return { error: 'No pending verification session found. Please start verification again.' }
         }
 
-        // Expire the session if it's past its expiration time
-        const now = new Date()
-        if (session.expires_at && new Date(session.expires_at) < now) {
-            const { error: expireError } = await supabase.rpc('record_verification_check', {
-                p_session_id: session.id,
-                p_failure_reason: 'Session expired',
-                p_mark_expired: true,
-            })
-
-            if (expireError) {
-                logger.error('Verify deck - failed to mark session expired', {
-                    userId: user.id,
-                    sessionId: session.id,
-                    error: expireError.message,
-                })
-            }
-
+        // Block verification if the session has expired (server time)
+        if (session.expires_at && new Date(session.expires_at) < new Date()) {
             return { error: 'Verification session expired. Please start again.' }
         }
 

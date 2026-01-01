@@ -42,7 +42,7 @@ export default function PrivacyPage() {
               <section>
                 <h2 className="text-2xl font-bold text-white mb-4">Introduction</h2>
                 <p>
-                  ClashCampus ("we," "our," or "us") is committed to protecting your
+                  ClashCampus (&quot;we,&quot; &quot;our,&quot; or &quot;us&quot;) is committed to protecting your
                   privacy. This Privacy Policy explains how we collect, use, and
                   safeguard your information when you use our service.
                 </p>
@@ -133,7 +133,7 @@ export default function PrivacyPage() {
                 <p>
                   We may update this Privacy Policy from time to time. We will notify
                   you of any changes by posting the new Privacy Policy on this page and
-                  updating the "Last updated" date.
+                  updating the &quot;Last updated&quot; date.
                 </p>
               </section>
 
@@ -152,4 +152,3 @@ export default function PrivacyPage() {
     </div>
   );
 }
-

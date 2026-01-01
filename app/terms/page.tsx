@@ -45,7 +45,7 @@ export default function TermsPage() {
                   Acceptance of Terms
                 </h2>
                 <p>
-                  By accessing or using ClashCampus ("the Service"), you agree to be
+                  By accessing or using ClashCampus (&quot;the Service&quot;), you agree to be
                   bound by these Terms of Service. If you do not agree to these terms,
                   please do not use the Service.
                 </p>
@@ -182,7 +182,7 @@ export default function TermsPage() {
                   fan-made service and is not endorsed by or affiliated with Supercell.
                 </p>
                 <p className="mt-4">
-                  <strong>No Warranty:</strong> The Service is provided "as is" without
+                  <strong>No Warranty:</strong> The Service is provided &quot;as is&quot; without
                   warranties of any kind, either express or implied.
                 </p>
                 <p className="mt-4">
@@ -215,7 +215,7 @@ export default function TermsPage() {
                 <p>
                   We may update these Terms of Service from time to time. We will notify
                   you of any changes by posting the new Terms of Service on this page
-                  and updating the "Last updated" date. Your continued use of the
+                  and updating the &quot;Last updated&quot; date. Your continued use of the
                   Service after such changes constitutes acceptance of the new terms.
                 </p>
               </section>
@@ -235,4 +235,3 @@ export default function TermsPage() {
     </div>
   );
 }
-

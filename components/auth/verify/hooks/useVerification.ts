@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { initiateVerification, verifyDeck } from '@/app/verify/actions';
+import { initiateVerification, refreshVerificationSession, verifyDeck } from '@/app/verify/actions';
 import { fetchPlayer } from '../utils/fetchPlayer';
 import type { ClashRoyaleCard } from '@/types/clash-royale';
 import type { PendingVerificationSession } from '@/types/auth';
@@ -22,14 +22,17 @@ export interface UseVerificationReturn {
   session: VerificationSession | null;
   loading: boolean;
   verifyLoading: boolean;
+  refreshLoading: boolean;
   error: string | null;
   verifyError: string | null;
   verifySuccess: boolean;
   playerTag: string;
   setPlayerTag: (tag: string) => void;
   playerName: string | null;
+  isExpired: boolean;
   handleVerify: () => Promise<void>;
   handleVerifyDeck: () => Promise<void>;
+  handleRefreshSession: () => Promise<void>;
 }
 
 /**
@@ -49,6 +52,7 @@ export function useVerification(
 ): UseVerificationReturn {
   const [loading, setLoading] = useState(false);
   const [verifyLoading, setVerifyLoading] = useState(false);
+  const [refreshLoading, setRefreshLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [verifyError, setVerifyError] = useState<string | null>(null);
   const [verifySuccess, setVerifySuccess] = useState(false);
@@ -154,17 +158,55 @@ export function useVerification(
     }
   }
 
+  async function handleRefreshSession() {
+    const setErrorState = session ? setVerifyError : setError;
+    setErrorState(null);
+    setVerifySuccess(false);
+    setRefreshLoading(true);
+
+    try {
+      const result = await refreshVerificationSession();
+
+      if ('error' in result) {
+        setErrorState(result.error);
+        return;
+      }
+
+      setSession({
+        sessionId: result.sessionId,
+        playerTag: result.playerTag,
+        requiredDeck: result.requiredDeck,
+        expiresAt: new Date(result.expiresAt),
+      });
+      setPlayerName(result.playerName);
+      setVerifyError(null);
+      setError(null);
+    } catch (err) {
+      const message = err instanceof Error
+        ? err.message
+        : 'Failed to refresh verification session. Please try again.';
+      setErrorState(message);
+    } finally {
+      setRefreshLoading(false);
+    }
+  }
+
+  const isExpired = session ? new Date(session.expiresAt) < new Date() : false;
+
   return {
     session,
     loading,
     verifyLoading,
+    refreshLoading,
     error,
     verifyError,
     verifySuccess,
     playerTag,
     setPlayerTag,
     playerName,
+    isExpired,
     handleVerify,
     handleVerifyDeck,
+    handleRefreshSession,
   };
 }

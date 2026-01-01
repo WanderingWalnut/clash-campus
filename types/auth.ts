@@ -64,6 +64,20 @@ export type InitiateVerificationResult =
     | { error: string }
 
 /**
+ * Result type for verification session refresh server action.
+ */
+export type RefreshVerificationSessionResult =
+    | {
+        success: true
+        sessionId: string
+        requiredDeck: ClashRoyaleCard[]
+        expiresAt: string // ISO string for serialization across server/client boundary
+        playerTag: string
+        playerName: string
+    }
+    | { error: string }
+
+/**
  * Result type for deck verification server action.
  */
 export type VerifyDeckResult =
