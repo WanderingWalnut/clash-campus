@@ -1,18 +1,27 @@
 'use client';
 
-import { useEffect, useRef, useState } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { ChevronDown, Crown, Menu, X, User, LogOut } from 'lucide-react';
+import { Crown, Menu, X, LogOut } from 'lucide-react';
 import { useScrolled, useAuth } from '@/hooks';
 import { createClient } from '@/lib/supabase/client';
 import type { NavItem } from '@/types/landing';
 
 /** Navigation menu items */
-const NAV_ITEMS: NavItem[] = [
+const PUBLIC_NAV_ITEMS: NavItem[] = [
   { label: 'Royale Rankings', href: '/rankings' },
   { label: 'Features', href: '/#features' },
   { label: 'Roadmap', href: '/#roadmap' },
+];
+const AUTH_NAV_ITEMS: NavItem[] = [
+  { label: 'Discover', href: '/' },
+  { label: 'Royale Rankings', href: '/rankings' },
+  { label: 'Profile', href: '/profile' },
+];
+const AUTH_MOBILE_NAV_ITEMS: NavItem[] = [
+  { label: 'Royale Rankings', href: '/rankings' },
+  { label: 'Profile', href: '/profile' },
 ];
 
 /**
@@ -23,11 +32,11 @@ const NAV_ITEMS: NavItem[] = [
 export function Navigation() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
-  const [isUserMenuOpen, setIsUserMenuOpen] = useState(false);
   const scrolled = useScrolled(50);
   const pathname = usePathname();
   const { user, isLoading } = useAuth();
-  const userMenuRef = useRef<HTMLDivElement | null>(null);
+  const navItems = user ? AUTH_NAV_ITEMS : PUBLIC_NAV_ITEMS;
+  const mobileNavItems = user ? AUTH_MOBILE_NAV_ITEMS : PUBLIC_NAV_ITEMS;
 
   /**
    * Closes the mobile menu when a navigation link is clicked.
@@ -54,42 +63,8 @@ export function Navigation() {
     } finally {
       setIsLoggingOut(false);
       setIsMobileMenuOpen(false);
-      setIsUserMenuOpen(false);
     }
   };
-
-  useEffect(() => {
-    if (!isUserMenuOpen) {
-      return;
-    }
-
-    const handleOutsideClick = (event: MouseEvent) => {
-      if (
-        userMenuRef.current &&
-        !userMenuRef.current.contains(event.target as Node)
-      ) {
-        setIsUserMenuOpen(false);
-      }
-    };
-
-    const handleEscape = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsUserMenuOpen(false);
-      }
-    };
-
-    document.addEventListener('mousedown', handleOutsideClick);
-    document.addEventListener('keydown', handleEscape);
-
-    return () => {
-      document.removeEventListener('mousedown', handleOutsideClick);
-      document.removeEventListener('keydown', handleEscape);
-    };
-  }, [isUserMenuOpen]);
-
-  useEffect(() => {
-    setIsUserMenuOpen(false);
-  }, [pathname]);
 
   /**
    * Checks if a nav item is currently active based on the pathname.
@@ -98,8 +73,14 @@ export function Navigation() {
    * @returns Boolean indicating if the nav item is active
    */
   const isActive = (href: string): boolean => {
+    if (href === '/') {
+      return pathname === '/';
+    }
     if (href === '/rankings') {
-      return pathname === '/rankings';
+      return pathname === '/rankings' || pathname.startsWith('/rankings/');
+    }
+    if (href === '/profile') {
+      return pathname === '/profile' || pathname.startsWith('/profile/');
     }
     return false;
   };
@@ -127,7 +108,7 @@ export function Navigation() {
           {/* Desktop Menu */}
           <div className="hidden md:block">
             <div className="ml-6 md:ml-10 flex items-baseline space-x-6 md:space-x-8">
-              {NAV_ITEMS.map((item) => (
+              {navItems.map((item) => (
                 <Link
                   key={item.label}
                   href={item.href}
@@ -148,42 +129,15 @@ export function Navigation() {
               // Loading skeleton
               <div className="w-24 h-10 bg-gray-700/50 rounded-full animate-pulse" />
             ) : user ? (
-              // Authenticated: Show user menu with logout
-              <div className="relative" ref={userMenuRef}>
-                <button
-                  type="button"
-                  onClick={() => setIsUserMenuOpen((prev) => !prev)}
-                  className="flex items-center gap-2 text-gray-300 hover:text-white px-3 py-2 rounded-full hover:bg-gray-800 transition-colors"
-                  aria-haspopup="menu"
-                  aria-expanded={isUserMenuOpen}
-                >
-                  <User className="w-5 h-5" />
-                  <span className="text-sm font-medium max-w-[120px] truncate">
-                    {user.email?.split('@')[0]}
-                  </span>
-                  <ChevronDown className="w-4 h-4 text-gray-400" />
-                </button>
-                {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 w-48 rounded-xl border border-gray-800 bg-[#1A2332] shadow-2xl overflow-hidden">
-                    <Link
-                      href="/profile"
-                      onClick={() => setIsUserMenuOpen(false)}
-                      className="flex items-center gap-2 px-4 py-3 text-sm text-gray-200 hover:bg-gray-800 transition-colors"
-                    >
-                      <User className="w-4 h-4" />
-                      Profile
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      disabled={isLoggingOut}
-                      className="flex items-center gap-2 w-full px-4 py-3 text-sm text-gray-300 hover:text-white hover:bg-gray-800 transition-colors disabled:opacity-50"
-                    >
-                      <LogOut className="w-4 h-4" />
-                      <span>{isLoggingOut ? 'Logging out...' : 'Log out'}</span>
-                    </button>
-                  </div>
-                )}
-              </div>
+              // Authenticated: Show inline logout button
+              <button
+                onClick={handleLogout}
+                disabled={isLoggingOut}
+                className="flex items-center gap-2 text-xs md:text-sm font-bold text-red-400 hover:text-red-300 px-3 py-2 rounded-full hover:bg-gray-800 transition-colors disabled:opacity-50"
+              >
+                <LogOut className="w-4 h-4" />
+                <span>{isLoggingOut ? 'Logging out...' : 'Log out'}</span>
+              </button>
             ) : (
               // Not authenticated: Show signup CTA
               <Link
@@ -199,10 +153,10 @@ export function Navigation() {
           <div className="-mr-2 flex md:hidden">
             <button
               onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-              className="text-gray-400 hover:text-white p-2"
+              className="text-gray-200 hover:text-white p-2.5 rounded-full bg-[#1B2637]/90 border border-gray-700 shadow-lg"
               aria-label={isMobileMenuOpen ? 'Close menu' : 'Open menu'}
             >
-              {isMobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
+              {isMobileMenuOpen ? <X size={28} /> : <Menu size={28} />}
             </button>
           </div>
         </div>
@@ -212,7 +166,7 @@ export function Navigation() {
       {isMobileMenuOpen && (
         <div className="md:hidden bg-[#0F1B2E] border-b border-gray-800 absolute w-full">
           <div className="px-2 pt-2 pb-3 space-y-1 sm:px-3">
-            {NAV_ITEMS.map((item) => (
+            {mobileNavItems.map((item) => (
               <Link
                 key={item.label}
                 href={item.href}
@@ -229,20 +183,8 @@ export function Navigation() {
               </Link>
             ))}
             {user ? (
-              // Authenticated: Show user info and logout
+              // Authenticated: Show logout button
               <>
-                <Link
-                  href="/profile"
-                  className="flex items-center gap-2 px-3 py-2 text-sm md:text-base font-medium text-gray-300 hover:text-white hover:bg-gray-800 rounded-md"
-                  onClick={handleNavClick}
-                >
-                  <User className="w-4 h-4" />
-                  <span>Profile</span>
-                </Link>
-                <div className="flex items-center gap-2 px-3 py-2 text-gray-400">
-                  <User className="w-4 h-4" />
-                  <span className="text-xs md:text-sm truncate">{user.email}</span>
-                </div>
                 <button
                   onClick={handleLogout}
                   disabled={isLoggingOut}
