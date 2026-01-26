@@ -1,5 +1,5 @@
 import Image from 'next/image'
-import { Crown, Medal, Trophy } from 'lucide-react'
+import { Crown, Medal, Zap } from 'lucide-react'
 import { getPathOfLegendsLeagueName } from '@/lib/clash-royale/league'
 import type { UserProfile } from '@/types/profile'
 
@@ -52,7 +52,7 @@ export function ProfileCard({ profile }: ProfileCardProps) {
   const playerTag = profile.clashAccount?.playerTag
   const isVerified = profile.clashAccount?.verified === true
 
-  const trophiesLabel = formatNumber(profile.rankings?.currentTrophies)
+  const powerLevelLabel = formatNumber(profile.rankings?.rankingScore)
   const bestTrophiesLabel = formatNumber(profile.rankings?.bestTrophies)
   const winRateLabel =
     profile.winRate !== null ? `${Math.round(profile.winRate)}%` : 'N/A'
@@ -119,8 +119,8 @@ export function ProfileCard({ profile }: ProfileCardProps) {
               </div>
             </div>
             <div className="flex items-center gap-1 text-[#FFD700] flex-shrink-0">
-              <Trophy size={16} />
-              <span className="font-bold">{trophiesLabel}</span>
+              <Zap size={16} />
+              <span className="font-bold">{powerLevelLabel}</span>
             </div>
           </div>
 
