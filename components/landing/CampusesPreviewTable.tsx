@@ -1,39 +1,23 @@
-'use client';
-
 import Image from 'next/image';
 import { Users } from 'lucide-react';
-import { RankChange } from './RankChange';
+import { RankChange } from '@/components/rankings/RankChange';
 import type { RankedCampus } from '@/types/rankings';
 
 const BLUE_CROWN_SRC = '/assets/images/Blue_Crown/image.png';
 const RED_CROWN_SRC = '/assets/images/Red_crown/image.png';
 const XP_ICON_SRC = '/assets/images/XP/image.png';
 
-interface CampusesTableProps {
-  /** Array of campus data to display */
+interface CampusesPreviewTableProps {
   campuses: RankedCampus[];
-  /** Whether more campuses can be loaded */
-  hasMore: boolean;
-  /** Callback to load more campuses */
-  onShowMore: () => void;
-  /** Whether an additional batch is loading */
-  isLoadingMore?: boolean;
 }
 
 /**
- * Displays the campus/university leaderboard table with rankings and stats.
- *
- * @param campuses - Array of RankedCampus objects to display
+ * Server-rendered, non-interactive preview of the campuses table.
+ * Used on the landing page to avoid client-side data fetching/hydration delays.
  */
-export function CampusesTable({
-  campuses,
-  hasMore,
-  onShowMore,
-  isLoadingMore = false,
-}: CampusesTableProps) {
+export function CampusesPreviewTable({ campuses }: CampusesPreviewTableProps) {
   return (
     <div className="bg-[#1B2637] border border-gray-800 rounded-xl overflow-hidden shadow-2xl">
-      {/* Table Header */}
       <div className="grid grid-cols-12 gap-4 p-4 border-b border-gray-800 bg-gray-900/50 text-xs font-bold text-gray-500 uppercase tracking-wider">
         <div className="col-span-2 md:col-span-1 text-center">Rank</div>
         <div className="col-span-7 md:col-span-4">University</div>
@@ -46,39 +30,19 @@ export function CampusesTable({
         <div className="hidden md:block col-span-2 text-right">Top Player</div>
       </div>
 
-      {/* Table Body */}
       <div className="divide-y divide-gray-800">
         {campuses.map((campus) => (
-          <CampusRow key={`${campus.short}-${campus.name}`} campus={campus} />
+          <CampusPreviewRow
+            key={`${campus.short}-${campus.name}`}
+            campus={campus}
+          />
         ))}
       </div>
-
-      {hasMore && (
-        <div className="p-4 border-t border-gray-800 bg-gray-900/30 text-center">
-          <button
-            type="button"
-            onClick={onShowMore}
-            disabled={isLoadingMore}
-            className="text-xs text-gray-400 hover:text-white uppercase tracking-widest font-bold disabled:text-gray-600 disabled:hover:text-gray-600"
-          >
-            {isLoadingMore ? 'Loading...' : 'Show More'}
-          </button>
-        </div>
-      )}
     </div>
   );
 }
 
-interface CampusRowProps {
-  campus: RankedCampus;
-}
-
-/**
- * Individual row in the campuses table.
- *
- * @param campus - The campus data to display (RankedCampus)
- */
-function CampusRow({ campus }: CampusRowProps) {
+function CampusPreviewRow({ campus }: { campus: RankedCampus }) {
   const isTopThree = campus.rank <= 3;
   const crownSrc = campus.rank === 1 ? BLUE_CROWN_SRC : RED_CROWN_SRC;
   const crownGlowClass =
@@ -87,8 +51,7 @@ function CampusRow({ campus }: CampusRowProps) {
       : 'drop-shadow-[0_0_8px_rgba(239,68,68,0.45)]';
 
   return (
-    <div className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-white/5 transition-colors group cursor-pointer border-l-4 border-l-transparent hover:border-l-[#FFD700]">
-      {/* Rank */}
+    <div className="grid grid-cols-12 gap-4 p-4 items-center hover:bg-white/5 transition-colors group border-l-4 border-l-transparent hover:border-l-[#FFD700]">
       <div className="col-span-2 md:col-span-1 flex flex-col items-center justify-center gap-1">
         {isTopThree ? (
           <>
@@ -111,7 +74,6 @@ function CampusRow({ campus }: CampusRowProps) {
         <RankChange type={campus.change} />
       </div>
 
-      {/* Campus Info */}
       <div className="col-span-7 md:col-span-4">
         <div className="flex items-center gap-3">
           <div className="w-8 h-8 md:w-10 md:h-10 rounded-lg bg-white/5 flex items-center justify-center text-sm md:text-lg">
@@ -125,15 +87,19 @@ function CampusRow({ campus }: CampusRowProps) {
         </div>
       </div>
 
-      {/* Avg Power Level */}
       <div className="col-span-3 md:col-span-3 text-right md:text-left">
         <div className="flex items-center justify-end md:justify-start font-bold text-[#FFD700] text-sm md:text-lg">
-          <Image src={XP_ICON_SRC} alt="XP" width={25} height={25} className="w-6 h-6 md:w-10 md:h-10" />
+          <Image
+            src={XP_ICON_SRC}
+            alt="XP"
+            width={25}
+            height={25}
+            className="w-6 h-6 md:w-10 md:h-10"
+          />
           <span>{campus.avgScore}</span>
         </div>
       </div>
 
-      {/* Active Players */}
       <div className="hidden md:block col-span-2 text-right">
         <div className="flex items-center justify-end gap-1 text-gray-300">
           <Users size={14} className="text-gray-500" />
@@ -141,13 +107,11 @@ function CampusRow({ campus }: CampusRowProps) {
         </div>
       </div>
 
-      {/* Top Player */}
       <div className="hidden md:block col-span-2 text-right">
-        <div className="text-[#003DA5] text-sm font-medium">
-          {campus.topPlayer}
-        </div>
+        <div className="text-[#003DA5] text-sm font-medium">{campus.topPlayer}</div>
         <div className="text-[10px] text-gray-500">Campus Captain</div>
       </div>
     </div>
   );
 }
+

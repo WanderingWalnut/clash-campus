@@ -1,5 +1,6 @@
 import type { Metadata } from 'next';
-import { RankingsHero, RankingsClient } from '@/components/rankings';
+import dynamic from 'next/dynamic';
+import { RankingsHero } from '@/components/rankings';
 import { Footer } from '@/components/landing';
 
 /**
@@ -14,6 +15,22 @@ export const metadata: Metadata = {
     description: 'View Clash Royale rankings for university players.',
   },
 };
+
+const RankingsClient = dynamic(
+  () =>
+    import('@/components/rankings/RankingsClient').then(
+      (mod) => mod.RankingsClient
+    ),
+  {
+    loading: () => (
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        <div className="bg-[#1B2637] border border-gray-800 rounded-xl p-6 text-center text-sm text-gray-400">
+          Loading rankings...
+        </div>
+      </div>
+    ),
+  }
+);
 
 /**
  * Royale Rankings Page
