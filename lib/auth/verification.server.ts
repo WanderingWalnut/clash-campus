@@ -9,19 +9,16 @@ import 'server-only'
 import { redirect } from 'next/navigation'
 import { logger } from '@/lib/logger'
 import { createClient } from '@/lib/supabase/server'
-import type { Tables } from '@/lib/supabase/types'
 import type { PendingVerificationSession } from '@/types/auth'
 import type { ClashRoyaleCard } from '@/types/clash-royale'
-
-export type ClashAccount = Tables<'clash_accounts'>
 
 export interface VerificationStatus {
     /** Whether the user has a clash_account record */
     hasAccount: boolean
     /** Whether the clash_account is verified */
     isVerified: boolean
-    /** The clash_account record if it exists */
-    clashAccount: ClashAccount | null
+    /** The clash_account ID if it exists */
+    clashAccountId: string | null
 }
 
 /**
@@ -57,7 +54,7 @@ export async function getVerificationStatus(
             return {
                 hasAccount: false,
                 isVerified: false,
-                clashAccount: null,
+                clashAccountId: null,
             }
         }
 
@@ -65,16 +62,14 @@ export async function getVerificationStatus(
             return {
                 hasAccount: false,
                 isVerified: false,
-                clashAccount: null,
+                clashAccountId: null,
             }
         }
 
         return {
             hasAccount: true,
             isVerified: clashAccount.verified === true,
-            // Only partial data available due to RLS, so we set to null
-            // The full clashAccount object isn't needed for verification checks
-            clashAccount: null,
+            clashAccountId: clashAccount.id,
         }
     } catch (err) {
         logger.error('Unexpected error checking verification status', {
@@ -85,7 +80,7 @@ export async function getVerificationStatus(
         return {
             hasAccount: false,
             isVerified: false,
-            clashAccount: null,
+            clashAccountId: null,
         }
     }
 }
@@ -245,4 +240,3 @@ export async function getPendingVerificationSession(
         return null
     }
 }
-

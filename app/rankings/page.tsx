@@ -2,6 +2,9 @@ import type { Metadata } from 'next';
 import dynamic from 'next/dynamic';
 import { RankingsHero } from '@/components/rankings';
 import { Footer } from '@/components/landing';
+import { getAuthenticatedUser } from '@/lib/auth/session.server';
+import { getVerificationStatus } from '@/lib/auth/verification.server';
+import type { PlayerRankingsAccess } from '@/types/rankings';
 
 /**
  * Metadata for the Rankings page (SEO).
@@ -40,12 +43,20 @@ const RankingsClient = dynamic(
  *
  * @returns The complete rankings page with hero, tables, and CTA
  */
-export default function RankingsPage() {
+export default async function RankingsPage() {
+  const { user } = await getAuthenticatedUser();
+  let playerAccess: PlayerRankingsAccess = 'signed-out';
+
+  if (user) {
+    const status = await getVerificationStatus(user.id);
+    playerAccess = status.isVerified ? 'allowed' : 'verification-required';
+  }
+
   return (
     <div className="flex flex-col min-h-screen bg-[#0F1B2E] pt-28">
       <div className="flex-1">
         <RankingsHero />
-        <RankingsClient />
+        <RankingsClient playerAccess={playerAccess} />
       </div>
       <Footer />
     </div>

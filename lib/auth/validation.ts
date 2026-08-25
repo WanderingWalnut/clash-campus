@@ -3,41 +3,15 @@
  */
 
 import { getEmailDomain } from '@/lib/auth/email'
+import {
+    isValidEmailSyntax,
+    validatePasswordMatch,
+    validatePasswordStrength,
+} from '@/lib/auth/behaviour'
 
 export interface ValidationResult {
     isValid: boolean;
     error: string | null;
-}
-
-/**
- * Validates password and confirm password match.
- */
-export function validatePasswordMatch(
-    password: string,
-    confirmPassword: string
-): ValidationResult {
-    if (password !== confirmPassword) {
-        return {
-            isValid: false,
-            error: 'Passwords do not match',
-        };
-    }
-
-    return { isValid: true, error: null };
-}
-
-/**
- * Validates password meets minimum requirements.
- */
-export function validatePasswordStrength(password: string): ValidationResult {
-    if (password.length < 8) {
-        return {
-            isValid: false,
-            error: 'Password must be at least 8 characters',
-        };
-    }
-
-    return { isValid: true, error: null };
 }
 
 /**
@@ -50,7 +24,7 @@ export function validateSignupForm(
 ): ValidationResult {
     // Basic email format (must include a domain)
     const emailDomain = getEmailDomain(email)
-    if (!emailDomain) {
+    if (!emailDomain || !isValidEmailSyntax(email)) {
         return { isValid: false, error: 'Please enter a valid email address' }
     }
 
@@ -68,4 +42,3 @@ export function validateSignupForm(
 
     return { isValid: true, error: null };
 }
-

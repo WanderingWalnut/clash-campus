@@ -5,23 +5,8 @@ import { redirect, unstable_rethrow } from "next/navigation"
 import { logger } from "@/lib/logger"
 import { ActionResult } from "@/types"
 import { validateSignupInput } from "@/lib/auth/signupValidation.server"
-
-/**
- * Builds the base site URL for auth redirects.
- *
- * Priority:
- * 1. NEXT_PUBLIC_SITE_URL (production)
- * 2. NEXT_PUBLIC_VERCEL_URL (preview)
- * 3. localhost (development)
- */
-function getSiteUrl(): string {
-    let url =
-        process.env.NEXT_PUBLIC_SITE_URL ??
-        process.env.NEXT_PUBLIC_VERCEL_URL ??
-        'http://localhost:3000'
-    url = url.startsWith('http') ? url : `https://${url}`
-    return url.endsWith('/') ? url.slice(0, -1) : url
-}
+import { normalizeEmail } from '@/lib/auth/behaviour'
+import { getSiteUrl } from '@/lib/auth/site-url.server'
 
 /**
  * Server action to handle user signup.
@@ -31,7 +16,7 @@ function getSiteUrl(): string {
  */
 export async function signUpNewUser(formData: FormData): Promise<ActionResult> {
     // Extract and normalize inputs from form data
-    const email = (formData.get("email") as string)?.trim().toLowerCase()
+    const email = normalizeEmail(String(formData.get('email') ?? ''))
     const password = formData.get("password") as string
     const confirmPassword = formData.get("confirmPassword") as string
 
@@ -89,7 +74,7 @@ export async function signUpNewUser(formData: FormData): Promise<ActionResult> {
                 code: error.status,
                 email,
             })
-            return { error: error.message }
+            return { error: 'Account could not be created. Check your details or try signing in.' }
         }
 
         // Case 1: Email confirmation is required (default behavior)
@@ -112,7 +97,7 @@ export async function signUpNewUser(formData: FormData): Promise<ActionResult> {
                 userId: data.user?.id,
                 email,
             })
-            redirect('/rankings')
+            redirect('/verify')
         }
 
         // Fallback success case

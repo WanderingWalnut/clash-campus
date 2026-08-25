@@ -8,6 +8,10 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import { needsVerification } from '@/lib/auth/verification.server'
+import {
+    RECOVERY_COOKIE_NAME,
+    RECOVERY_COOKIE_OPTIONS,
+} from '@/lib/auth/recovery.server'
 
 type EmailOtpType =
     | 'email'
@@ -69,15 +73,33 @@ export async function POST(request: NextRequest) {
             type: otpType,
         })
         return NextResponse.redirect(
-            new URL('/auth/auth-code-error', request.url)
+            new URL(
+                otpType === 'recovery'
+                    ? '/auth/auth-code-error?flow=recovery'
+                    : '/auth/auth-code-error',
+                request.url,
+            )
         )
     }
 
     if (otpType === 'recovery') {
-        return NextResponse.redirect(
+        const user = data.user ?? (await supabase.auth.getUser()).data.user
+        if (!user) {
+            return NextResponse.redirect(
+                new URL('/auth/auth-code-error', request.url)
+            )
+        }
+
+        const response = NextResponse.redirect(
             new URL('/reset-password', request.url),
             { status: 303 }
         )
+        response.cookies.set(
+            RECOVERY_COOKIE_NAME,
+            user.id,
+            RECOVERY_COOKIE_OPTIONS,
+        )
+        return response
     }
 
     const user = data.user ?? (await supabase.auth.getUser()).data.user

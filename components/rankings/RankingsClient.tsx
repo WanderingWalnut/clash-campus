@@ -22,12 +22,17 @@ import {
   ErrorPanel,
   EmptyPanel,
   AuthPrompt,
+  VerificationPrompt,
 } from './RankingsPanels';
 import { useAuth } from '@/components/providers/AuthProvider';
 import { useCampusRankings, usePlayerRankings } from '@/hooks/useRankingsData';
-import type { RankingsMode } from '@/types/rankings';
+import type { PlayerRankingsAccess, RankingsMode } from '@/types/rankings';
 
-export function RankingsClient() {
+interface RankingsClientProps {
+  playerAccess: PlayerRankingsAccess;
+}
+
+export function RankingsClient({ playerAccess }: RankingsClientProps) {
   // Authentication state - determines if player rankings are accessible
   const { user, isLoading: isAuthLoading } = useAuth();
 
@@ -55,9 +60,10 @@ export function RankingsClient() {
     isLoading: isPlayerLoading,
     hasMore: hasMorePlayers,
     loadMore: loadMorePlayers,
-  } = usePlayerRankings(user, isAuthLoading);
+  } = usePlayerRankings(playerAccess === 'allowed' ? user : null, isAuthLoading);
 
-  const autoMode: RankingsMode = !isAuthLoading && user ? 'players' : 'campuses';
+  const autoMode: RankingsMode =
+    !isAuthLoading && user && playerAccess === 'allowed' ? 'players' : 'campuses';
   const effectiveMode = hasManualMode ? mode : autoMode;
 
 
@@ -137,6 +143,8 @@ export function RankingsClient() {
               <LoadingPanel message="Loading player rankings..." />
             ) : !user ? (
               <AuthPrompt />
+            ) : playerAccess !== 'allowed' ? (
+              <VerificationPrompt />
             ) : playerError && players.length === 0 ? (
               <ErrorPanel message={playerError} />
             ) : filteredPlayers.length === 0 ? (

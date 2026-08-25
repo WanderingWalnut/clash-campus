@@ -62,3 +62,7 @@ export interface RankedCampus {
  */
 export type RankingsMode = 'players' | 'campuses';
 
+export type PlayerRankingsAccess =
+    | 'signed-out'
+    | 'verification-required'
+    | 'allowed';
