@@ -1,16 +1,12 @@
 import Link from 'next/link'
-import { cookies } from 'next/headers'
 import { AuthLayout } from '@/components/auth/AuthLayout'
 import { ResetPasswordForm } from '@/components/auth/ResetPasswordForm'
-import { RECOVERY_COOKIE_NAME } from '@/lib/auth/recovery.server'
+import { getRecoveryUser } from '@/lib/auth/recovery.server'
 import { createClient } from '@/lib/supabase/server'
 
 export default async function ResetPasswordPage() {
-  const [supabase, cookieStore] = await Promise.all([createClient(), cookies()])
-  const { data } = await supabase.auth.getUser()
-  const hasRecoverySession =
-    Boolean(data.user)
-    && cookieStore.get(RECOVERY_COOKIE_NAME)?.value === data.user?.id
+  const supabase = await createClient()
+  const hasRecoverySession = Boolean(await getRecoveryUser(supabase))
 
   return (
     <AuthLayout

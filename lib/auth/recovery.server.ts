@@ -1,11 +1,11 @@
 import 'server-only'
 
-export const RECOVERY_COOKIE_NAME = 'clash-campus-recovery'
+import { createClient } from '@/lib/supabase/server'
+import { hasRecentRecovery } from '@/lib/auth/recovery'
 
-export const RECOVERY_COOKIE_OPTIONS = {
-  httpOnly: true,
-  sameSite: 'lax' as const,
-  secure: process.env.NODE_ENV === 'production',
-  path: '/',
-  maxAge: 10 * 60,
+export async function getRecoveryUser(supabase: Awaited<ReturnType<typeof createClient>>) {
+  const { data: userData, error: userError } = await supabase.auth.getUser()
+  if (userError || !userData.user) return null
+  const { data, error } = await supabase.auth.getClaims()
+  return !error && hasRecentRecovery(data?.claims, userData.user.id) ? userData.user : null
 }

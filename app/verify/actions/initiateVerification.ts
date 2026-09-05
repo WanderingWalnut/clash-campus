@@ -92,7 +92,6 @@ export async function initiateVerification(
                     profile_id: user.id,
                     player_tag: normalizedTag,
                     name: playerData.name,
-                    verified: false,
                 })
 
         const { data: clashAccount, error: insertError } = await accountMutation
@@ -134,7 +133,9 @@ export async function initiateVerification(
         // Create verification session with required deck
         const sessionResult = await createVerificationServerSession(
             clashAccount.id,
-            playerData.cards
+            playerData.cards,
+            user.id,
+            normalizedTag,
         )
 
         if (!sessionResult.success) {

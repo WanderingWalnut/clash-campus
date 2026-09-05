@@ -8,10 +8,6 @@ import { type NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { logger } from '@/lib/logger'
 import { needsVerification } from '@/lib/auth/verification.server'
-import {
-    RECOVERY_COOKIE_NAME,
-    RECOVERY_COOKIE_OPTIONS,
-} from '@/lib/auth/recovery.server'
 
 type EmailOtpType =
     | 'email'
@@ -93,11 +89,6 @@ export async function POST(request: NextRequest) {
         const response = NextResponse.redirect(
             new URL('/reset-password', request.url),
             { status: 303 }
-        )
-        response.cookies.set(
-            RECOVERY_COOKIE_NAME,
-            user.id,
-            RECOVERY_COOKIE_OPTIONS,
         )
         return response
     }
