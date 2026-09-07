@@ -1,6 +1,5 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { initiateVerification, refreshVerificationSession, verifyDeck } from '@/app/verify/actions';
-import { fetchPlayer } from '../utils/fetchPlayer';
 import type { ClashRoyaleCard } from '@/types/clash-royale';
 import type { PendingVerificationSession } from '@/types/auth';
 import { useRouter } from 'next/navigation';
@@ -33,6 +32,7 @@ export interface UseVerificationReturn {
   handleVerify: () => Promise<void>;
   handleVerifyDeck: () => Promise<void>;
   handleRefreshSession: () => Promise<void>;
+  handleChangePlayerTag: () => void;
 }
 
 /**
@@ -72,20 +72,6 @@ export function useVerification(
       : null
   );
 
-  // Sync initialSession prop with component state when it's provided
-  // This handles the case where user refreshes page after initiating verification
-  useEffect(() => {
-    if (initialSession && !session) {
-      setSession({
-        sessionId: initialSession.sessionId,
-        playerTag: initialSession.playerTag,
-        requiredDeck: initialSession.requiredDeck,
-        expiresAt: new Date(initialSession.expiresAt),
-      });
-      setPlayerName(initialSession.playerName);
-    }
-  }, [initialSession, session]);
-
   async function handleVerify() {
     const trimmedTag = playerTag.trim();
     if (!trimmedTag) {
@@ -97,22 +83,17 @@ export function useVerification(
     setLoading(true);
 
     try {
-      // Step 1: Fetch player data from Clash Royale API
-      const player = await fetchPlayer(trimmedTag);
-      setPlayerName(player.name);
-
-      // Step 2: Initiate verification (creates account + session)
-      const result = await initiateVerification(trimmedTag, player);
+      const result = await initiateVerification(trimmedTag);
 
       if ('error' in result) {
         setError(result.error);
         return;
       }
 
-      // Step 3: Store session info and display required deck
+      setPlayerName(result.playerName);
       setSession({
         sessionId: result.sessionId,
-        playerTag: player.tag,
+        playerTag: result.playerTag,
         requiredDeck: result.requiredDeck,
         expiresAt: new Date(result.expiresAt),
       });
@@ -193,6 +174,14 @@ export function useVerification(
 
   const isExpired = session ? new Date(session.expiresAt) < new Date() : false;
 
+  function handleChangePlayerTag() {
+    setPlayerTag(session?.playerTag ?? '');
+    setSession(null);
+    setPlayerName(null);
+    setError(null);
+    setVerifyError(null);
+  }
+
   return {
     session,
     loading,
@@ -208,5 +197,6 @@ export function useVerification(
     handleVerify,
     handleVerifyDeck,
     handleRefreshSession,
+    handleChangePlayerTag,
   };
 }

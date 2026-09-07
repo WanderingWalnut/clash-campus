@@ -58,6 +58,8 @@ export type InitiateVerificationResult =
     | {
         success: true
         sessionId: string
+        playerTag: string
+        playerName: string
         requiredDeck: ClashRoyaleCard[]
         expiresAt: string // ISO string for serialization across server/client boundary
     }

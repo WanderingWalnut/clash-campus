@@ -29,7 +29,11 @@ export default async function ConfirmEmailPage({ searchParams }: ConfirmEmailPag
 
     // Missing params means the link is invalid or already consumed.
     if (!tokenHash || !otpType) {
-        redirect('/auth/auth-code-error')
+        redirect(
+            otpType === 'recovery'
+                ? '/auth/auth-code-error?flow=recovery'
+                : '/auth/auth-code-error'
+        )
     }
 
     return (

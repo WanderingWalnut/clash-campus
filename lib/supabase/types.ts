@@ -364,8 +364,12 @@ export type Database = {
     }
     Functions: {
       approve_verification_session: {
-        Args: { p_session_id: string }
+        Args: { p_session_id: string; p_user_id: string; p_player_tag: string }
         Returns: boolean
+      }
+      create_verification_challenge: {
+        Args: { p_user_id: string; p_account_id: string; p_player_tag: string; p_required_deck: Json }
+        Returns: { id: string; expires_at: string }[]
       }
       get_my_university_id: { Args: never; Returns: string }
       get_ranked_players_complete: {

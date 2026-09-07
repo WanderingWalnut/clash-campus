@@ -18,6 +18,8 @@ import {
   createContext,
   useContext,
   useEffect,
+  useMemo,
+  useRef,
   useState,
   startTransition,
   type ReactNode,
@@ -116,6 +118,33 @@ export function AuthProvider({ children }: AuthProviderProps) {
   const router = useRouter();
   const pathname = usePathname();
 
+  // Avoid stale closures in auth callbacks.
+  const userRef = useRef<User | null>(null);
+  const pathnameRef = useRef(pathname);
+
+  useEffect(() => {
+    pathnameRef.current = pathname;
+  }, [pathname]);
+
+  const handleLogoutRedirect = useMemo(() => {
+    return (currentPathname: string) => {
+      const isProtectedRoute = PROTECTED_ROUTES.some(
+        (route) => currentPathname === route || currentPathname.startsWith(route + '/')
+      );
+
+      if (!isProtectedRoute) {
+        return;
+      }
+
+      const redirectTo =
+        LOGOUT_REDIRECTS[currentPathname] ?? LOGOUT_REDIRECTS.default;
+
+      startTransition(() => {
+        router.push(redirectTo);
+      });
+    };
+  }, [router]);
+
   useEffect(() => {
     // Create single Supabase client instance (singleton pattern)
     const supabase = createClient();
@@ -124,9 +153,12 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const fetchSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        setUser(session?.user ?? null);
+        const nextUser = session?.user ?? null;
+        userRef.current = nextUser;
+        setUser(nextUser);
       } catch (error) {
         console.error('[AuthProvider] Error fetching session:', error);
+        userRef.current = null;
         setUser(null);
       } finally {
         setIsLoading(false);
@@ -138,16 +170,17 @@ export function AuthProvider({ children }: AuthProviderProps) {
     // 2. Subscribe to auth state changes
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
-        const previousUser = user;
+        const previousUser = userRef.current;
         const newUser = session?.user ?? null;
 
         // Update user state
+        userRef.current = newUser;
         setUser(newUser);
         setIsLoading(false);
 
         // Handle logout: redirect from protected routes
         if (event === 'SIGNED_OUT' && previousUser && !newUser) {
-          handleLogoutRedirect();
+          handleLogoutRedirect(pathnameRef.current);
         }
 
         // Trigger server state refresh on meaningful auth events
@@ -163,8 +196,7 @@ export function AuthProvider({ children }: AuthProviderProps) {
     return () => {
       subscription.unsubscribe();
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Only run on mount - we handle pathname separately
+  }, [handleLogoutRedirect, router]); // Only run on mount - we handle pathname separately
 
   // Re-check session when pathname changes (catches redirects from server-side login)
   // When login happens server-side via signInWithPassword(), the server redirects,
@@ -175,7 +207,9 @@ export function AuthProvider({ children }: AuthProviderProps) {
     const checkSession = async () => {
       try {
         const { data: { session } } = await supabase.auth.getSession();
-        setUser(session?.user ?? null);
+        const nextUser = session?.user ?? null;
+        userRef.current = nextUser;
+        setUser(nextUser);
       } catch (error) {
         console.error('[AuthProvider] Error fetching session on pathname change:', error);
       }
@@ -186,26 +220,6 @@ export function AuthProvider({ children }: AuthProviderProps) {
     
     return () => clearTimeout(timeoutId);
   }, [pathname]);
-
-  /**
-   * Handle redirect after logout based on current route.
-   * Uses startTransition to avoid blocking UI updates.
-   */
-  const handleLogoutRedirect = () => {
-    // Check if current route is protected
-    const isProtectedRoute = PROTECTED_ROUTES.some(
-      route => pathname === route || pathname.startsWith(route + '/')
-    );
-
-    if (isProtectedRoute) {
-      // Find the appropriate redirect destination
-      const redirectTo = LOGOUT_REDIRECTS[pathname] ?? LOGOUT_REDIRECTS.default;
-      
-      startTransition(() => {
-        router.push(redirectTo);
-      });
-    }
-  };
 
   return (
     <AuthContext.Provider value={{ user, isLoading }}>

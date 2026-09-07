@@ -6,6 +6,7 @@ import { unstable_rethrow } from "next/navigation"
 import { logger } from "@/lib/logger"
 import { ActionResult } from "@/types"
 import { needsVerification } from "@/lib/auth/verification.server"
+import { getAccountDestination, normalizeEmail } from '@/lib/auth/behaviour'
 
 /**
  * Server action to handle user login.
@@ -16,9 +17,9 @@ import { needsVerification } from "@/lib/auth/verification.server"
  */
 export async function logInUser(formData: FormData): Promise<ActionResult> {
     // Extract and normalize email from form data
-    const rawEmail = formData.get("email") as string
-    const password = formData.get("password") as string
-    const email = rawEmail?.trim().toLowerCase()
+    const email = normalizeEmail(String(formData.get('email') ?? ''))
+    const password = String(formData.get('password') ?? '')
+    const requestedPath = String(formData.get('next') ?? '')
 
     // Log the login attempt for observability
     logger.info('Login attempt', { email })
@@ -50,7 +51,7 @@ export async function logInUser(formData: FormData): Promise<ActionResult> {
                 code: error.status,
                 email,
             })
-            return { error: error.message }
+            return { error: 'Email or password is incorrect' }
         }
 
         // Verify that the user has been logged in and redirect
@@ -63,12 +64,7 @@ export async function logInUser(formData: FormData): Promise<ActionResult> {
             // Check if user needs to complete Clash account verification
             const requiresVerification = await needsVerification(data.user.id)
 
-            if (requiresVerification) {
-                logger.info('Login redirect to verify', { userId: data.user.id })
-                redirect('/verify')
-            }
-
-            redirect('/rankings')
+            redirect(getAccountDestination(!requiresVerification, requestedPath))
         }
 
         // Fallback success case (shouldn't normally reach here)

@@ -49,7 +49,7 @@ export function CampusesTable({
       {/* Table Body */}
       <div className="divide-y divide-gray-800">
         {campuses.map((campus) => (
-          <CampusRow key={campus.rank} campus={campus} />
+          <CampusRow key={`${campus.short}-${campus.name}`} campus={campus} />
         ))}
       </div>
 

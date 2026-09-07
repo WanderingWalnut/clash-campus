@@ -2,7 +2,7 @@ import 'server-only'
 
 import { logger } from '@/lib/logger'
 import type { Json } from '@/lib/supabase/types'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/admin'
 import type { ClashRoyaleCard } from '@/types/clash-royale'
 import { generateRandomDeck } from '@/lib/clash-royale/deck'
 
@@ -26,16 +26,18 @@ export type VerificationServerSession =
  * 
  * @param clashAccountId - The ID of the clash account to create the session for
  * @param availableCards - The list of available cards to generate the deck from
- * @param expiresInHours - The number of hours the session will expire in
+ * @param userId - Authenticated student whose account owns the challenge
+ * @param playerTag - Player tag used to fetch the available cards
  * @returns The verification server session
  */
 
 export async function createVerificationServerSession(
     clashAccountId: string,
     availableCards: ClashRoyaleCard[],
-    expiresInHours: number = 24,
+    userId: string,
+    playerTag: string,
 ): Promise<VerificationServerSession> {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const requiredDeck = generateRandomDeck(availableCards)
 
@@ -57,20 +59,14 @@ export async function createVerificationServerSession(
         }
     }
 
-    // Calc expiration time
-    const expiresAt = new Date()
-    expiresAt.setHours(expiresAt.getHours() + expiresInHours)
-
     try {
         const { data, error } = await supabase
-            .from('verification_sessions')
-            .insert({
-                clash_account_id: clashAccountId,
-                status: 'pending',
-                required_deck: requiredDeck.cards as unknown as Json,
-                expires_at: expiresAt.toISOString(),
+            .rpc('create_verification_challenge', {
+                p_account_id: clashAccountId,
+                p_user_id: userId,
+                p_player_tag: playerTag,
+                p_required_deck: requiredDeck.cards as unknown as Json,
             })
-            .select('id, expires_at')
             .single()
 
         if (error) {

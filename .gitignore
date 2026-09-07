@@ -13,6 +13,14 @@
 # testing
 /coverage
 
+# local agent configuration
+/.agents/
+/.codex/
+/.cursor/skills/
+
+# local Supabase CLI state
+/supabase/.temp/
+
 # next.js
 /.next/
 /out/

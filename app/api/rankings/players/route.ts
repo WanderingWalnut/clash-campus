@@ -43,12 +43,28 @@ export async function GET(request: Request) {
     }
 
     const userId = authData.user.id
-    // Scope rankings to the user's university for privacy + performance.
-    const { data: profile, error: profileError } = await supabase
-        .from('profiles')
-        .select('university_id')
-        .eq('id', userId)
-        .maybeSingle()
+    // These independent checks run together. RLS remains the final data boundary.
+    const [profileResult, clashAccountResult] = await Promise.all([
+        supabase
+            .from('profiles')
+            .select('university_id')
+            .eq('id', userId)
+            .maybeSingle(),
+        supabase
+            .from('clash_accounts')
+            .select('verified')
+            .eq('profile_id', userId)
+            .maybeSingle(),
+    ])
+    const { data: profile, error: profileError } = profileResult
+    const { data: clashAccount, error: clashAccountError } = clashAccountResult
+
+    if (clashAccountError || clashAccount?.verified !== true) {
+        return NextResponse.json(
+            { error: 'Verified Clash account required' },
+            { status: 403 }
+        )
+    }
 
     if (profileError || !profile?.university_id) {
         return NextResponse.json(
@@ -116,7 +132,7 @@ export async function GET(request: Request) {
 
     response.headers.set(
         'Cache-Control',
-        'private, max-age=0, s-maxage=1800, stale-while-revalidate=900'
+        'private, no-store'
     )
 
     return response
