@@ -3,7 +3,11 @@ import 'server-only'
 import type { SignupValidationResult, UniversityEmailDomainMatch } from '@/types/auth'
 import { getEmailDomain } from '@/lib/auth/email'
 import { getUniversityByEmailDomain } from '@/lib/auth/universityEmail.server'
-import { validatePasswordStrength, validatePasswordMatch } from '@/lib/auth/validation'
+import {
+    isValidEmailSyntax,
+    validatePasswordMatch,
+    validatePasswordStrength,
+} from '@/lib/auth/behaviour'
 
 /**
  * Server-side validation for signup form data.
@@ -57,7 +61,7 @@ export async function validateSignupInput(
 
     // Extract and validate email domain
     const emailDomain = getEmailDomain(email)
-    if (!emailDomain) {
+    if (!emailDomain || !isValidEmailSyntax(email)) {
         return {
             isValid: false,
             error: 'Invalid email format',
@@ -97,4 +101,3 @@ export async function validateSignupInput(
         university,
     }
 }
-

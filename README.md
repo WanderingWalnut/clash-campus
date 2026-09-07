@@ -32,7 +32,7 @@ flowchart LR
 
 ### Prerequisites
 
-- Node.js 20+
+- Node.js 22+
 - npm or pnpm
 - Supabase CLI (for local development)
 
@@ -63,10 +63,11 @@ For server-side auth to work correctly, update your Supabase email templates:
    ```
    with:
    ```
-   {{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=email
+   {{ .RedirectTo }}/auth/confirm?token_hash={{ .TokenHash }}&type=signup
    ```
 
-This routes email confirmations through the Next.js server-side handler.
+This routes email confirmations through the Next.js server-side handler. The
+reset-password template uses the same handler with `type=recovery`.
 
 ### Development
 
@@ -129,7 +130,8 @@ types/                  # Shared TypeScript types
 1. **Signup**: User enters university email + password
 2. **Email sent**: Supabase sends confirmation email
 3. **Confirmation**: User clicks link → `/auth/confirm` verifies token
-4. **Session**: User is redirected to `/rankings` with active session
+4. **Clash verification**: New students are redirected to `/verify`
+5. **Royale Rankings**: Verified students are redirected to `/rankings`
 
 ## Proxy (Route Protection)
 
@@ -146,6 +148,7 @@ npm run dev      # Start development server
 npm run build    # Build for production
 npm run start    # Start production server
 npm run lint     # Run ESLint
+npm test         # Run deterministic behaviour checks
 ```
 
 ## Learn More

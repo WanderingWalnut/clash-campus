@@ -51,10 +51,24 @@ export function AuthPrompt() {
     <div className="bg-[#1B2637] border border-gray-800 rounded-xl p-8 text-center text-sm text-gray-400">
       <p className="mb-3">Sign in to see your university player rankings.</p>
       <Link
-        href="/login"
+        href="/login?next=%2Frankings"
         className="button-royale inline-flex items-center justify-center rounded-lg px-5 py-2 text-xs font-bold uppercase tracking-widest text-white transition-transform duration-300 hover:-translate-y-0.5"
       >
         Sign In
+      </Link>
+    </div>
+  );
+}
+
+export function VerificationPrompt() {
+  return (
+    <div className="bg-[#1B2637] border border-gray-800 rounded-xl p-8 text-center text-sm text-gray-400">
+      <p className="mb-3">Verify your Clash account to see your university player rankings.</p>
+      <Link
+        href="/verify"
+        className="button-royale inline-flex items-center justify-center rounded-lg px-5 py-2 text-xs font-bold uppercase tracking-widest text-white transition-transform duration-300 hover:-translate-y-0.5"
+      >
+        Verify Clash Account
       </Link>
     </div>
   );

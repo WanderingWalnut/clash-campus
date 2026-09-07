@@ -6,7 +6,9 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "lint": "eslint"
+    "lint": "eslint",
+    "test": "node --test --experimental-strip-types lib/auth/*.test.ts",
+    "test:db:security": "bash scripts/test-security-db.sh"
   },
   "dependencies": {
     "@supabase/ssr": "^0.8.0",

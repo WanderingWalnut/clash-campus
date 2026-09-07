@@ -10,7 +10,12 @@ import { useState } from 'react';
  * Login form component.
  * Handles user authentication with email and password.
  */
-export function LoginForm() {
+interface LoginFormProps {
+  nextPath?: string | null;
+  successMessage?: string | null;
+}
+
+export function LoginForm({ nextPath, successMessage }: LoginFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -38,6 +43,17 @@ export function LoginForm() {
         {/* Login Card */}
         <div className="bg-[#1A2332] border border-gray-800 rounded-2xl p-4 sm:p-6 md:p-8 shadow-2xl">
           <form className="space-y-3 sm:space-y-4 md:space-y-5" onSubmit={handleSubmit}>
+            {nextPath ? <input type="hidden" name="next" value={nextPath} /> : null}
+
+            {successMessage ? (
+              <div
+                className="bg-green-900/20 border border-green-700 rounded-lg p-2.5 sm:p-3 text-green-300 text-sm"
+                role="status"
+              >
+                {successMessage}
+              </div>
+            ) : null}
+
             {/* Error Message */}
             {error && (
               <div className="bg-red-900/20 border border-red-700 rounded-lg p-2.5 sm:p-3 text-red-300 text-sm">
@@ -81,10 +97,15 @@ export function LoginForm() {
               />
             </div>
 
-            {/* Forgot Password Link */}
-            <div className="text-right">
+            <div className="flex justify-between gap-4">
               <Link
-                href="#"
+                href="/resend-confirmation"
+                className="text-sm text-gray-400 hover:text-[#FFD700] transition-colors"
+              >
+                Resend confirmation
+              </Link>
+              <Link
+                href="/forgot-password"
                 className="text-sm text-gray-400 hover:text-[#FFD700] transition-colors"
               >
                 Forgot password?

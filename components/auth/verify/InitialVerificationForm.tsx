@@ -116,7 +116,7 @@ export function InitialVerificationForm({
           {hasAccount && onRefreshSession && (
             <div className="border-t border-gray-800 pt-4">
               <p className="text-gray-400 text-center text-xs sm:text-sm mb-2">
-                Already linked a Clash account?
+                Enter a different tag above to correct your unverified link, or continue with the current account.
               </p>
               <button
                 type="button"

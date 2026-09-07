@@ -1,17 +1,43 @@
-'use client';
-
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { CampusesTable } from '@/components/rankings/CampusesTable';
-import {
-  EmptyPanel,
-  ErrorPanel,
-  LoadingPanel,
-} from '@/components/rankings/RankingsPanels';
+import { unstable_cache } from 'next/cache';
+import { Suspense } from 'react';
+import { createPublicClient } from '@/lib/supabase/public';
 import { Reveal } from '@/components/ui/Reveal';
-import { useCampusRankings } from '@/hooks/useRankingsData';
+import { CampusesPreviewTable } from './CampusesPreviewTable';
+import type { RankedCampus } from '@/types/rankings';
 
 const PREVIEW_LIMIT = 3;
+const PREVIEW_REVALIDATE_SECONDS = 30 * 60;
+
+const getCampusPreview = unstable_cache(
+  async (): Promise<RankedCampus[]> => {
+    const supabase = createPublicClient();
+    const { data: rankings, error } = await supabase
+      .from('university_rankings')
+      .select(
+        'average_ranking_score, player_count, rank, top_player, universities (name, short_code)'
+      )
+      .order('average_ranking_score', { ascending: false })
+      .limit(PREVIEW_LIMIT);
+
+    if (error) {
+      throw error;
+    }
+
+    return (rankings ?? []).map((row, index) => ({
+      rank: row.rank ?? index + 1,
+      name: row.universities?.name ?? 'Unknown University',
+      short: row.universities?.short_code ?? 'N/A',
+      avgScore: row.average_ranking_score,
+      activePlayers: row.player_count,
+      topPlayer: row.top_player ?? 'N/A',
+      change: 'same' as const,
+    }));
+  },
+  ['landing-campus-preview-v1'],
+  { revalidate: PREVIEW_REVALIDATE_SECONDS }
+);
 
 /**
  * Royale Rankings section displaying a preview of the university leaderboard.
@@ -34,7 +60,9 @@ export function RoyaleRankings() {
         </Reveal>
 
         <Reveal>
-          <CampusRankingsPreview />
+          <Suspense fallback={<CampusRankingsPreviewFallback />}>
+            <CampusRankingsPreview />
+          </Suspense>
         </Reveal>
 
         <div className="mt-6 md:mt-8 text-center">
@@ -50,33 +78,39 @@ export function RoyaleRankings() {
   );
 }
 
-function CampusRankingsPreview() {
-  const { campuses, error, isLoading } = useCampusRankings({
-    initialLimit: PREVIEW_LIMIT,
-    pageSize: PREVIEW_LIMIT,
-  });
-  const previewCampuses = campuses.slice(0, PREVIEW_LIMIT);
-  const isInitialLoading = isLoading && previewCampuses.length === 0;
+function CampusRankingsPreviewFallback() {
+  return (
+    <div className="bg-[#1B2637] border border-gray-800 rounded-xl p-6 text-center text-sm text-gray-400">
+      Loading university rankings...
+    </div>
+  );
+}
 
-  if (isInitialLoading) {
-    return <LoadingPanel message="Loading university rankings..." />;
+async function CampusRankingsPreview() {
+  let campuses: RankedCampus[] = [];
+  let errorMessage: string | null = null;
+
+  try {
+    campuses = await getCampusPreview();
+  } catch {
+    errorMessage = 'Unable to load university rankings right now.';
   }
 
-  if (error && previewCampuses.length === 0) {
-    return <ErrorPanel message={error} />;
-  }
-
-  if (previewCampuses.length === 0) {
+  if (errorMessage) {
     return (
-      <EmptyPanel message="No university rankings yet. Check back soon." />
+      <div className="bg-[#1B2637] border border-gray-800 rounded-xl p-6 text-center text-sm text-gray-400">
+        {errorMessage}
+      </div>
     );
   }
 
-  return (
-    <CampusesTable
-      campuses={previewCampuses}
-      hasMore={false}
-      onShowMore={() => {}}
-    />
-  );
+  if (campuses.length === 0) {
+    return (
+      <div className="bg-[#1B2637] border border-gray-800 rounded-xl p-6 text-center text-sm text-gray-400">
+        No university rankings yet. Check back soon.
+      </div>
+    );
+  }
+
+  return <CampusesPreviewTable campuses={campuses} />;
 }

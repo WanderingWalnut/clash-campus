@@ -17,6 +17,7 @@ interface DeckVerificationViewProps {
   onVerifyDeck: () => void;
   onRefreshSession: () => void;
   isExpired: boolean;
+  onChangePlayerTag: () => void;
 }
 
 /**
@@ -33,6 +34,7 @@ export function DeckVerificationView({
   onVerifyDeck,
   onRefreshSession,
   isExpired,
+  onChangePlayerTag,
 }: DeckVerificationViewProps) {
   const timeRemaining = formatTimeRemaining(session.expiresAt);
   const sessionExpired = isExpired || timeRemaining === 'Expired';
@@ -186,6 +188,15 @@ export function DeckVerificationView({
               Player Tag: {session.playerTag}
             </p>
           )}
+          {!success ? (
+            <button
+              type="button"
+              onClick={onChangePlayerTag}
+              className="mt-3 w-full text-center text-xs text-[#FFD700] hover:underline"
+            >
+              Use a different player tag
+            </button>
+          ) : null}
         </div>
       </Reveal>
 

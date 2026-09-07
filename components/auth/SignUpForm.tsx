@@ -8,6 +8,7 @@ import { SignUpSuccessScreen } from './SignUpSuccessScreen';
 import { validateSignupForm } from '@/lib/auth/validation';
 import { useState } from 'react';
 import { useUniversityEmailValidation } from '@/hooks';
+import { normalizeEmail } from '@/lib/auth/behaviour';
 
 /**
  * Sign up form component.
@@ -61,7 +62,7 @@ export function SignUpForm() {
 
   // Show success screen if signup was successful
   if (success) {
-    return <SignUpSuccessScreen message={message} />;
+    return <SignUpSuccessScreen message={message} email={normalizeEmail(email)} />;
   }
 
   return (
@@ -97,7 +98,7 @@ export function SignUpForm() {
                 className="w-full px-4 py-2.5 sm:py-3 bg-[#0F1B2E] border border-gray-700 rounded-lg text-white placeholder-gray-500 focus:outline-none focus:border-[#003DA5] focus:ring-1 focus:ring-[#003DA5] transition-colors"
               />
               <p className="mt-1 text-xs text-gray-500">
-                Use your .edu email to verify your student status.
+                Use an email from a registered university to verify your student status.
               </p>
               {validation.isLoading && email && (
                 <p className="mt-2 text-xs text-gray-400">Loading universities…</p>

@@ -206,8 +206,10 @@ export async function verifyDeck(sessionId?: string): Promise<VerifyDeckResult> 
         }
 
         // Approve the verification session and mark the account verified
-        const { data: approved, error: approveError } = await supabase.rpc('approve_verification_session', {
+        const { data: approved, error: approveError } = await createAdminClient().rpc('approve_verification_session', {
             p_session_id: session.id,
+            p_user_id: user.id,
+            p_player_tag: clashAccount.player_tag,
         })
 
         if (approveError || !approved) {

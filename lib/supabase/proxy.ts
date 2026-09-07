@@ -4,6 +4,7 @@ import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 import { logger } from '@/lib/logger'
 import type { Database } from '@/lib/supabase/types'
+import { getLoginPath } from '@/lib/auth/behaviour'
 
 /**
  * Copy all cookies from one response to another, preserving full cookie options.
@@ -81,66 +82,30 @@ export async function updateSession(request: NextRequest) {
     // - /rankings is public for signed-out users (campus leaderboard)
     // - Player-specific data is protected by RLS policies, not route protection
     // - /forgot-password is public so users can request a password reset
-    const publicRoutes = ['/', '/login', '/signup', '/auth', '/rankings', '/forgot-password']
+    const publicRoutes = [
+        '/',
+        '/login',
+        '/signup',
+        '/auth',
+        '/rankings',
+        '/forgot-password',
+        '/resend-confirmation',
+        '/reset-password',
+    ]
     const isPublicRoute = publicRoutes.some(route =>
         request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route + '/')
     )
 
     if (!user && !isPublicRoute) {
         // Redirect unauthenticated users to login (except on public pages)
-        const url = request.nextUrl.clone()
-        url.pathname = "/login"
+        const url = new URL(
+            getLoginPath(request.nextUrl.pathname, request.nextUrl.search),
+            request.url,
+        )
         const redirectResponse = NextResponse.redirect(url)
         // IMPORTANT: Copy Supabase cookies to redirect response to maintain session state
         copyResponseCookies(supabaseResponse, redirectResponse)
         return redirectResponse
-    }
-
-    // Redirect authenticated users away from auth pages to their profile
-    const authRedirectRoutes = ['/login', '/signup']
-    const isAuthRedirectRoute = authRedirectRoutes.some(route =>
-        request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route + '/')
-    )
-
-    if (user && isAuthRedirectRoute) {
-        const url = request.nextUrl.clone()
-        url.pathname = '/profile'
-        const redirectResponse = NextResponse.redirect(url)
-        // IMPORTANT: Copy Supabase cookies with full options to maintain session state
-        copyResponseCookies(supabaseResponse, redirectResponse)
-        return redirectResponse
-    }
-
-    // Routes that don't require Clash account verification
-    // - /verify is where users go to verify their account
-    // - /reset-password is accessed after clicking the password reset email link
-    // - Public routes stay exempt, except /rankings which requires verification when signed in
-    const verificationExemptRoutes = ['/verify', '/reset-password']
-    const isRankingsRoute =
-        request.nextUrl.pathname === '/rankings'
-        || request.nextUrl.pathname.startsWith('/rankings/')
-    const isVerificationExempt = verificationExemptRoutes.some(route =>
-        request.nextUrl.pathname === route || request.nextUrl.pathname.startsWith(route + '/')
-    ) || (isPublicRoute && !isRankingsRoute)
-
-    // Check verification status for authenticated users on non-exempt routes
-    if (user && !isVerificationExempt) {
-        // Query clash_accounts to check if user is verified
-        const { data: clashAccount } = await supabase
-            .from('clash_accounts')
-            .select('verified')
-            .eq('profile_id', user.sub as string)
-            .maybeSingle()
-
-        // If no account or not verified, redirect to verification page
-        if (!clashAccount || !clashAccount.verified) {
-            const url = request.nextUrl.clone()
-            url.pathname = '/verify'
-            const redirectResponse = NextResponse.redirect(url)
-            // IMPORTANT: Copy Supabase cookies with full options to maintain session state
-            copyResponseCookies(supabaseResponse, redirectResponse)
-            return redirectResponse
-        }
     }
 
     // IMPORTANT: You *must* return the supabaseResponse object as it is. If you're

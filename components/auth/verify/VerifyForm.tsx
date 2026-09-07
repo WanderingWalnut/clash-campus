@@ -34,6 +34,7 @@ export function VerifyForm({ initialSession, hasAccount }: VerifyFormProps) {
     handleVerify,
     handleVerifyDeck,
     handleRefreshSession,
+    handleChangePlayerTag,
   } = useVerification(initialSession);
 
   // If session exists, show the deck verification UI
@@ -49,6 +50,7 @@ export function VerifyForm({ initialSession, hasAccount }: VerifyFormProps) {
         onVerifyDeck={handleVerifyDeck}
         onRefreshSession={handleRefreshSession}
         isExpired={isExpired}
+        onChangePlayerTag={handleChangePlayerTag}
       />
     );
   }

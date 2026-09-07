@@ -16,7 +16,15 @@ export const metadata: Metadata = {
  * Displayed when OAuth callback or email confirmation fails.
  * Provides clear messaging and links to retry the authentication flow.
  */
-export default function AuthCodeErrorPage() {
+type AuthCodeErrorPageProps = {
+    searchParams: Promise<{ flow?: string | string[] }>;
+};
+
+export default async function AuthCodeErrorPage({ searchParams }: AuthCodeErrorPageProps) {
+    const params = await searchParams;
+    const flow = Array.isArray(params.flow) ? params.flow[0] : params.flow;
+    const isRecovery = flow === 'recovery';
+
     return (
         <div className="min-h-screen pt-32 pb-16 relative overflow-hidden">
             {/* Background Effects */}
@@ -49,10 +57,10 @@ export default function AuthCodeErrorPage() {
 
                     <div className="mt-8 space-y-4">
                         <Link
-                            href="/signup"
+                            href={isRecovery ? '/forgot-password' : '/resend-confirmation'}
                             className="button-royale w-full text-white px-6 py-4 rounded-lg font-bold text-lg transition-transform duration-300 hover:-translate-y-0.5 flex items-center justify-center gap-2"
                         >
-                            Try Signing Up Again
+                            {isRecovery ? 'Request New Recovery Link' : 'Resend Confirmation'}
                         </Link>
 
                         <Link

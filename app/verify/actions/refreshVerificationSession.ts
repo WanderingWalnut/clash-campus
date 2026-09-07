@@ -116,7 +116,9 @@ export async function refreshVerificationSession(): Promise<RefreshVerificationS
 
     const sessionResult = await createVerificationServerSession(
       clashAccount.id,
-      playerResult.data.cards
+      playerResult.data.cards,
+      user.id,
+      clashAccount.player_tag,
     )
 
     if (!sessionResult.success) {
