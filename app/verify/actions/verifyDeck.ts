@@ -9,6 +9,8 @@ import { calculateRankingScore, getPlayer, normalizePlayerTag, SCORE_VERSION } f
 import type { ClashRoyaleCard } from '@/types/clash-royale'
 import type { Json } from '@/lib/supabase/types'
 import { createAdminClient } from '@/lib/supabase/admin'
+import { updateTag } from 'next/cache'
+import { CAMPUS_RANKINGS_CACHE_TAG } from '@/lib/data/rankings-cache'
 
 const DECK_CHECK_THROTTLE_SECONDS = 15
 const PLAYER_RANKINGS_REFRESH_MINUTES = 30
@@ -271,6 +273,8 @@ export async function verifyDeck(sessionId?: string): Promise<VerifyDeckResult> 
                         sessionId: session.id,
                         error: rankingError.message,
                     })
+                } else {
+                    updateTag(CAMPUS_RANKINGS_CACHE_TAG)
                 }
             } catch (error) {
                 logger.error('Verify deck - unexpected ranking upsert error', {
