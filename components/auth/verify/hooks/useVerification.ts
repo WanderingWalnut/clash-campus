@@ -3,6 +3,10 @@ import { initiateVerification, refreshVerificationSession, verifyDeck } from '@/
 import type { ClashRoyaleCard } from '@/types/clash-royale';
 import type { PendingVerificationSession } from '@/types/auth';
 import { useRouter } from 'next/navigation';
+import {
+  CAMPUS_RANKINGS_FORCE_REFRESH_KEY,
+  PLAYER_RANKINGS_FORCE_REFRESH_KEY,
+} from '@/lib/data/rankings-cache';
 
 /**
  * Verification session state after initiation
@@ -126,7 +130,9 @@ export function useVerification(
 
       setVerifySuccess(true);
       try {
-        sessionStorage.setItem('rankings.forceRefresh', '1');
+        const refreshToken = Date.now().toString();
+        sessionStorage.setItem(CAMPUS_RANKINGS_FORCE_REFRESH_KEY, refreshToken);
+        sessionStorage.setItem(PLAYER_RANKINGS_FORCE_REFRESH_KEY, refreshToken);
       } catch {
         // Ignore storage failures (private mode, blocked access, etc.)
       }

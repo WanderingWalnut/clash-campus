@@ -1,43 +1,12 @@
 import Link from 'next/link';
 import { ArrowRight } from 'lucide-react';
-import { unstable_cache } from 'next/cache';
 import { Suspense } from 'react';
-import { createPublicClient } from '@/lib/supabase/public';
 import { Reveal } from '@/components/ui/Reveal';
 import { CampusesPreviewTable } from './CampusesPreviewTable';
 import type { RankedCampus } from '@/types/rankings';
+import { getCampusRankings } from '@/lib/data/campus-rankings.server';
 
 const PREVIEW_LIMIT = 3;
-const PREVIEW_REVALIDATE_SECONDS = 30 * 60;
-
-const getCampusPreview = unstable_cache(
-  async (): Promise<RankedCampus[]> => {
-    const supabase = createPublicClient();
-    const { data: rankings, error } = await supabase
-      .from('university_rankings')
-      .select(
-        'average_ranking_score, player_count, rank, top_player, universities (name, short_code)'
-      )
-      .order('average_ranking_score', { ascending: false })
-      .limit(PREVIEW_LIMIT);
-
-    if (error) {
-      throw error;
-    }
-
-    return (rankings ?? []).map((row, index) => ({
-      rank: row.rank ?? index + 1,
-      name: row.universities?.name ?? 'Unknown University',
-      short: row.universities?.short_code ?? 'N/A',
-      avgScore: row.average_ranking_score,
-      activePlayers: row.player_count,
-      topPlayer: row.top_player ?? 'N/A',
-      change: 'same' as const,
-    }));
-  },
-  ['landing-campus-preview-v1'],
-  { revalidate: PREVIEW_REVALIDATE_SECONDS }
-);
 
 /**
  * Royale Rankings section displaying a preview of the university leaderboard.
@@ -91,7 +60,7 @@ async function CampusRankingsPreview() {
   let errorMessage: string | null = null;
 
   try {
-    campuses = await getCampusPreview();
+    campuses = await getCampusRankings(PREVIEW_LIMIT);
   } catch {
     errorMessage = 'Unable to load university rankings right now.';
   }

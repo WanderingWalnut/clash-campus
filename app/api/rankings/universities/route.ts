@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server'
-import { createPublicClient } from '@/lib/supabase/public'
+import { getCampusRankings } from '@/lib/data/campus-rankings.server'
+import { CAMPUS_RANKINGS_REVALIDATE_SECONDS } from '@/lib/data/rankings-cache'
 
 const DEFAULT_LIMIT = 25
 const MAX_LIMIT = 100
@@ -24,31 +25,15 @@ export async function GET(request: Request) {
     const { searchParams } = new URL(request.url)
     const limit = parseLimit(searchParams.get('limit'))
 
-    // Public client avoids cookies, keeping this response cacheable.
-    const supabase = createPublicClient()
-
-    const { data: rankings, error } = await supabase
-        .from('university_rankings')
-        .select('average_ranking_score, player_count, rank, top_player, universities (name, short_code)')
-        .order('average_ranking_score', { ascending: false })
-        .limit(limit)
-
-    if (error) {
+    let campuses
+    try {
+        campuses = await getCampusRankings(limit)
+    } catch {
         return NextResponse.json(
             { error: 'Failed to fetch university rankings' },
             { status: 500 }
         )
     }
-
-    const campuses = (rankings ?? []).map((row, index) => ({
-        rank: row.rank ?? index + 1,
-        name: row.universities?.name ?? 'Unknown University',
-        short: row.universities?.short_code ?? 'N/A',
-        avgScore: row.average_ranking_score,
-        activePlayers: row.player_count,
-        topPlayer: row.top_player ?? 'N/A',
-        change: 'same' as const,
-    }))
 
     const response = NextResponse.json({
         campuses,
@@ -58,7 +43,7 @@ export async function GET(request: Request) {
     // Cache at the CDN, allow background revalidation.
     response.headers.set(
         'Cache-Control',
-        'public, max-age=0, s-maxage=1800, stale-while-revalidate=900'
+        `public, max-age=0, s-maxage=${CAMPUS_RANKINGS_REVALIDATE_SECONDS}, stale-while-revalidate=900`
     )
 
     return response

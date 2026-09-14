@@ -1,5 +1,9 @@
 import { useEffect, useRef, useState } from 'react';
 import type { RankedCampus, RankedPlayer } from '@/types/rankings';
+import {
+  CAMPUS_RANKINGS_FORCE_REFRESH_KEY,
+  PLAYER_RANKINGS_FORCE_REFRESH_KEY,
+} from '@/lib/data/rankings-cache';
 
 /**
  * Response type for the university rankings API endpoint.
@@ -33,7 +37,6 @@ const DEFAULT_CAMPUS_LIMIT = 25;
 const DEFAULT_PAGE_SIZE = 10;
 
 const CACHE_TTL_MS = 10 * 60 * 1000;
-const FORCE_REFRESH_STORAGE_KEY = 'rankings.forceRefresh';
 
 type CampusesCache = {
   campuses: RankedCampus[];
@@ -56,15 +59,15 @@ function isCacheFresh(timestamp: number) {
   return Date.now() - timestamp < CACHE_TTL_MS;
 }
 
-function consumeForceRefreshFlag() {
+function consumeForceRefreshToken(key: string) {
   try {
-    const shouldRefresh = sessionStorage.getItem(FORCE_REFRESH_STORAGE_KEY) === '1';
-    if (shouldRefresh) {
-      sessionStorage.removeItem(FORCE_REFRESH_STORAGE_KEY);
+    const token = sessionStorage.getItem(key);
+    if (token) {
+      sessionStorage.removeItem(key);
     }
-    return shouldRefresh;
+    return token;
   } catch {
-    return false;
+    return null;
   }
 }
 
@@ -98,6 +101,8 @@ export function useCampusRankings(options: CampusRankingsOptions = {}) {
   const [limit, setLimit] = useState(initialLimit);
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const refreshTokenRef = useRef<string | null>(null);
+  const checkedRefreshFlagRef = useRef(false);
 
   useEffect(() => {
     setLimit(initialLimit);
@@ -108,7 +113,18 @@ export function useCampusRankings(options: CampusRankingsOptions = {}) {
     let isActive = true;
 
     const fetchCampuses = async () => {
-      if (campusesCache && isCacheFresh(campusesCache.timestamp)) {
+      if (!checkedRefreshFlagRef.current) {
+        refreshTokenRef.current = consumeForceRefreshToken(
+          CAMPUS_RANKINGS_FORCE_REFRESH_KEY
+        );
+        checkedRefreshFlagRef.current = true;
+      }
+
+      if (
+        campusesCache
+        && isCacheFresh(campusesCache.timestamp)
+        && !refreshTokenRef.current
+      ) {
         if (campusesCache.limit >= limit) {
           setCampuses(campusesCache.campuses.slice(0, limit));
           setError(null);
@@ -123,8 +139,11 @@ export function useCampusRankings(options: CampusRankingsOptions = {}) {
       setError(null);
 
       try {
+        const refreshQuery = refreshTokenRef.current
+          ? `&refresh=${encodeURIComponent(refreshTokenRef.current)}`
+          : '';
         const data = await fetchJson<CampusesResponse>(
-          `/api/rankings/universities?limit=${limit}`,
+          `/api/rankings/universities?limit=${limit}${refreshQuery}`,
           controller.signal
         );
         if (!isActive) {
@@ -137,6 +156,7 @@ export function useCampusRankings(options: CampusRankingsOptions = {}) {
           limit,
           timestamp: Date.now(),
         };
+        refreshTokenRef.current = null;
       } catch (err) {
         // Ignore abort errors (component unmounted), but show other errors
         if (
@@ -208,7 +228,9 @@ export function usePlayerRankings(
       return;
     }
 
-    forceRefreshRef.current = consumeForceRefreshFlag();
+    forceRefreshRef.current = Boolean(
+      consumeForceRefreshToken(PLAYER_RANKINGS_FORCE_REFRESH_KEY)
+    );
     const cached = playersCache.get(user.id);
     if (cached && isCacheFresh(cached.timestamp) && !forceRefreshRef.current) {
       setPlayers(cached.players);
